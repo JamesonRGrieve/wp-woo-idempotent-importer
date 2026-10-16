@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Shopify menus nest three levels deep, so the item selection is spelled out three times.
+fragment MenuFields on Menu {
+  id
+  handle
+  title
+  items {
+    ...MenuItemFields
+    items {
+      ...MenuItemFields
+      items {
+        ...MenuItemFields
+      }
+    }
+  }
+}

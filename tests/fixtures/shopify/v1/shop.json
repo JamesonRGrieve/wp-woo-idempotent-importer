@@ -1,0 +1,49 @@
+{
+  "operation": "Shop",
+  "variables": {},
+  "data": {
+    "shop": {
+      "id": "gid://shopify/Shop/1",
+      "name": "Fixture Boutique",
+      "email": "owner@fixture-boutique.example",
+      "contactEmail": "hello@fixture-boutique.example",
+      "currencyCode": "CAD",
+      "weightUnit": "GRAMS",
+      "ianaTimezone": "America/Edmonton",
+      "taxesIncluded": false,
+      "orderNumberFormatPrefix": "#",
+      "orderNumberFormatSuffix": "",
+      "myshopifyDomain": "fixture-boutique.myshopify.com",
+      "primaryDomain": {
+        "host": "fixture-boutique.example",
+        "url": "https://fixture-boutique.example"
+      },
+      "shopAddress": {
+        "address1": "100 Jasper Ave",
+        "address2": null,
+        "city": "Edmonton",
+        "province": "Alberta",
+        "provinceCode": "AB",
+        "countryCodeV2": "CA",
+        "zip": "T5J 0A1",
+        "phone": "+17805550100"
+      },
+      "shopPolicies": [
+        {
+          "id": "gid://shopify/ShopPolicy/11",
+          "type": "REFUND_POLICY",
+          "title": "Refund policy",
+          "body": "<p>Returns within 30 days.</p>",
+          "updatedAt": "2026-09-01T12:00:00Z"
+        },
+        {
+          "id": "gid://shopify/ShopPolicy/12",
+          "type": "PRIVACY_POLICY",
+          "title": "Privacy policy",
+          "body": "<p>We keep your data private.</p>",
+          "updatedAt": "2026-09-01T12:00:00Z"
+        }
+      ]
+    }
+  }
+}

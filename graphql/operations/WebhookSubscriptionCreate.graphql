@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+mutation WebhookSubscriptionCreate($topic: WebhookSubscriptionTopic!, $uri: String!) {
+  webhookSubscriptionCreate(topic: $topic, webhookSubscription: {uri: $uri, format: JSON}) {
+    webhookSubscription {
+      id
+      topic
+      uri
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

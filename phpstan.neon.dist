@@ -1,0 +1,17 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+        - tools
+        - wp-idempotent-shopify-importer.php
+        - uninstall.php
+    excludePaths:
+        - tests/e2e/wordpress (?)
+    bootstrapFiles:
+        - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+        - vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
+        - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php

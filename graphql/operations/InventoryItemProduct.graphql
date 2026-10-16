@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+query InventoryItemProduct($id: ID!) {
+  inventoryItem(id: $id) {
+    variant {
+      product {
+        id
+      }
+    }
+  }
+}

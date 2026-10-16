@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+fragment MenuItemFields on MenuItem {
+  id
+  title
+  type
+  url
+  resourceId
+}

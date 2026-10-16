@@ -1,0 +1,58 @@
+{
+    "name": "jamesonrgrieve/wp-idempotent-shopify-importer",
+    "description": "One-way, idempotent, continuously re-runnable Shopify to WooCommerce importer for WordPress.",
+    "type": "wordpress-plugin",
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Jameson Grieve"
+        }
+    ],
+    "require": {
+        "php": ">=8.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.75",
+        "php-stubs/woocommerce-stubs": "^10.0",
+        "php-stubs/wp-cli-stubs": "^2.11",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^12.0",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "webonyx/graphql-php": "^15.20"
+    },
+    "autoload": {
+        "psr-4": {
+            "IdempotentShopifyImporter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IdempotentShopifyImporter\\Tests\\": "tests/",
+            "IdempotentShopifyImporter\\Tools\\": "tools/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "scripts": {
+        "post-install-cmd": "git config core.hooksPath .githooks",
+        "lint": "find src tests tools wp-idempotent-shopify-importer.php uninstall.php -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null",
+        "format": "php-cs-fixer fix",
+        "format-check": "php-cs-fixer fix --dry-run --diff",
+        "analyse": "phpstan analyse --no-progress --memory-limit=1G",
+        "test": "phpunit --testsuite unit",
+        "schema": "php tools/fetch-schema.php",
+        "validate-graphql": "php tools/validate-graphql.php",
+        "e2e": "tests/e2e/run.sh",
+        "check": [
+            "@lint",
+            "@format-check",
+            "@analyse",
+            "@test",
+            "@validate-graphql",
+            "@composer audit",
+            "@composer validate --strict"
+        ]
+    }
+}

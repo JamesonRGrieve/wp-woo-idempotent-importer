@@ -1,0 +1,26 @@
+{
+  "operation": "MenuList",
+  "variables": {"first": 50, "after": null},
+  "data": {
+    "menus": {
+      "pageInfo": {"hasNextPage": false, "endCursor": "menus-1"},
+      "nodes": [
+        {
+          "id": "gid://shopify/Menu/1401",
+          "handle": "main-menu",
+          "title": "Main menu",
+          "items": [
+            {"id": "gid://shopify/MenuItem/14011", "title": "Home", "type": "FRONTPAGE", "url": "/", "resourceId": null, "items": []},
+            {
+              "id": "gid://shopify/MenuItem/14012", "title": "Shop", "type": "COLLECTION", "url": "/collections/bras", "resourceId": "gid://shopify/Collection/201",
+              "items": [
+                {"id": "gid://shopify/MenuItem/140121", "title": "Silk Scarf", "type": "PRODUCT", "url": "/products/silk-scarf", "resourceId": "gid://shopify/Product/301", "items": []}
+              ]
+            },
+            {"id": "gid://shopify/MenuItem/14013", "title": "About", "type": "PAGE", "url": "/pages/about-us", "resourceId": "gid://shopify/Page/1001", "items": []}
+          ]
+        }
+      ]
+    }
+  }
+}

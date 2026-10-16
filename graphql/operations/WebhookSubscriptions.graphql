@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+query WebhookSubscriptions($uri: String!) {
+  webhookSubscriptions(first: 100, uri: $uri) {
+    nodes {
+      id
+      topic
+      uri
+    }
+  }
+}

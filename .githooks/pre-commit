@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# The full gate (lint, format, PHPStan max, unit tests, GraphQL + fixture validation, dependency audit).
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+if [ ! -f .cache/shopify-admin-2026-10.graphql ]; then
+    composer schema
+fi
+composer check
