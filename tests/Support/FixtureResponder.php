@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Support;
+namespace IdempotentImporter\Tests\Support;
 
 /**
  * Answers a GraphQL request from one store state's recorded fixtures, as Shopify would: by operation

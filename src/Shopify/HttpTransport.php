@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /** The one outbound HTTP boundary. Implementations bound every request with the given timeout. */
 interface HttpTransport

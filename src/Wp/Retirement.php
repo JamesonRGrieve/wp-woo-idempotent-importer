@@ -4,11 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\MetaTarget;
-use IdempotentShopifyImporter\Wp\Meta\WpMeta;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\MetaTarget;
+use IdempotentImporter\Wp\Meta\WpMeta;
 use WC_Data;
 
 /**

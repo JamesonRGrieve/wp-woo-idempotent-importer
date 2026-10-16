@@ -4,16 +4,16 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Mapping\ReviewCsv;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Services;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\WebhookTopics;
-use IdempotentShopifyImporter\Store\RunRecord;
-use IdempotentShopifyImporter\Sync\Mode;
-use IdempotentShopifyImporter\Sync\RunCounts;
+use IdempotentImporter\Mapping\ReviewCsv;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Services;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\WebhookTopics;
+use IdempotentImporter\Store\RunRecord;
+use IdempotentImporter\Sync\Mode;
+use IdempotentImporter\Sync\RunCounts;
 use InvalidArgumentException;
 use WP_CLI;
 use WP_User;
@@ -23,9 +23,9 @@ use WP_User;
  *
  * ## EXAMPLES
  *
- *     wp shopify-import run
- *     wp shopify-import run --full --dry-run
- *     wp shopify-import run --kinds=product,order
+ *     wp idempotent-import run
+ *     wp idempotent-import run --full --dry-run
+ *     wp idempotent-import run --kinds=product,order
  */
 final class Cli
 {

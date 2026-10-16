@@ -4,11 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
 use DateTimeImmutable;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Wp\Options;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Wp\Options;
 
 /**
  * Per kind, the start time of the last run that completed it with nothing failed or deferred. The next
@@ -17,7 +17,7 @@ use IdempotentShopifyImporter\Wp\Options;
  */
 final class Cursors
 {
-    public const OPTION = 'isi_cursors';
+    public const OPTION = 'iim_cursors';
     public const OVERLAP = 'PT10M';
 
     public function since(Kind $kind): ?DateTimeImmutable

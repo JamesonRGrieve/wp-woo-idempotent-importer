@@ -4,20 +4,20 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\Link;
-use IdempotentShopifyImporter\Wp\GlobalAttributes;
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\WcDataMeta;
-use IdempotentShopifyImporter\Wp\Options;
-use IdempotentShopifyImporter\Wp\Retirement;
-use IdempotentShopifyImporter\Wp\Seo;
-use IdempotentShopifyImporter\Wp\Terms;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\Link;
+use IdempotentImporter\Wp\GlobalAttributes;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\WcDataMeta;
+use IdempotentImporter\Wp\Options;
+use IdempotentImporter\Wp\Retirement;
+use IdempotentImporter\Wp\Seo;
+use IdempotentImporter\Wp\Terms;
 use WC_Data_Exception;
 use WC_Product;
 use WC_Product_Attribute;
@@ -33,7 +33,7 @@ final class ProductWriter implements Writer
     private const TAG_TAXONOMY = 'product_tag';
     private const WEIGHT_UNITS = ['KILOGRAMS' => 'kg', 'GRAMS' => 'g', 'POUNDS' => 'lbs', 'OUNCES' => 'oz'];
     private const DEFAULT_WEIGHT_UNIT = 'kg';
-    /** WooCommerce's Cost of Goods field; the cost is always also kept as `_shopify_unit_cost` meta. */
+    /** WooCommerce's Cost of Goods field; the cost is always also kept as `_mirror_unit_cost` meta. */
     private const COST_OF_GOODS_FEATURE = 'cost_of_goods_sold';
     /** Mapped fields stored in native WooCommerce fields; the rest are mirrored as meta. */
     private const CONSUMED = [
@@ -190,12 +190,12 @@ final class ProductWriter implements Writer
         }
         $meta = new WcDataMeta($product);
         MetaSync::fields($meta, [
-            '_shopify_variant_gid' => $variant->string('gid'),
-            '_shopify_gtin' => $gtin,
-            '_shopify_unit_cost' => $cost,
-            '_shopify_origin_country' => $variant->nullableString('origin_country'),
-            '_shopify_origin_province' => $variant->nullableString('origin_province'),
-            '_shopify_hs_code' => $variant->nullableString('hs_code'),
+            '_mirror_variant_gid' => $variant->string('gid'),
+            '_mirror_gtin' => $gtin,
+            '_mirror_unit_cost' => $cost,
+            '_mirror_origin_country' => $variant->nullableString('origin_country'),
+            '_mirror_origin_province' => $variant->nullableString('origin_province'),
+            '_mirror_hs_code' => $variant->nullableString('hs_code'),
         ]);
         if ($product instanceof WC_Product_Variation) {
             MetaSync::metafields($meta, $variant->metafields());

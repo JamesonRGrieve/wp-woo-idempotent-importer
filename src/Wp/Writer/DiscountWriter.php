@@ -4,15 +4,15 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\Link;
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\WcDataMeta;
-use IdempotentShopifyImporter\Wp\Retirement;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\Link;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\WcDataMeta;
+use IdempotentImporter\Wp\Retirement;
 use WC_Coupon;
 
 /**
@@ -59,7 +59,7 @@ final class DiscountWriter implements Writer
             $coupon->set_product_ids($productIds);
             $coupon->set_product_categories($categoryIds);
             MetaSync::mirror(new WcDataMeta($coupon), $desired->gid, $f, self::CONSUMED);
-            MetaSync::fields(new WcDataMeta($coupon), ['_shopify_starts_at' => $f->string('starts_at')]);
+            MetaSync::fields(new WcDataMeta($coupon), ['_mirror_starts_at' => $f->string('starts_at')]);
             $id = $coupon->save();
             $this->targets->links->save(Kind::DiscountCode, $key, $id);
             $ids[] = $id;

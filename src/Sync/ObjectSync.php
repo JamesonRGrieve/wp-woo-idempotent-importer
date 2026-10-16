@@ -4,17 +4,17 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
-use IdempotentShopifyImporter\Mapping\Hasher;
-use IdempotentShopifyImporter\Mapping\Unsupported;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
-use IdempotentShopifyImporter\Store\LinkStore;
-use IdempotentShopifyImporter\Store\RedirectStore;
-use IdempotentShopifyImporter\Wp\Log;
-use IdempotentShopifyImporter\Wp\Quiet;
-use IdempotentShopifyImporter\Wp\Writer\UnresolvedDependency;
+use IdempotentImporter\Mapping\Hasher;
+use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Store\LinkStore;
+use IdempotentImporter\Store\RedirectStore;
+use IdempotentImporter\Wp\Log;
+use IdempotentImporter\Wp\Quiet;
+use IdempotentImporter\Wp\Writer\UnresolvedDependency;
 use Throwable;
 
 /**

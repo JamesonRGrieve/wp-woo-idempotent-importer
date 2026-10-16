@@ -16,10 +16,10 @@ use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
-use IdempotentShopifyImporter\Shopify\ApiVersion;
-use IdempotentShopifyImporter\Shopify\QueryLibrary;
-use IdempotentShopifyImporter\Tests\Support\Fixtures;
-use IdempotentShopifyImporter\Tools\SchemaCache;
+use IdempotentImporter\Shopify\ApiVersion;
+use IdempotentImporter\Shopify\QueryLibrary;
+use IdempotentImporter\Tests\Support\Fixtures;
+use IdempotentImporter\Tools\SchemaCache;
 
 require __DIR__ . '/../vendor/autoload.php';
 

@@ -4,15 +4,15 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Shopify\Connection;
-use IdempotentShopifyImporter\Shopify\GraphQlClient;
-use IdempotentShopifyImporter\Shopify\HttpResponse;
-use IdempotentShopifyImporter\Shopify\QueryLibrary;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Tests\Support\RecordingSleeper;
-use IdempotentShopifyImporter\Tests\Support\ScriptedTransport;
+use IdempotentImporter\Shopify\Connection;
+use IdempotentImporter\Shopify\GraphQlClient;
+use IdempotentImporter\Shopify\HttpResponse;
+use IdempotentImporter\Shopify\QueryLibrary;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Tests\Support\RecordingSleeper;
+use IdempotentImporter\Tests\Support\ScriptedTransport;
 use PHPUnit\Framework\TestCase;
 
 final class GraphQlClientTest extends TestCase

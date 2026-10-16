@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
 /**
  * Images embedded in Shopify rich text (descriptions, pages, articles) that live on Shopify's CDN, so

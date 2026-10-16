@@ -4,15 +4,15 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\Link;
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\WpMeta;
-use IdempotentShopifyImporter\Wp\Retirement;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\Link;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\WpMeta;
+use IdempotentImporter\Wp\Retirement;
 
 /** Shopify Files → media library attachments (shared with every other use of the same URL). */
 final class FileWriter implements Writer

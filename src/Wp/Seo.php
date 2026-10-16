@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\MetaTarget;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\MetaTarget;
 use WPSEO_Taxonomy_Meta;
 
 /**
@@ -17,8 +17,8 @@ use WPSEO_Taxonomy_Meta;
  */
 final class Seo
 {
-    private const TITLE_KEYS = ['_shopify_seo_title', '_yoast_wpseo_title', 'rank_math_title'];
-    private const DESCRIPTION_KEYS = ['_shopify_seo_description', '_yoast_wpseo_metadesc', 'rank_math_description'];
+    private const TITLE_KEYS = ['_mirror_seo_title', '_yoast_wpseo_title', 'rank_math_title'];
+    private const DESCRIPTION_KEYS = ['_mirror_seo_description', '_yoast_wpseo_metadesc', 'rank_math_description'];
 
     /** @param array{title: ?string, description: ?string} $seo */
     public static function write(MetaTarget $target, array $seo): void

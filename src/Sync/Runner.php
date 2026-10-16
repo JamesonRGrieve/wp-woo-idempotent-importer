@@ -4,18 +4,18 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
-use IdempotentShopifyImporter\Config\Settings;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\Reader;
-use IdempotentShopifyImporter\Shopify\SearchQuery;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\SourceRegistry;
-use IdempotentShopifyImporter\Store\LinkStore;
-use IdempotentShopifyImporter\Store\RunLog;
-use IdempotentShopifyImporter\Store\SeenStore;
-use IdempotentShopifyImporter\Wp\Log;
+use IdempotentImporter\Config\Settings;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\Reader;
+use IdempotentImporter\Shopify\SearchQuery;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Store\LinkStore;
+use IdempotentImporter\Store\RunLog;
+use IdempotentImporter\Store\SeenStore;
+use IdempotentImporter\Wp\Log;
 
 /**
  * A run, one step at a time: each step reads and mirrors pages until its time budget is spent, then
@@ -151,7 +151,7 @@ final class Runner
         $this->lock->release($state->id);
         $this->log->info("Run {$state->id} {$status}:\n{$summary}");
         if ($this->settings->notifyEmail !== '') {
-            wp_mail($this->settings->notifyEmail, "Shopify import {$status}", $summary);
+            wp_mail($this->settings->notifyEmail, "Store import {$status}", $summary);
         }
     }
 

@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
-use IdempotentShopifyImporter\Mapping\Mapper;
-use IdempotentShopifyImporter\Wp\Writer\Writer;
+use IdempotentImporter\Mapping\Mapper;
+use IdempotentImporter\Wp\Writer\Writer;
 
 /** One kind's pure mapping and its WordPress writer. */
 final readonly class Handler

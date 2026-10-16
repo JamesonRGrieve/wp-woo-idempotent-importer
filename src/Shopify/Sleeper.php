@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /** Waiting between throttled or retried requests; injected so tests run without real delays. */
 interface Sleeper

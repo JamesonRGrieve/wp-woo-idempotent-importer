@@ -4,19 +4,19 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\LegacyPaths;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\Link;
-use IdempotentShopifyImporter\Store\RedirectStore;
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\WpMeta;
-use IdempotentShopifyImporter\Wp\Options;
-use IdempotentShopifyImporter\Wp\Posts;
-use IdempotentShopifyImporter\Wp\Retirement;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\LegacyPaths;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\Link;
+use IdempotentImporter\Store\RedirectStore;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\WpMeta;
+use IdempotentImporter\Wp\Options;
+use IdempotentImporter\Wp\Posts;
+use IdempotentImporter\Wp\Retirement;
 
 /**
  * Store settings (opt-in) and the shop's policies as pages, wired to WordPress's privacy page and
@@ -52,7 +52,7 @@ final class ShopWriter implements Writer
                 'post_content' => $this->targets->html->prepare($policy->string('content_html')),
                 'post_status' => 'publish',
             ]);
-            MetaSync::fields(WpMeta::post($pageId), [MetaSync::GID => $gid, MetaSync::DELETED => null, '_shopify_policy_type' => $type]);
+            MetaSync::fields(WpMeta::post($pageId), [MetaSync::GID => $gid, MetaSync::DELETED => null, '_mirror_policy_type' => $type]);
             $this->targets->links->save(Kind::Policy, $gid, $pageId);
             $this->redirects->syncObject(Kind::Policy, $gid, $this->targets->settings->redirects ? [LegacyPaths::policy($type)] : []);
             $option = self::POLICY_PAGE_OPTIONS[$type] ?? null;

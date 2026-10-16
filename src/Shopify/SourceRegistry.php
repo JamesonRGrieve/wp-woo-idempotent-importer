@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Model\Kind;
 
 /** The Shopify read definition of every synced kind except Shop (a singleton with its own operation). */
 final class SourceRegistry

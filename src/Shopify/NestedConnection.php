@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /**
  * A connection on a top-level node that can hold more than one page (e.g. Product.variants). Its

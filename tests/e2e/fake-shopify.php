@@ -10,7 +10,7 @@ declare(strict_types=1);
  * CDN paths return small generated files of the right type. Requests must carry the test access token.
  */
 
-use IdempotentShopifyImporter\Tests\Support\FixtureResponder;
+use IdempotentImporter\Tests\Support\FixtureResponder;
 
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 

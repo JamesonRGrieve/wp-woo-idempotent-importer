@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Model\Kind;
 
 /**
  * Which object a webhook is about. Every topic resolves to one object to re-read (or retire); the

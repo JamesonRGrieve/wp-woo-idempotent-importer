@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
-# wp-woo-idempotent-shopify-importer
+# wp-woo-idempotent-importer
 
 A WordPress plugin that keeps a WooCommerce store an exact, one-way copy of a Shopify store until you
 cut over. Run it as often as you like: what's new in Shopify is created, what changed is updated, what
@@ -17,7 +17,7 @@ everything Shopify has that WordPress can't hold.
 Every mirrored object is linked to its Shopify ID, with a hash of exactly what was written. A run maps
 each Shopify object to the fields it owns, hashes them, and writes only when the hash changed or the
 WordPress copy was deleted by hand. Only mapped fields are written, so anything else edited in WordPress
-is kept. Fields with no native WordPress home are kept as `_shopify_*` meta, so nothing is dropped.
+is kept. Fields with no native WordPress home are kept as `_mirror_*` meta, so nothing is dropped.
 
 - **Incremental runs** (every hour by default) read only objects updated since the last clean run.
 - **Full runs** (daily by default) read everything and trash the copies of objects Shopify no longer has.
@@ -34,11 +34,11 @@ Shopify URL redirects) answer with a 301 to the new page.
 2. In Shopify, create a custom app with read access to products, inventory, customers, orders (plus
    `read_all_orders` for orders older than 60 days), draft orders, discounts, files, content (pages and
    blogs), navigation, online store, shipping and locales. Install it and copy the Admin API token.
-3. In WooCommerce → Shopify import, enter the store's `name.myshopify.com` domain and the token, choose
-   what to mirror, and save. Tokens can instead be set as `ISI_SHOPIFY_ACCESS_TOKEN` and
-   `ISI_SHOPIFY_WEBHOOK_SECRET` in `wp-config.php` or the environment.
-4. Run a dry run, then a full run, from that page or `wp shopify-import run --full`.
-5. For live updates, `wp shopify-import register-webhooks`.
+3. In WooCommerce → Store import, enter the store's `name.myshopify.com` domain and the token, choose
+   what to mirror, and save. Tokens can instead be set as `IIM_SHOPIFY_ACCESS_TOKEN` and
+   `IIM_SHOPIFY_WEBHOOK_SECRET` in `wp-config.php` or the environment.
+4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
+5. For live updates, `wp idempotent-import register-webhooks`.
 
 If you use WooCommerce Square, keep its system of record on WooCommerce while importing. The importer
 warns about products Square can't sync (a variant without a SKU, or more than 250 variants).
@@ -46,14 +46,14 @@ warns about products Square can't sync (a variant without a SKU, or more than 25
 ## Commands
 
 ```sh
-wp shopify-import run [--full] [--dry-run] [--kinds=product,order]
-wp shopify-import status
-wp shopify-import sync <kind> <gid>
-wp shopify-import reviews <export.csv> [--dry-run]
-wp shopify-import register-webhooks
-wp shopify-import reset-cursors
-wp shopify-import send-password-resets [--yes]    # at cutover: Shopify passwords can't be exported
-wp shopify-import clear --kinds=<kinds> [--yes]
+wp idempotent-import run [--full] [--dry-run] [--kinds=product,order]
+wp idempotent-import status
+wp idempotent-import sync <kind> <gid>
+wp idempotent-import reviews <export.csv> [--dry-run]
+wp idempotent-import register-webhooks
+wp idempotent-import reset-cursors
+wp idempotent-import send-password-resets [--yes]    # at cutover: Shopify passwords can't be exported
+wp idempotent-import clear --kinds=<kinds> [--yes]
 ```
 
 ## Development

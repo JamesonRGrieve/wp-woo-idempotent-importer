@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tools;
+namespace IdempotentImporter\Tools;
 
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;

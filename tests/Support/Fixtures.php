@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Support;
+namespace IdempotentImporter\Tests\Support;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use RuntimeException;

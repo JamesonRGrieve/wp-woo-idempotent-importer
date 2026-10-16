@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\ShopifyNode;
 use PHPUnit\Framework\TestCase;
 
 final class ShopifyNodeTest extends TestCase

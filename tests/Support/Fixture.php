@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Support;
+namespace IdempotentImporter\Tests\Support;
 
 /** One recorded Shopify GraphQL exchange: the operation, its variables and the response `data`. */
 final readonly class Fixture

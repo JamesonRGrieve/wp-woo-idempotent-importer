@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Store;
+namespace IdempotentImporter\Store;
 
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Model\Kind;
 
 /** One Shopify object ↔ the WordPress object it was written to, and the hash of what was written. */
 final readonly class Link

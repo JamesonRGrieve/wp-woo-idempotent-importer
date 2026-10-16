@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /**
  * Where and how to reach one Shopify store's Admin GraphQL API. The endpoint is derived from the

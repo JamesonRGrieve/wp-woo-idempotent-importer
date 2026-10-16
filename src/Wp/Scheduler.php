@@ -4,13 +4,13 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Services;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\SourceRegistry;
-use IdempotentShopifyImporter\Sync\Mode;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Services;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Sync\Mode;
 
 /**
  * Background work on Action Scheduler (bundled with WooCommerce): the recurring run, the steps that
@@ -19,12 +19,12 @@ use IdempotentShopifyImporter\Sync\Mode;
  */
 final class Scheduler
 {
-    public const GROUP = 'shopify-import';
-    public const RECURRING_HOOK = 'isi_scheduled_run';
-    public const STEP_HOOK = 'isi_run_step';
-    public const OBJECT_HOOK = 'isi_sync_object';
-    public const LAST_FULL_OPTION = 'isi_last_full_run';
-    public const INTERVAL_OPTION = 'isi_scheduled_interval';
+    public const GROUP = 'idempotent-import';
+    public const RECURRING_HOOK = 'iim_scheduled_run';
+    public const STEP_HOOK = 'iim_run_step';
+    public const OBJECT_HOOK = 'iim_sync_object';
+    public const LAST_FULL_OPTION = 'iim_last_full_run';
+    public const INTERVAL_OPTION = 'iim_scheduled_interval';
     public const STEP_BUDGET_SECONDS = 20.0;
     public const LOCKED_RETRY_SECONDS = 60;
     private const SECONDS_PER_MINUTE = 60;

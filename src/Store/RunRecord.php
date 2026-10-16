@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Store;
+namespace IdempotentImporter\Store;
 
-use IdempotentShopifyImporter\Sync\RunCounts;
+use IdempotentImporter\Sync\RunCounts;
 
 /** A finished or running run, as the run log stores it. */
 final readonly class RunRecord

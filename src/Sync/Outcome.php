@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
 /** What happened to one Shopify object in a run. */
 enum Outcome: string

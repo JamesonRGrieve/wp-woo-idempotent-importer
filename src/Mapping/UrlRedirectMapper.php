@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\ShopifyNode;
 
 /** A Shopify URL redirect → a 301 the plugin serves (a relative target is resolved at request time). */
 final class UrlRedirectMapper implements Mapper

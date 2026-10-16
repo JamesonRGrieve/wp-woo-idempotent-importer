@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Meta;
+namespace IdempotentImporter\Wp\Meta;
 
 /** Meta storage of one WordPress object, whatever its type (post, term, user, WooCommerce object). */
 interface MetaTarget

@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
 /**
  * Runs a write with its side effects off: no email of any kind leaves the site (WooCommerce order,

@@ -10,8 +10,8 @@ declare(strict_types=1);
  */
 
 use GraphQL\Type\Definition\HasFieldsType;
-use IdempotentShopifyImporter\Shopify\ApiVersion;
-use IdempotentShopifyImporter\Tools\SchemaCache;
+use IdempotentImporter\Shopify\ApiVersion;
+use IdempotentImporter\Tools\SchemaCache;
 
 require __DIR__ . '/../vendor/autoload.php';
 

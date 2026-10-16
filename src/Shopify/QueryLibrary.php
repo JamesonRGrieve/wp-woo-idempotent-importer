@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /**
  * Every GraphQL document the importer sends. Hand-written operations live in graphql/operations; the

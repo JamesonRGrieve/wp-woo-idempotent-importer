@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\ShopifyNode;
 
 /** Order → WooCommerce order, with refunds, fulfillments, transactions and timeline comments. */
 final class OrderMapper implements Mapper

@@ -4,11 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\Link;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\Link;
 
 /**
  * Shopify URL redirects have no WordPress object: the redirect row itself is written (and removed on

@@ -4,12 +4,12 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\MetaTarget;
-use IdempotentShopifyImporter\Wp\Meta\WcDataMeta;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\MetaTarget;
+use IdempotentImporter\Wp\Meta\WcDataMeta;
 use WC_Product;
 
 /**
@@ -21,7 +21,7 @@ final class DynamicCollections
 {
     public const RULES_META = '_wdc_rules';
     public const EXTRA_FACTS_FILTER = 'wdc_product_extra_facts';
-    public const CATEGORY_ID_META = '_shopify_category_id';
+    public const CATEGORY_ID_META = '_mirror_category_id';
 
     public function register(): void
     {

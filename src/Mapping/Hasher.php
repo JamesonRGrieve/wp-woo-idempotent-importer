@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
 /**
  * The change signal: a SHA-256 of the mapping version and the desired state, over canonical JSON (object

@@ -4,15 +4,15 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Mapping\HtmlImages;
-use IdempotentShopifyImporter\Mapping\LegacyPaths;
-use IdempotentShopifyImporter\Mapping\ProductMapper;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Sync\Outcome;
-use IdempotentShopifyImporter\Sync\RunCounts;
+use IdempotentImporter\Mapping\HtmlImages;
+use IdempotentImporter\Mapping\LegacyPaths;
+use IdempotentImporter\Mapping\ProductMapper;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Sync\Outcome;
+use IdempotentImporter\Sync\RunCounts;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 

@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
 /** Typed reads of WordPress options (get_option returns whatever was stored). */
 final class Options

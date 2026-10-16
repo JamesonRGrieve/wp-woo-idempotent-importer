@@ -4,14 +4,14 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Config\Settings;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\LinkStore;
-use IdempotentShopifyImporter\Wp\ContentHtml;
-use IdempotentShopifyImporter\Wp\Log;
-use IdempotentShopifyImporter\Wp\MediaLibrary;
+use IdempotentImporter\Config\Settings;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\LinkStore;
+use IdempotentImporter\Wp\ContentHtml;
+use IdempotentImporter\Wp\Log;
+use IdempotentImporter\Wp\MediaLibrary;
 
 /** What every writer shares: the identity map, media, rich-text preparation, settings and the log. */
 final readonly class Targets

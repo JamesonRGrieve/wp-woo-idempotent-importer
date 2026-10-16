@@ -4,13 +4,13 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Mapping\HtmlImages;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\HttpTransport;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Store\LinkStore;
+use IdempotentImporter\Mapping\HtmlImages;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\HttpTransport;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Store\LinkStore;
 
 /**
  * Copies Shopify-hosted files into the media library once each. A file is identified by its URL without
@@ -21,7 +21,7 @@ final class MediaLibrary
 {
     public const DOWNLOAD_TIMEOUT_SECONDS = 120;
     public const MAX_BYTES = 200 * 1024 * 1024;
-    public const SOURCE_URL_META = '_shopify_source_url';
+    public const SOURCE_URL_META = '_mirror_source_url';
     private const KEY_PREFIX = 'media:';
 
     public function __construct(

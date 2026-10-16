@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Meta;
+namespace IdempotentImporter\Wp\Meta;
 
 /** Post, term, comment or user meta through WordPress's generic metadata API. */
 final readonly class WpMeta implements MetaTarget

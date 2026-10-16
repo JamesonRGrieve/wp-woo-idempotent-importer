@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /** A Shopify global ID, gid://shopify/<Type>/<id>. */
 final readonly class Gid

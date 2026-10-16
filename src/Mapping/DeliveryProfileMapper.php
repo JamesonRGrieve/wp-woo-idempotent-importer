@@ -4,11 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\Decimal;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\Decimal;
+use IdempotentImporter\Shopify\ShopifyNode;
 
 /**
  * Delivery profile → WooCommerce shipping zones. A flat price becomes flat rate; a zero price becomes

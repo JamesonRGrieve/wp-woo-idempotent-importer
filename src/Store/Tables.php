@@ -4,21 +4,21 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Store;
+namespace IdempotentImporter\Store;
 
-use IdempotentShopifyImporter\Wp\Options;
+use IdempotentImporter\Wp\Options;
 use wpdb;
 
 /** The plugin's own tables. Created and upgraded by dbDelta; dropped only on uninstall. */
 final class Tables
 {
     public const SCHEMA_VERSION = 1;
-    public const VERSION_OPTION = 'isi_schema_version';
+    public const VERSION_OPTION = 'iim_schema_version';
 
-    public const LINKS = 'isi_links';
-    public const REDIRECTS = 'isi_redirects';
-    public const SEEN = 'isi_seen';
-    public const RUNS = 'isi_runs';
+    public const LINKS = 'iim_links';
+    public const REDIRECTS = 'iim_redirects';
+    public const SEEN = 'iim_seen';
+    public const RUNS = 'iim_runs';
 
     public function __construct(private readonly wpdb $db) {}
 

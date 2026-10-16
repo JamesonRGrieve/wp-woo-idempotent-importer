@@ -4,14 +4,14 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Config\Settings;
-use IdempotentShopifyImporter\Mapping\LegacyPaths;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\LinkStore;
-use IdempotentShopifyImporter\Store\RedirectStore;
-use IdempotentShopifyImporter\Wp\Writer\OrderWriter;
+use IdempotentImporter\Config\Settings;
+use IdempotentImporter\Mapping\LegacyPaths;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\LinkStore;
+use IdempotentImporter\Store\RedirectStore;
+use IdempotentImporter\Wp\Writer\OrderWriter;
 use WC_Order;
 
 /**

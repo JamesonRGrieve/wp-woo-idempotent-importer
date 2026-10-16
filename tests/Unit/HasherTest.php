@@ -4,11 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\Hasher;
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\Hasher;
+use IdempotentImporter\Model\Kind;
 use PHPUnit\Framework\TestCase;
 
 final class HasherTest extends TestCase

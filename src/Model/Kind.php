@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Model;
+namespace IdempotentImporter\Model;
 
 /**
  * Every kind of Shopify object the importer tracks in its link table. The values are persisted; never

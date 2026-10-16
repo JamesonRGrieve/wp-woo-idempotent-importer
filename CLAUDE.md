@@ -1,4 +1,4 @@
-# wp-woo-idempotent-shopify-importer — Agent Operating Guide
+# wp-woo-idempotent-importer — Agent Operating Guide
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent Shopify → WooCommerce mirror kept current
 until cutover. README.md is the user-facing contract; COVERAGE.md is the single source of truth for what
@@ -20,13 +20,13 @@ is mirrored and what is a gap. PHP rules: `/home/jameson/Source/ai-prompts/php.m
 
 ## Rules
 
-- Idempotent by construction: identity is (kind, Shopify GID) in `isi_links`; the change signal is the
+- Idempotent by construction: identity is (kind, Shopify GID) in `iim_links`; the change signal is the
   hash of the mapped fields and the mapper's `version()`. Bump a mapper's version whenever its output
   changes. Never key on titles, slugs or handles (reviews, which have no Shopify id, are the exception).
 - Writers write only mapped fields. Fields with no native home go through `MetaSync::mirror` as
-  `_shopify_<field>`; never drop a mapped field.
+  `_mirror_<field>`; never drop a mapped field.
 - Nothing mirrored is ever deleted permanently: retire = trash where WordPress has one, else mark
-  `_shopify_deleted`.
+  `_mirror_deleted`.
 - Something WooCommerce can't represent exactly is `Unsupported` (and a COVERAGE.md gap), never
   approximated. A missing dependency is `UnresolvedDependency` (retried), never skipped.
 - Every write runs inside `Quiet` (no emails, no stock or coupon side effects).

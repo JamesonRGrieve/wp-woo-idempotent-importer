@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
 /**
  * Incremental runs read only what changed since the last complete run of each kind. Full runs read

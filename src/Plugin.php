@@ -4,14 +4,14 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter;
+namespace IdempotentImporter;
 
-use IdempotentShopifyImporter\Wp\AdminPage;
-use IdempotentShopifyImporter\Wp\Cli;
-use IdempotentShopifyImporter\Wp\DynamicCollections;
-use IdempotentShopifyImporter\Wp\Scheduler;
-use IdempotentShopifyImporter\Wp\Storefront;
-use IdempotentShopifyImporter\Wp\WebhookController;
+use IdempotentImporter\Wp\AdminPage;
+use IdempotentImporter\Wp\Cli;
+use IdempotentImporter\Wp\DynamicCollections;
+use IdempotentImporter\Wp\Scheduler;
+use IdempotentImporter\Wp\Storefront;
+use IdempotentImporter\Wp\WebhookController;
 use WP_CLI;
 use wpdb;
 
@@ -19,7 +19,7 @@ use wpdb;
 final class Plugin
 {
     public const VERSION = '0.0.1';
-    public const CLI_COMMAND = 'shopify-import';
+    public const CLI_COMMAND = 'idempotent-import';
 
     public static function boot(string $pluginFile): void
     {
@@ -53,7 +53,7 @@ final class Plugin
     {
         if (!class_exists(\WooCommerce::class)) {
             add_action('admin_notices', static function (): void {
-                echo '<div class="notice notice-error"><p>' . esc_html__('Shopify import needs WooCommerce to be active.', 'wp-woo-idempotent-shopify-importer') . '</p></div>';
+                echo '<div class="notice notice-error"><p>' . esc_html__('Store import needs WooCommerce to be active.', 'wp-woo-idempotent-importer') . '</p></div>';
             });
 
             return;

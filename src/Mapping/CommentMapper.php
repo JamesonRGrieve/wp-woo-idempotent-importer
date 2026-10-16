@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\ShopifyNode;
 
 /** Blog comment → post comment. */
 final class CommentMapper implements Mapper

@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Shopify;
+namespace IdempotentImporter\Shopify;
 
 /** Verifies Shopify's X-Shopify-Hmac-Sha256 header: base64(HMAC-SHA256(raw body, app client secret)). */
 final class WebhookVerifier

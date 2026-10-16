@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
 /** The URL paths an object had on the Shopify storefront, so they can 301 to its new home. */
 final class LegacyPaths

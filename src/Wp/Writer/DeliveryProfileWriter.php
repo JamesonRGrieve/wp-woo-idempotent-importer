@@ -4,13 +4,13 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Store\Link;
-use IdempotentShopifyImporter\Wp\Options;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Store\Link;
+use IdempotentImporter\Wp\Options;
 use WC_Shipping_Zone;
 use wpdb;
 
@@ -21,7 +21,7 @@ use wpdb;
  */
 final class DeliveryProfileWriter implements Writer
 {
-    public const OWNED_METHODS_OPTION = 'isi_owned_shipping_methods';
+    public const OWNED_METHODS_OPTION = 'iim_owned_shipping_methods';
     private const REST_OF_WORLD_ZONE = 0;
     private const ZONE_SEPARATOR = '#';
     private const NO_OBJECT = 0;

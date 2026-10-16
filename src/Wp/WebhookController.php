@@ -4,21 +4,21 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Config\Credentials;
-use IdempotentShopifyImporter\Shopify\WebhookTopics;
-use IdempotentShopifyImporter\Shopify\WebhookVerifier;
+use IdempotentImporter\Config\Credentials;
+use IdempotentImporter\Shopify\WebhookTopics;
+use IdempotentImporter\Shopify\WebhookVerifier;
 use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * POST /wp-json/shopify-import/v1/webhook. Authenticated by Shopify's HMAC of the raw body (constant
+ * POST /wp-json/idempotent-import/v1/webhook. Authenticated by Shopify's HMAC of the raw body (constant
  * time); it only queues the object it names, so Shopify gets its 200 at once.
  */
 final class WebhookController
 {
-    public const NAMESPACE = 'shopify-import/v1';
+    public const NAMESPACE = 'idempotent-import/v1';
     public const ROUTE = '/webhook';
     private const HMAC_HEADER = 'x-shopify-hmac-sha256';
     private const TOPIC_HEADER = 'x-shopify-topic';

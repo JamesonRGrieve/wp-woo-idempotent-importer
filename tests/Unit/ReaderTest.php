@@ -4,19 +4,19 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\Connection;
-use IdempotentShopifyImporter\Shopify\GraphQlClient;
-use IdempotentShopifyImporter\Shopify\HttpResponse;
-use IdempotentShopifyImporter\Shopify\QueryLibrary;
-use IdempotentShopifyImporter\Shopify\Reader;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\SourceRegistry;
-use IdempotentShopifyImporter\Tests\Support\FixtureResponder;
-use IdempotentShopifyImporter\Tests\Support\RecordingSleeper;
-use IdempotentShopifyImporter\Tests\Support\ScriptedTransport;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\Connection;
+use IdempotentImporter\Shopify\GraphQlClient;
+use IdempotentImporter\Shopify\HttpResponse;
+use IdempotentImporter\Shopify\QueryLibrary;
+use IdempotentImporter\Shopify\Reader;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Tests\Support\FixtureResponder;
+use IdempotentImporter\Tests\Support\RecordingSleeper;
+use IdempotentImporter\Tests\Support\ScriptedTransport;
 use PHPUnit\Framework\TestCase;
 
 final class ReaderTest extends TestCase

@@ -5,22 +5,22 @@
 declare(strict_types=1);
 
 /*
- * End-to-end checks, run inside WordPress as `wp isi-e2e <scenario> [arg]` (registered by the e2e
+ * End-to-end checks, run inside WordPress as `wp iim-e2e <scenario> [arg]` (registered by the e2e
  * mu-plugin). Each scenario throws on the first failed expectation (wp exits non-zero) and prints what
  * it verified.
  */
 
-use IdempotentShopifyImporter\Config\Credentials;
-use IdempotentShopifyImporter\Config\Settings;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Plugin;
-use IdempotentShopifyImporter\Services;
-use IdempotentShopifyImporter\Store\RunRecord;
-use IdempotentShopifyImporter\Wp\Options;
-use IdempotentShopifyImporter\Wp\Scheduler;
-use IdempotentShopifyImporter\Wp\Storefront;
-use IdempotentShopifyImporter\Wp\WebhookController;
+use IdempotentImporter\Config\Credentials;
+use IdempotentImporter\Config\Settings;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Plugin;
+use IdempotentImporter\Services;
+use IdempotentImporter\Store\RunRecord;
+use IdempotentImporter\Wp\Options;
+use IdempotentImporter\Wp\Scheduler;
+use IdempotentImporter\Wp\Storefront;
+use IdempotentImporter\Wp\WebhookController;
 
 /** WordPress + WooCommerce tables holding site content; the plugin's own bookkeeping is excluded. */
 const CONTENT_TABLES = [
@@ -120,7 +120,7 @@ function storeV1(): void
     expect($scarf->get_weight() === '120', 'weight in the store unit (grams, from the mirrored shop settings)');
     expect($scarf->get_image_id() > 0, 'featured image in the media library');
     expect(!str_contains($scarf->get_description(), 'shopify-fake'), 'embedded description image localised');
-    expect($scarf->get_meta('_shopify_mf_custom.care') === 'Dry clean only.', 'metafield mirrored');
+    expect($scarf->get_meta('_mirror_mf_custom.care') === 'Dry clean only.', 'metafield mirrored');
     expect(wp_get_post_terms($scarf->get_id(), 'product_brand', ['fields' => 'names']) === ['Atelier North'], 'vendor → brand');
     $facts = apply_filters('wdc_product_extra_facts', [], $scarf);
     expect(is_array($facts) && $facts['category_id'] === 'gid://shopify/TaxonomyCategory/aa-2-26'
@@ -189,7 +189,7 @@ function storeV1(): void
 
 function noMail(): void
 {
-    expect(Options::int('isi_e2e_mail_sent') === 0, 'no email reached the mailer during the imports');
+    expect(Options::int('iim_e2e_mail_sent') === 0, 'no email reached the mailer during the imports');
 }
 
 function storeV2(): void
@@ -252,4 +252,4 @@ function scenario(array $arguments): void
     };
 }
 
-WP_CLI::add_command('isi-e2e', scenario(...));
+WP_CLI::add_command('iim-e2e', scenario(...));

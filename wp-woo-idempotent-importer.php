@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Plugin Name: Idempotent Shopify Importer
+ * Plugin Name: Idempotent Store Importer
  * Description: Keeps WooCommerce a one-way, idempotent mirror of a Shopify store until cutover.
  * Version: 0.0.1
  * Requires at least: 6.6
@@ -13,7 +13,7 @@
  * Author: Jameson Grieve
  * License: AGPL-3.0-or-later
  * License URI: https://www.gnu.org/licenses/agpl-3.0.html
- * Text Domain: wp-woo-idempotent-shopify-importer
+ * Text Domain: wp-woo-idempotent-importer
  *
  * Portions adapted from "S2W - Import Shopify to WooCommerce" by VillaTheme (GPL-2.0-or-later); see NOTICE.
  */
@@ -26,4 +26,4 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-IdempotentShopifyImporter\Plugin::boot(__FILE__);
+IdempotentImporter\Plugin::boot(__FILE__);

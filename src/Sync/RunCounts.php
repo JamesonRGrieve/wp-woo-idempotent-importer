@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Model\Kind;
 
 /** Per-kind outcome counts of a run; persisted as JSON between steps and in the run log. */
 final class RunCounts

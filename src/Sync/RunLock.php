@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
 /**
  * One run at a time. add_option is atomic (the option name is unique), so only one caller can take a
@@ -12,7 +12,7 @@ namespace IdempotentShopifyImporter\Sync;
  */
 final class RunLock
 {
-    public const OPTION = 'isi_run_lock';
+    public const OPTION = 'iim_run_lock';
     public const TTL_SECONDS = 600;
 
     public function acquire(string $runId): bool

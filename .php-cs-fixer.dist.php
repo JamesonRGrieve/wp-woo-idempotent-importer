@@ -8,7 +8,7 @@ $finder = (new PhpCsFixer\Finder())
     ->in([__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/tools'])
     ->exclude(['e2e/wordpress'])
     ->append([
-        __DIR__ . '/wp-woo-idempotent-shopify-importer.php',
+        __DIR__ . '/wp-woo-idempotent-importer.php',
         __DIR__ . '/uninstall.php',
         __FILE__,
     ]);

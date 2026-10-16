@@ -4,37 +4,37 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Mapping\ArticleMapper;
-use IdempotentShopifyImporter\Mapping\BlogMapper;
-use IdempotentShopifyImporter\Mapping\CollectionMapper;
-use IdempotentShopifyImporter\Mapping\CommentMapper;
-use IdempotentShopifyImporter\Mapping\CustomerMapper;
-use IdempotentShopifyImporter\Mapping\DeliveryProfileMapper;
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\DiscountMapper;
-use IdempotentShopifyImporter\Mapping\DraftOrderMapper;
-use IdempotentShopifyImporter\Mapping\FileMapper;
-use IdempotentShopifyImporter\Mapping\Mapper;
-use IdempotentShopifyImporter\Mapping\MenuMapper;
-use IdempotentShopifyImporter\Mapping\OrderMapper;
-use IdempotentShopifyImporter\Mapping\PageMapper;
-use IdempotentShopifyImporter\Mapping\ProductMapper;
-use IdempotentShopifyImporter\Mapping\ShopMapper;
-use IdempotentShopifyImporter\Mapping\Unsupported;
-use IdempotentShopifyImporter\Mapping\UrlRedirectMapper;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\Connection;
-use IdempotentShopifyImporter\Shopify\GraphQlClient;
-use IdempotentShopifyImporter\Shopify\QueryLibrary;
-use IdempotentShopifyImporter\Shopify\Reader;
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
-use IdempotentShopifyImporter\Shopify\SourceRegistry;
-use IdempotentShopifyImporter\Tests\Support\FixtureResponder;
-use IdempotentShopifyImporter\Tests\Support\RecordingSleeper;
-use IdempotentShopifyImporter\Tests\Support\ScriptedTransport;
+use IdempotentImporter\Mapping\ArticleMapper;
+use IdempotentImporter\Mapping\BlogMapper;
+use IdempotentImporter\Mapping\CollectionMapper;
+use IdempotentImporter\Mapping\CommentMapper;
+use IdempotentImporter\Mapping\CustomerMapper;
+use IdempotentImporter\Mapping\DeliveryProfileMapper;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\DiscountMapper;
+use IdempotentImporter\Mapping\DraftOrderMapper;
+use IdempotentImporter\Mapping\FileMapper;
+use IdempotentImporter\Mapping\Mapper;
+use IdempotentImporter\Mapping\MenuMapper;
+use IdempotentImporter\Mapping\OrderMapper;
+use IdempotentImporter\Mapping\PageMapper;
+use IdempotentImporter\Mapping\ProductMapper;
+use IdempotentImporter\Mapping\ShopMapper;
+use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\UrlRedirectMapper;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\Connection;
+use IdempotentImporter\Shopify\GraphQlClient;
+use IdempotentImporter\Shopify\QueryLibrary;
+use IdempotentImporter\Shopify\Reader;
+use IdempotentImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Tests\Support\FixtureResponder;
+use IdempotentImporter\Tests\Support\RecordingSleeper;
+use IdempotentImporter\Tests\Support\ScriptedTransport;
 use PHPUnit\Framework\TestCase;
 
 /** Every mapper, run over the v1 store exactly as the importer reads it. */

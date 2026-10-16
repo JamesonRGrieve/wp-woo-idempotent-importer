@@ -4,14 +4,14 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Sync;
+namespace IdempotentImporter\Sync;
 
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Model\Kind;
 
 /** A run in progress, persisted between steps so a run survives across scheduler actions. */
 final class RunState
 {
-    public const OPTION = 'isi_run_state';
+    public const OPTION = 'iim_run_state';
 
     /** @param list<Kind> $kinds */
     public function __construct(

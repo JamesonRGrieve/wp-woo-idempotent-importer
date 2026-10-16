@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Shopify\ShopifyNode;
 use RuntimeException;
 
 /**

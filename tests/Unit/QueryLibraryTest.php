@@ -4,12 +4,12 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\QueryLibrary;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\QueryLibrary;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\SourceRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class QueryLibraryTest extends TestCase

@@ -8,7 +8,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PREFIX="isi-e2e-$$"
+PREFIX="iim-e2e-$$"
 NETWORK="${PREFIX}-net"
 DB="${PREFIX}-db"
 FAKE="${PREFIX}-fake"
@@ -17,7 +17,7 @@ STATE_DIR="$(mktemp -d)"
 DB_IMAGE="docker.io/library/mariadb:11.4"
 WP_IMAGE="docker.io/library/wordpress:cli-php8.3"
 PHP_IMAGE="docker.io/library/php:8.4-cli"
-PLUGIN_SLUG="wp-woo-idempotent-shopify-importer"
+PLUGIN_SLUG="wp-woo-idempotent-importer"
 PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
@@ -33,7 +33,7 @@ cleanup() {
     local status=$?
     if [ "$status" -ne 0 ]; then
         echo "== Importer log (WooCommerce → Status → Logs)"
-        podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/uploads/wc-logs/shopify-import-*.log 2>/dev/null || true' || true
+        podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/uploads/wc-logs/idempotent-import-*.log 2>/dev/null || true' || true
     fi
     podman rm -f "$DB" "$FAKE" >/dev/null 2>&1 || true
     podman volume rm -f "$WP_VOLUME" >/dev/null 2>&1 || true
@@ -89,33 +89,33 @@ wait_for_db
 wp core install --url=http://localhost --title=E2E --admin_user=e2e --admin_email=e2e@example.com --skip-email --quiet
 wp plugin install woocommerce --activate --quiet
 podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$WP_IMAGE" \
-    sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/isi-e2e.php'
+    sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/iim-e2e.php'
 wp plugin activate "$PLUGIN_SLUG"
-wp isi-e2e configure
+wp iim-e2e configure
 
 echo "== First full import"
-wp shopify-import run --full
-wp isi-e2e v1
+wp idempotent-import run --full
+wp iim-e2e v1
 
 echo "== Unchanged store: full and incremental re-runs must write nothing"
-wp isi-e2e checksum /state/checksum-v1
-wp shopify-import run --full
-wp isi-e2e zero-writes /state/checksum-v1
-wp shopify-import run
-wp isi-e2e zero-writes /state/checksum-v1
+wp iim-e2e checksum /state/checksum-v1
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-v1
+wp idempotent-import run
+wp iim-e2e zero-writes /state/checksum-v1
 
 store_state v2
 echo "== Changed store: updates, a new order, a deletion and a completed draft"
-wp shopify-import run --full
-wp isi-e2e v2
-wp isi-e2e checksum /state/checksum-v2
-wp shopify-import run --full
-wp isi-e2e zero-writes /state/checksum-v2
+wp idempotent-import run --full
+wp iim-e2e v2
+wp iim-e2e checksum /state/checksum-v2
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-v2
 
-wp isi-e2e no-mail
+wp iim-e2e no-mail
 
 echo "== Webhooks"
-wp isi-e2e webhook
+wp iim-e2e webhook
 
 echo "== Plugin errors and warnings logged by WordPress"
 podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/debug.log 2>/dev/null || true'

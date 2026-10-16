@@ -4,14 +4,14 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
 use WC_Logger_Interface;
 
-/** The WooCommerce logger (WooCommerce → Status → Logs, source "shopify-import"). */
+/** The WooCommerce logger (WooCommerce → Status → Logs, source "idempotent-import"). */
 final class Log
 {
-    public const SOURCE = 'shopify-import';
+    public const SOURCE = 'idempotent-import';
 
     public function __construct(private readonly WC_Logger_Interface $logger) {}
 

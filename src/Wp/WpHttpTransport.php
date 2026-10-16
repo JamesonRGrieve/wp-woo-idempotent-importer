@@ -4,11 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Shopify\HttpResponse;
-use IdempotentShopifyImporter\Shopify\HttpTransport;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\HttpResponse;
+use IdempotentImporter\Shopify\HttpTransport;
+use IdempotentImporter\Shopify\ShopifyError;
 
 /** HttpTransport over the WordPress HTTP API. */
 final class WpHttpTransport implements HttpTransport

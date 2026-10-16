@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Mapping;
+namespace IdempotentImporter\Mapping;
 
-use IdempotentShopifyImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Shopify\ShopifyNode;
 
 /** The parts orders and draft orders share, translated once for both. */
 final class OrderParts

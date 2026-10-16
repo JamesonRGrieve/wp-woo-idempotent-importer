@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\ShopifyError;
 use WP_Term;
 
 /** Taxonomy terms: upsert of a mirrored term, and find-or-create of terms by name (tags, brands). */

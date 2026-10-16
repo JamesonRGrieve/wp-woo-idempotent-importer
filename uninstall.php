@@ -9,15 +9,15 @@ declare(strict_types=1);
  * (products, orders, customers, posts…) is the site's data now and is left in place.
  */
 
-use IdempotentShopifyImporter\Config\Credentials;
-use IdempotentShopifyImporter\Config\Settings;
-use IdempotentShopifyImporter\Plugin;
-use IdempotentShopifyImporter\Store\Tables;
-use IdempotentShopifyImporter\Sync\Cursors;
-use IdempotentShopifyImporter\Sync\RunLock;
-use IdempotentShopifyImporter\Sync\RunState;
-use IdempotentShopifyImporter\Wp\Scheduler;
-use IdempotentShopifyImporter\Wp\Writer\DeliveryProfileWriter;
+use IdempotentImporter\Config\Credentials;
+use IdempotentImporter\Config\Settings;
+use IdempotentImporter\Plugin;
+use IdempotentImporter\Store\Tables;
+use IdempotentImporter\Sync\Cursors;
+use IdempotentImporter\Sync\RunLock;
+use IdempotentImporter\Sync\RunState;
+use IdempotentImporter\Wp\Scheduler;
+use IdempotentImporter\Wp\Writer\DeliveryProfileWriter;
 
 if (!defined('WP_UNINSTALL_PLUGIN')) {
     return;

@@ -4,18 +4,18 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Config;
+namespace IdempotentImporter\Config;
 
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Wp\Options;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Wp\Options;
 
 /**
- * Every operator setting, read once from the `isi_settings` option and validated. DEFAULTS is the single
+ * Every operator setting, read once from the `iim_settings` option and validated. DEFAULTS is the single
  * definition of each setting and its default; the admin page and sanitiser are driven by it.
  */
 final readonly class Settings
 {
-    public const OPTION = 'isi_settings';
+    public const OPTION = 'iim_settings';
 
     public const DEFAULTS = [
         'store_domain' => '',

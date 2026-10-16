@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Meta;
+namespace IdempotentImporter\Wp\Meta;
 
-use IdempotentShopifyImporter\Mapping\Values;
+use IdempotentImporter\Mapping\Values;
 
 /**
  * Writes the importer's meta onto any WordPress object: the Shopify identity, mapped scalar fields, and
@@ -15,17 +15,17 @@ use IdempotentShopifyImporter\Mapping\Values;
  */
 final class MetaSync
 {
-    public const GID = '_shopify_gid';
-    public const DELETED = '_shopify_deleted';
-    public const METAFIELD_PREFIX = '_shopify_mf_';
-    public const METAFIELD_KEYS = '_shopify_mf_keys';
-    public const METAFIELD_TYPES = '_shopify_mf_types';
-    public const FIELD_PREFIX = '_shopify_';
+    public const GID = '_mirror_gid';
+    public const DELETED = '_mirror_deleted';
+    public const METAFIELD_PREFIX = '_mirror_mf_';
+    public const METAFIELD_KEYS = '_mirror_mf_keys';
+    public const METAFIELD_TYPES = '_mirror_mf_types';
+    public const FIELD_PREFIX = '_mirror_';
     public const METAFIELDS_FIELD = 'meta';
 
     /**
      * The Shopify identity, the metafields, and every mapped field the writer did not consume into a
-     * native WordPress field, as `_shopify_<field>` meta. Nothing mapped is ever silently dropped.
+     * native WordPress field, as `_mirror_<field>` meta. Nothing mapped is ever silently dropped.
      *
      * @param list<string> $consumed fields the writer stored natively
      */

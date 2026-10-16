@@ -4,19 +4,19 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Writer;
+namespace IdempotentImporter\Wp\Writer;
 
-use IdempotentShopifyImporter\Mapping\Desired;
-use IdempotentShopifyImporter\Mapping\Values;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\Decimal;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Store\Link;
-use IdempotentShopifyImporter\Wp\Comments;
-use IdempotentShopifyImporter\Wp\Dates;
-use IdempotentShopifyImporter\Wp\Meta\MetaSync;
-use IdempotentShopifyImporter\Wp\Meta\WcDataMeta;
-use IdempotentShopifyImporter\Wp\Retirement;
+use IdempotentImporter\Mapping\Desired;
+use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\Decimal;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Store\Link;
+use IdempotentImporter\Wp\Comments;
+use IdempotentImporter\Wp\Dates;
+use IdempotentImporter\Wp\Meta\MetaSync;
+use IdempotentImporter\Wp\Meta\WcDataMeta;
+use IdempotentImporter\Wp\Retirement;
 use WC_Order;
 use WC_Order_Item_Coupon;
 use WC_Order_Item_Fee;
@@ -31,10 +31,10 @@ use WC_Order_Item_Tax;
  */
 final class OrderWriter implements Writer
 {
-    public const ORDER_NUMBER_META = '_shopify_name';
-    public const CREATED_VIA = 'shopify-import';
-    private const NOTE_IDS_META = '_shopify_note_ids';
-    private const LINE_GID_META = '_shopify_line_item_gid';
+    public const ORDER_NUMBER_META = '_mirror_name';
+    public const CREATED_VIA = 'idempotent-import';
+    private const NOTE_IDS_META = '_mirror_note_ids';
+    private const LINE_GID_META = '_mirror_line_item_gid';
     private const SHIPPING_METHOD_FALLBACK = 'shopify';
     private const PAID_STATUSES = ['processing', 'completed', 'refunded'];
     private const PAYMENT_KINDS = ['SALE', 'CAPTURE'];
@@ -162,7 +162,7 @@ final class OrderWriter implements Writer
         $item->add_meta_data(self::LINE_GID_META, $line->string('gid'), true);
         $sku = $line->nullableString('sku');
         if ($sku !== null) {
-            $item->add_meta_data('_shopify_sku', $sku, true);
+            $item->add_meta_data('_mirror_sku', $sku, true);
         }
         foreach ($line->stringMap('attributes') as $name => $value) {
             $item->add_meta_data($name, $value);

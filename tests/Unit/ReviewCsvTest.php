@@ -4,12 +4,12 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentShopifyImporter\Mapping\ReviewCsv;
-use IdempotentShopifyImporter\Mapping\ReviewMapper;
-use IdempotentShopifyImporter\Mapping\Unsupported;
-use IdempotentShopifyImporter\Mapping\Values;
+use IdempotentImporter\Mapping\ReviewCsv;
+use IdempotentImporter\Mapping\ReviewMapper;
+use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\Values;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

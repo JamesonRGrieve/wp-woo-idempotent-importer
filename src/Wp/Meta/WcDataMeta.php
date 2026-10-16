@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp\Meta;
+namespace IdempotentImporter\Wp\Meta;
 
 use WC_Data;
 

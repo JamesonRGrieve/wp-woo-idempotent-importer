@@ -19,7 +19,7 @@ would be needed. Gaps are decisions for the operator, tracked on the Deck card.
 | Variants | Variations: SKU, barcode → GTIN (`global_unique_id`), price/compare-at → sale/regular price, cost → Cost of Goods, weight + unit, requires shipping → virtual, taxable → tax status, inventory tracked/quantity/policy → manage stock/stock/backorders, image, position | Total quantity across Shopify locations. |
 | Product media | Featured image + gallery | Videos/3D go to the media library and product meta (see Gaps). |
 | Inventory item origin (country, province, HS code) | Product/variation meta | No native field. |
-| Metafields (every owner) | Post/term/user/order meta `_shopify_mf_<namespace>_<key>`, with type kept alongside | Values as Shopify serialises them. |
+| Metafields (every owner) | Post/term/user/order meta `_mirror_mf_<namespace>_<key>`, with type kept alongside | Values as Shopify serialises them. |
 | Customers | WooCommerce customers (WP users, role `customer`): names, email, phone, locale → user locale, note → biography, tags, state, tax exempt, verified email, email/SMS marketing consent (meta), created date | Adopts an existing user with the same email. Passwords can't be exported from Shopify (see Gaps). |
 | Customer default address | Billing + shipping address | Extra addresses kept as meta (see Gaps). |
 | Code discounts — basic (percentage/fixed, all/products/collections, once per customer, usage limit, dates, minimum subtotal, specific customers) | Coupons: percent / fixed_cart / fixed_product, product + category restrictions, usage limits, expiry, minimum spend, email restrictions | Every redeem code becomes its own coupon. |
@@ -36,7 +36,7 @@ would be needed. Gaps are decisions for the operator, tracked on the Deck card.
 | Menus | WordPress navigation menus, nested items, links resolved to the mirrored product/category/page/post | |
 | URL redirects | 301 redirects served by the plugin | Plus automatic 301s from every old Shopify URL (`/products/…`, `/collections/…`, `/pages/…`, `/blogs/…`) to its new home. |
 | Delivery profiles (zones, flat rates, free-over-subtotal) | WooCommerce shipping zones with flat-rate and free-shipping methods | Opt-in (`shipping_zones`). Weight/price-banded rates: see Gaps. |
-| Product reviews (no Shopify API — exported CSV from Judge.me or Shopify Product Reviews) | Product reviews (comments of type `review` with rating, verified flag) | `wp shopify-import reviews <file.csv>`. |
+| Product reviews (no Shopify API — exported CSV from Judge.me or Shopify Product Reviews) | Product reviews (comments of type `review` with rating, verified flag) | `wp idempotent-import reviews <file.csv>`. |
 
 ## WooCommerce Square compatibility
 
@@ -51,7 +51,7 @@ off by default). Keep Square's system of record on WooCommerce while the importe
 |---|---|
 | Gift cards and their balances | A gift-card plugin (e.g. WooCommerce Gift Cards) or a custom writer into Square Gift Cards via the Square API. |
 | Store credit accounts | A store-credit/wallet plugin. |
-| Customer passwords | Not exportable from Shopify; customers reset on first login (`wp shopify-import send-password-resets` at cutover). |
+| Customer passwords | Not exportable from Shopify; customers reset on first login (`wp idempotent-import send-password-resets` at cutover). |
 | Saved customer payment methods | Not exportable (PCI). |
 | Additional customer addresses (beyond the default) | Kept as meta; an address-book plugin to use them at checkout. |
 | Marketing consent acting on newsletters | Kept as meta; a newsletter plugin (MailPoet etc.) to import it. |

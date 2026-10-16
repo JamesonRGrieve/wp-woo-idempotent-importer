@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
 /** Untrusted request input (already unslashed), read with a type and sanitised at the boundary. */
 final readonly class Input

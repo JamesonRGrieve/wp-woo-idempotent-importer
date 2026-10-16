@@ -4,15 +4,15 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Unit;
+namespace IdempotentImporter\Tests\Unit;
 
 use DateTimeImmutable;
-use IdempotentShopifyImporter\Model\Kind;
-use IdempotentShopifyImporter\Shopify\Gid;
-use IdempotentShopifyImporter\Shopify\SearchQuery;
-use IdempotentShopifyImporter\Shopify\ShopifyError;
-use IdempotentShopifyImporter\Shopify\WebhookTopics;
-use IdempotentShopifyImporter\Shopify\WebhookVerifier;
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Shopify\Gid;
+use IdempotentImporter\Shopify\SearchQuery;
+use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Shopify\WebhookTopics;
+use IdempotentImporter\Shopify\WebhookVerifier;
 use PHPUnit\Framework\TestCase;
 
 final class ShopifyHelpersTest extends TestCase

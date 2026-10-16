@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Store;
+namespace IdempotentImporter\Store;
 
-use IdempotentShopifyImporter\Model\Kind;
+use IdempotentImporter\Model\Kind;
 use wpdb;
 
 /** The GIDs a full pass has seen, so links it didn't see can be retired. Scratch data, cleared per run. */

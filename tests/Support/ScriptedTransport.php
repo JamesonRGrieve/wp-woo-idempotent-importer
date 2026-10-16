@@ -4,10 +4,10 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Tests\Support;
+namespace IdempotentImporter\Tests\Support;
 
-use IdempotentShopifyImporter\Shopify\HttpResponse;
-use IdempotentShopifyImporter\Shopify\HttpTransport;
+use IdempotentImporter\Shopify\HttpResponse;
+use IdempotentImporter\Shopify\HttpTransport;
 use LogicException;
 
 /**

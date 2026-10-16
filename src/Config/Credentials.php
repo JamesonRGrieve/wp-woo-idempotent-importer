@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Config;
+namespace IdempotentImporter\Config;
 
-use IdempotentShopifyImporter\Wp\Options;
+use IdempotentImporter\Wp\Options;
 
 /**
  * Secrets, resolved in order: a wp-config constant, then the process environment (both injected by the
@@ -15,12 +15,12 @@ use IdempotentShopifyImporter\Wp\Options;
  */
 final class Credentials
 {
-    public const ACCESS_TOKEN = 'ISI_SHOPIFY_ACCESS_TOKEN';
-    public const WEBHOOK_SECRET = 'ISI_SHOPIFY_WEBHOOK_SECRET';
+    public const ACCESS_TOKEN = 'IIM_SHOPIFY_ACCESS_TOKEN';
+    public const WEBHOOK_SECRET = 'IIM_SHOPIFY_WEBHOOK_SECRET';
     /** Test harness only: points the client at a local fake Shopify. Never settable from the admin. */
-    public const ENDPOINT_OVERRIDE = 'ISI_SHOPIFY_ENDPOINT';
+    public const ENDPOINT_OVERRIDE = 'IIM_SHOPIFY_ENDPOINT';
 
-    public const OPTION = 'isi_credentials';
+    public const OPTION = 'iim_credentials';
 
     public static function accessToken(): string
     {

@@ -4,9 +4,9 @@
 
 declare(strict_types=1);
 
-namespace IdempotentShopifyImporter\Wp;
+namespace IdempotentImporter\Wp;
 
-use IdempotentShopifyImporter\Mapping\HtmlImages;
+use IdempotentImporter\Mapping\HtmlImages;
 
 /** Rich text from Shopify, made ready for WordPress: optionally cleaned, with its images localised. */
 final class ContentHtml

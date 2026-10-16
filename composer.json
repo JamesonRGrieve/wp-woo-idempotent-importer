@@ -1,5 +1,5 @@
 {
-    "name": "jamesonrgrieve/wp-woo-idempotent-shopify-importer",
+    "name": "jamesonrgrieve/wp-woo-idempotent-importer",
     "description": "One-way, idempotent, continuously re-runnable Shopify to WooCommerce importer for WordPress.",
     "type": "wordpress-plugin",
     "license": "AGPL-3.0-or-later",
@@ -22,13 +22,13 @@
     },
     "autoload": {
         "psr-4": {
-            "IdempotentShopifyImporter\\": "src/"
+            "IdempotentImporter\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "IdempotentShopifyImporter\\Tests\\": "tests/",
-            "IdempotentShopifyImporter\\Tools\\": "tools/"
+            "IdempotentImporter\\Tests\\": "tests/",
+            "IdempotentImporter\\Tools\\": "tools/"
         }
     },
     "config": {
@@ -37,7 +37,7 @@
     },
     "scripts": {
         "post-install-cmd": "git config core.hooksPath .githooks",
-        "lint": "find src tests tools wp-woo-idempotent-shopify-importer.php uninstall.php -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null",
+        "lint": "find src tests tools wp-woo-idempotent-importer.php uninstall.php -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null",
         "format": "php-cs-fixer fix",
         "format-check": "php-cs-fixer fix --dry-run --diff",
         "analyse": "phpstan analyse --no-progress --memory-limit=1G",
