@@ -8,9 +8,9 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Mapping\HtmlImages;
 use IdempotentImporter\Mapping\LegacyPaths;
-use IdempotentImporter\Mapping\ProductMapper;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\Shopify\Mapping\ProductMapper;
 use IdempotentImporter\Sync\Outcome;
 use IdempotentImporter\Sync\RunCounts;
 use InvalidArgumentException;

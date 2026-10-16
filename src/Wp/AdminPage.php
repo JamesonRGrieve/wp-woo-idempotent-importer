@@ -10,6 +10,9 @@ use IdempotentImporter\Config\Credentials;
 use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Services;
+use IdempotentImporter\Source\Adapter;
+use IdempotentImporter\Source\Adapters;
+use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Sync\Mode;
 
 /**
@@ -26,16 +29,14 @@ final class AdminPage
     private const BOOLEAN_SETTINGS = [
         'store_settings' => 'Mirror store settings (name, currency, address, weight unit, timezone)',
         'shipping_zones' => 'Mirror shipping zones from the default delivery profile',
-        'redirects' => 'Redirect old Shopify URLs (301)',
+        'redirects' => 'Redirect old store URLs (301)',
         'localise_images' => 'Copy images embedded in descriptions and posts into the media library',
-        'clean_html' => 'Clean Shopify HTML with WordPress\'s post filter',
-        'preserve_order_numbers' => 'Show Shopify order numbers on mirrored orders',
+        'clean_html' => 'Clean imported HTML with WordPress\'s post filter',
+        'preserve_order_numbers' => 'Show the source store\'s order numbers on mirrored orders',
         'generate_missing_skus' => 'Give variants without a SKU a stable one (needed by WooCommerce Square)',
     ];
-    private const SYNCABLE_KINDS = [
-        Kind::Shop, Kind::File, Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order,
-        Kind::DraftOrder, Kind::Page, Kind::Blog, Kind::Article, Kind::Comment, Kind::Menu, Kind::UrlRedirect,
-    ];
+    /** Kinds switched by their own setting rather than the kinds list. */
+    private const SEPARATELY_SWITCHED_KINDS = [Kind::DeliveryProfile];
 
     public function __construct(private readonly Services $services, private readonly Scheduler $scheduler) {}
 
@@ -64,12 +65,17 @@ final class AdminPage
         wp_nonce_field(self::SAVE_ACTION);
         echo '<input type="hidden" name="action" value="' . esc_attr(self::SAVE_ACTION) . '">';
         echo '<table class="form-table" role="presentation"><tbody>';
-        $this->textRow('store_domain', 'Store (name.myshopify.com)', $settings->storeDomain);
-        $this->secretRow(Credentials::ACCESS_TOKEN, 'Admin API access token');
-        $this->secretRow(Credentials::WEBHOOK_SECRET, 'Webhook signing secret (app client secret)');
+        $adapter = $this->services->adapter();
+        $this->sourceRow($adapter);
+        if ($adapter->id() === ShopifyAdapter::ID) {
+            $this->textRow('store_domain', 'Store (name.myshopify.com)', $settings->storeDomain);
+        }
+        foreach ($adapter->credentialFields() as $name => $label) {
+            $this->secretRow($name, $label);
+        }
         $this->numberRow('interval_minutes', 'Run every (minutes)', $settings->intervalMinutes, Settings::MIN_INTERVAL_MINUTES);
         $this->numberRow('full_reconcile_hours', 'Full reconcile every (hours)', $settings->fullReconcileHours, 1);
-        $this->kindsRow($settings);
+        $this->kindsRow($settings, $adapter);
         foreach (self::BOOLEAN_SETTINGS as $key => $label) {
             $this->checkboxRow($key, $label, (bool) ($this->stored()[$key] ?? Settings::DEFAULTS[$key]));
         }
@@ -79,7 +85,10 @@ final class AdminPage
         submit_button(__('Save settings', 'wp-woo-idempotent-importer'));
         echo '</form>';
         $this->recentRuns();
-        echo '<p>' . esc_html__('Webhook URL:', 'wp-woo-idempotent-importer') . ' <code>' . esc_html(WebhookController::url()) . '</code></p></div>';
+        if ($adapter->supportsWebhooks()) {
+            echo '<p>' . esc_html__('Webhook URL:', 'wp-woo-idempotent-importer') . ' <code>' . esc_html(WebhookController::url()) . '</code></p>';
+        }
+        echo '</div>';
     }
 
     public function save(): void
@@ -87,7 +96,11 @@ final class AdminPage
         $this->authorise(self::SAVE_ACTION);
         $input = Input::post();
         $stored = $this->stored();
-        $stored['store_domain'] = $input->text('store_domain');
+        $source = $input->text('source');
+        $stored['source'] = Adapters::exists($source) && !Adapters::for($source)->isDeferred() ? $source : $this->services->settings()->source;
+        if ($input->has('store_domain')) {
+            $stored['store_domain'] = $input->text('store_domain');
+        }
         $stored['interval_minutes'] = $input->int('interval_minutes', Settings::DEFAULTS['interval_minutes']);
         $stored['full_reconcile_hours'] = $input->int('full_reconcile_hours', Settings::DEFAULTS['full_reconcile_hours']);
         $stored['default_author'] = $input->int('default_author');
@@ -98,7 +111,7 @@ final class AdminPage
             $stored[$key] = $input->has($key);
         }
         update_option(Settings::OPTION, $stored, false);
-        foreach ([Credentials::ACCESS_TOKEN, Credentials::WEBHOOK_SECRET] as $secret) {
+        foreach (array_keys($this->services->adapter()->credentialFields()) as $secret) {
             $value = trim($input->raw($secret));
             if ($value !== '' && !Credentials::isInjected($secret)) {
                 Credentials::save($secret, $value);
@@ -145,17 +158,36 @@ final class AdminPage
         echo '</tbody></table>';
     }
 
-    private function kindsRow(Settings $settings): void
+    /** The source platform; deferred ones are listed but can't be chosen yet. Saving applies it. */
+    private function sourceRow(Adapter $active): void
     {
+        echo '<tr><th scope="row"><label for="iim-source">' . esc_html__('Import from', 'wp-woo-idempotent-importer') . '</label></th><td><select id="iim-source" name="source">';
+        foreach (Adapters::all() as $adapter) {
+            $label = $adapter->label() . ($adapter->isDeferred() ? ' — ' . __('not built yet', 'wp-woo-idempotent-importer') : '');
+            echo '<option value="' . esc_attr($adapter->id()) . '"' . selected($adapter->id(), $active->id(), false)
+                . disabled($adapter->isDeferred(), true, false) . '>' . esc_html($label) . '</option>';
+        }
+        echo '</select></td></tr>';
+    }
+
+    private function kindsRow(Settings $settings, Adapter $adapter): void
+    {
+        $hint = $adapter->filterHint();
         echo '<tr><th scope="row">' . esc_html__('Mirror', 'wp-woo-idempotent-importer') . '</th><td><fieldset><legend class="screen-reader-text">'
-            . esc_html__('Kinds to mirror, with optional Shopify search filters', 'wp-woo-idempotent-importer') . '</legend>';
-        foreach (self::SYNCABLE_KINDS as $kind) {
+            . esc_html__('Kinds to mirror', 'wp-woo-idempotent-importer') . '</legend>';
+        foreach ($adapter->kinds() as $kind) {
+            if (in_array($kind, self::SEPARATELY_SWITCHED_KINDS, true)) {
+                continue;
+            }
             $id = 'iim-kind-' . $kind->value;
             echo '<p><label for="' . esc_attr($id) . '"><input type="checkbox" id="' . esc_attr($id) . '" name="kinds[]" value="' . esc_attr($kind->value) . '"'
                 . checked($settings->syncs($kind), true, false) . '> ' . esc_html($kind->value) . '</label> ';
-            echo '<label class="screen-reader-text" for="' . esc_attr($id . '-filter') . '">' . esc_html("Filter for {$kind->value}") . '</label>';
-            echo '<input type="text" class="regular-text" id="' . esc_attr($id . '-filter') . '" name="filters[' . esc_attr($kind->value) . ']" placeholder="'
-                . esc_attr__('Shopify search, e.g. status:active', 'wp-woo-idempotent-importer') . '" value="' . esc_attr($settings->filter($kind)) . '"></p>';
+            if ($hint !== null) {
+                echo '<label class="screen-reader-text" for="' . esc_attr($id . '-filter') . '">' . esc_html("Filter for {$kind->value}") . '</label>';
+                echo '<input type="text" class="regular-text" id="' . esc_attr($id . '-filter') . '" name="filters[' . esc_attr($kind->value) . ']" placeholder="'
+                    . esc_attr($hint) . '" value="' . esc_attr($settings->filter($kind)) . '">';
+            }
+            echo '</p>';
         }
         echo '</fieldset></td></tr>';
     }

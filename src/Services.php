@@ -6,30 +6,12 @@ declare(strict_types=1);
 
 namespace IdempotentImporter;
 
-use IdempotentImporter\Config\Credentials;
 use IdempotentImporter\Config\Settings;
-use IdempotentImporter\Mapping\ArticleMapper;
-use IdempotentImporter\Mapping\BlogMapper;
-use IdempotentImporter\Mapping\CollectionMapper;
-use IdempotentImporter\Mapping\CommentMapper;
-use IdempotentImporter\Mapping\CustomerMapper;
-use IdempotentImporter\Mapping\DeliveryProfileMapper;
-use IdempotentImporter\Mapping\DiscountMapper;
-use IdempotentImporter\Mapping\DraftOrderMapper;
-use IdempotentImporter\Mapping\FileMapper;
-use IdempotentImporter\Mapping\MenuMapper;
-use IdempotentImporter\Mapping\OrderMapper;
-use IdempotentImporter\Mapping\PageMapper;
-use IdempotentImporter\Mapping\ProductMapper;
-use IdempotentImporter\Mapping\ReviewMapper;
-use IdempotentImporter\Mapping\ShopMapper;
-use IdempotentImporter\Mapping\UrlRedirectMapper;
+use IdempotentImporter\Http\HttpTransport;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\Connection;
-use IdempotentImporter\Shopify\GraphQlClient;
-use IdempotentImporter\Shopify\QueryLibrary;
-use IdempotentImporter\Shopify\Reader;
-use IdempotentImporter\Shopify\SystemSleeper;
+use IdempotentImporter\Source\Adapter;
+use IdempotentImporter\Source\Adapters;
+use IdempotentImporter\Source\SourceReader;
 use IdempotentImporter\Store\LinkStore;
 use IdempotentImporter\Store\RedirectStore;
 use IdempotentImporter\Store\RunLog;
@@ -59,11 +41,12 @@ use IdempotentImporter\Wp\Writer\ShopWriter;
 use IdempotentImporter\Wp\Writer\Targets;
 use IdempotentImporter\Wp\Writer\TermWriter;
 use IdempotentImporter\Wp\Writer\UrlRedirectWriter;
+use IdempotentImporter\Wp\Writer\Writer;
 use wpdb;
 
 /**
  * The composition root: builds every service once, from the current settings, and nothing else
- * constructs dependencies. The Shopify connection is built only when something reads from Shopify, so
+ * constructs dependencies. The active source's reader is built only when something reads from it, so
  * the site works (and reports a useful error) before credentials are configured.
  */
 final class Services
@@ -115,9 +98,20 @@ final class Services
         return $this->log ??= Log::woocommerce();
     }
 
+    /** The source platform the operator selected. */
+    public function adapter(): Adapter
+    {
+        return Adapters::for($this->settings->source);
+    }
+
+    public function transport(): HttpTransport
+    {
+        return $this->transport;
+    }
+
     public function cursors(): Cursors
     {
-        return new Cursors();
+        return new Cursors($this->settings->source);
     }
 
     public function lock(): RunLock
@@ -125,21 +119,10 @@ final class Services
         return new RunLock();
     }
 
-    /** Throws ShopifyError when the store or token isn't configured. */
-    public function client(): GraphQlClient
+    /** Throws SourceError when the source is deferred or its credentials aren't configured. */
+    public function reader(): SourceReader
     {
-        $override = Credentials::endpointOverride();
-        $connection = $override !== null
-            ? new Connection($override, Credentials::accessToken())
-            : Connection::forStore($this->settings->storeDomain, Credentials::accessToken());
-
-        return new GraphQlClient($connection, QueryLibrary::bundled(), $this->transport, new SystemSleeper());
-    }
-
-    /** Throws ShopifyError when the store or token isn't configured. */
-    public function reader(): Reader
-    {
-        return new Reader($this->client());
+        return $this->adapter()->reader($this->settings, $this->transport);
     }
 
     public function objectSync(): ObjectSync
@@ -157,6 +140,7 @@ final class Services
     public function runner(): Runner
     {
         return new Runner(
+            $this->adapter(),
             $this->reader(),
             $this->objectSync(),
             $this->settings,
@@ -169,8 +153,21 @@ final class Services
         );
     }
 
-    /** @return array<string, Handler> keyed by Kind value */
+    /** @return array<string, Handler> the active source's mappers, each with its kind's writer, keyed by Kind value */
     private function handlers(): array
+    {
+        $writers = $this->writers();
+        $byKind = [];
+        foreach ($this->adapter()->mappers($this->settings) as $mapper) {
+            $kind = $mapper->kind()->value;
+            $byKind[$kind] = new Handler($mapper, $writers[$kind]);
+        }
+
+        return $byKind;
+    }
+
+    /** @return array<string, Writer> one writer per kind, keyed by Kind value; the same for every source */
+    private function writers(): array
     {
         $media = new MediaLibrary($this->links, $this->transport);
         $targets = new Targets(
@@ -180,27 +177,27 @@ final class Services
             $this->settings,
             $this->log(),
         );
-        $handlers = [
-            new Handler(new ShopMapper(), new ShopWriter($targets, $this->redirects)),
-            new Handler(new FileMapper(), new FileWriter($targets)),
-            new Handler(new CollectionMapper(), new TermWriter(Kind::Collection, 'product_cat', $targets)),
-            new Handler(new ProductMapper($this->settings->generateMissingSkus), new ProductWriter($targets)),
-            new Handler(new CustomerMapper(), new CustomerWriter()),
-            new Handler(new DiscountMapper(), new DiscountWriter($targets)),
-            new Handler(new OrderMapper(), new OrderWriter(Kind::Order, $targets)),
-            new Handler(new DraftOrderMapper(), new OrderWriter(Kind::DraftOrder, $targets)),
-            new Handler(new PageMapper(), new PageWriter($targets)),
-            new Handler(new BlogMapper(), new TermWriter(Kind::Blog, 'category', $targets)),
-            new Handler(new ArticleMapper(), new ArticleWriter($targets)),
-            new Handler(new CommentMapper(), new CommentWriter($targets)),
-            new Handler(new MenuMapper(), new MenuWriter($targets)),
-            new Handler(new UrlRedirectMapper(), new UrlRedirectWriter()),
-            new Handler(new DeliveryProfileMapper(), new DeliveryProfileWriter($targets, $this->db)),
-            new Handler(new ReviewMapper(), new ReviewWriter()),
+        $writers = [
+            new ShopWriter($targets, $this->redirects),
+            new FileWriter($targets),
+            new TermWriter(Kind::Collection, 'product_cat', $targets),
+            new ProductWriter($targets),
+            new CustomerWriter(),
+            new DiscountWriter($targets),
+            new OrderWriter(Kind::Order, $targets),
+            new OrderWriter(Kind::DraftOrder, $targets),
+            new PageWriter($targets),
+            new TermWriter(Kind::Blog, 'category', $targets),
+            new ArticleWriter($targets),
+            new CommentWriter($targets),
+            new MenuWriter($targets),
+            new UrlRedirectWriter(),
+            new DeliveryProfileWriter($targets, $this->db),
+            new ReviewWriter(),
         ];
         $byKind = [];
-        foreach ($handlers as $handler) {
-            $byKind[$handler->mapper->kind()->value] = $handler;
+        foreach ($writers as $writer) {
+            $byKind[$writer->kind()->value] = $writer;
         }
 
         return $byKind;

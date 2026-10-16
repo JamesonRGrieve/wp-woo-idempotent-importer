@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 use WP_Post;
 
 /**
@@ -26,7 +26,7 @@ final class Posts
         }
         $id = wp_insert_post(wp_slash($args), true);
         if (is_wp_error($id)) {
-            throw new ShopifyError("Could not save {$postType} \"" . ($fields['post_title'] ?? '') . '": ' . $id->get_error_message());
+            throw new SourceError("Could not save {$postType} \"" . ($fields['post_title'] ?? '') . '": ' . $id->get_error_message());
         }
 
         return $id;

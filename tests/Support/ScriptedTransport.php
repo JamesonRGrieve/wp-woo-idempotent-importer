@@ -6,8 +6,8 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Support;
 
-use IdempotentImporter\Shopify\HttpResponse;
-use IdempotentImporter\Shopify\HttpTransport;
+use IdempotentImporter\Http\HttpResponse;
+use IdempotentImporter\Http\HttpTransport;
 use LogicException;
 
 /**

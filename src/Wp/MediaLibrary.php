@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
+use IdempotentImporter\Http\HttpTransport;
 use IdempotentImporter\Mapping\HtmlImages;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\HttpTransport;
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Store\LinkStore;
 
 /**
@@ -45,7 +45,7 @@ final class MediaLibrary
         $id = media_handle_sideload(['name' => $name, 'tmp_name' => $file], $parentId);
         if (is_wp_error($id)) {
             wp_delete_file($file);
-            throw new ShopifyError("Could not add {$name} to the media library: " . $id->get_error_message());
+            throw new SourceError("Could not add {$name} to the media library: " . $id->get_error_message());
         }
         update_post_meta($id, self::SOURCE_URL_META, HtmlImages::identity($url));
         $this->setAlt($id, $alt);

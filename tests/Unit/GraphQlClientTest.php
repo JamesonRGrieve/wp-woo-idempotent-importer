@@ -6,11 +6,11 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentImporter\Shopify\Connection;
-use IdempotentImporter\Shopify\GraphQlClient;
-use IdempotentImporter\Shopify\HttpResponse;
-use IdempotentImporter\Shopify\QueryLibrary;
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Http\HttpResponse;
+use IdempotentImporter\Source\Shopify\Connection;
+use IdempotentImporter\Source\Shopify\GraphQlClient;
+use IdempotentImporter\Source\Shopify\QueryLibrary;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
 use PHPUnit\Framework\TestCase;
@@ -64,7 +64,7 @@ final class GraphQlClientTest extends TestCase
     {
         $responses = array_fill(0, GraphQlClient::MAX_ATTEMPTS, new HttpResponse(503, ''));
 
-        $this->expectException(ShopifyError::class);
+        $this->expectException(SourceError::class);
         $this->client(new ScriptedTransport(null, $responses))->query('Shop');
     }
 
@@ -72,7 +72,7 @@ final class GraphQlClientTest extends TestCase
     {
         $body = '{"data":{"shop":{"id":"x"}},"errors":[{"message":"Access denied for orders field."}]}';
 
-        $this->expectException(ShopifyError::class);
+        $this->expectException(SourceError::class);
         $this->expectExceptionMessage('Access denied for orders field.');
         $this->client(new ScriptedTransport(null, [new HttpResponse(200, $body)]))->query('Shop');
     }
@@ -81,8 +81,8 @@ final class GraphQlClientTest extends TestCase
     {
         try {
             $this->client(new ScriptedTransport(null, [new HttpResponse(401, '')]))->query('Shop');
-            self::fail('Expected a ShopifyError.');
-        } catch (ShopifyError $e) {
+            self::fail('Expected a SourceError.');
+        } catch (SourceError $e) {
             self::assertStringContainsString('HTTP 401', $e->getMessage());
             self::assertStringNotContainsString('secret-token', $e->getMessage());
         }
@@ -90,7 +90,7 @@ final class GraphQlClientTest extends TestCase
 
     public function testConnectionValidatesTheStoreDomain(): void
     {
-        $this->expectException(ShopifyError::class);
+        $this->expectException(SourceError::class);
         Connection::forStore('example.com', 'token');
     }
 

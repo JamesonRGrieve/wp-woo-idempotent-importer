@@ -9,7 +9,7 @@ namespace IdempotentImporter\Wp\Writer;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Store\Link;
 use IdempotentImporter\Wp\Meta\MetaSync;
 use IdempotentImporter\Wp\Meta\WpMeta;
@@ -46,7 +46,7 @@ final class MenuWriter implements Writer
         $menuId = $existing !== null && $this->exists($existing->targetId) ? $existing->targetId : 0;
         $menuId = wp_update_nav_menu_object($menuId, ['menu-name' => $f->string('title')]);
         if (is_wp_error($menuId)) {
-            throw new ShopifyError("Could not save menu \"{$f->string('title')}\": " . $menuId->get_error_message());
+            throw new SourceError("Could not save menu \"{$f->string('title')}\": " . $menuId->get_error_message());
         }
         foreach (wp_get_nav_menu_items($menuId, ['post_status' => 'any']) ?: [] as $item) {
             if ($item instanceof WP_Post) {
@@ -81,7 +81,7 @@ final class MenuWriter implements Writer
                 ...$this->target($item),
             ]);
             if (is_wp_error($itemId)) {
-                throw new ShopifyError("Could not save menu item \"{$item->string('title')}\": " . $itemId->get_error_message());
+                throw new SourceError("Could not save menu item \"{$item->string('title')}\": " . $itemId->get_error_message());
             }
             $this->items($menuId, $item->records('children'), $itemId);
         }

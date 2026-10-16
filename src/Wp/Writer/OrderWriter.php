@@ -9,9 +9,9 @@ namespace IdempotentImporter\Wp\Writer;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\Decimal;
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Store\Link;
+use IdempotentImporter\Support\Decimal;
 use IdempotentImporter\Wp\Comments;
 use IdempotentImporter\Wp\Dates;
 use IdempotentImporter\Wp\Meta\MetaSync;
@@ -25,7 +25,7 @@ use WC_Order_Item_Shipping;
 use WC_Order_Item_Tax;
 
 /**
- * Orders and draft orders → WooCommerce orders, through the CRUD API (HPOS-safe). Totals are Shopify's,
+ * Orders and draft orders → WooCommerce orders, through the CRUD API (HPOS-safe). Totals are the source's,
  * never recalculated. When an order changes its items, refunds and tax lines are rebuilt; notes are
  * added once each. Writes run inside Quiet, so no emails and no stock or coupon-usage side effects.
  */
@@ -35,16 +35,14 @@ final class OrderWriter implements Writer
     public const CREATED_VIA = 'idempotent-import';
     private const NOTE_IDS_META = '_mirror_note_ids';
     private const LINE_GID_META = '_mirror_line_item_gid';
-    private const SHIPPING_METHOD_FALLBACK = 'shopify';
+    private const SHIPPING_METHOD_FALLBACK = self::CREATED_VIA;
     private const PAID_STATUSES = ['processing', 'completed', 'refunded'];
-    private const PAYMENT_KINDS = ['SALE', 'CAPTURE'];
-    private const SUCCESS = 'SUCCESS';
     private const PERCENT_PLACES = 2;
     private const CONSUMED = [
         'name', 'created_at', 'currency', 'prices_include_tax', 'customer_gid', 'email', 'phone', 'billing',
         'shipping', 'coupons', 'line_items', 'shipping_lines', 'tax_lines', 'discount_total', 'shipping_total',
         'tax_total', 'total', 'status', 'processed_at', 'closed_at', 'customer_note', 'payment_method_title',
-        'fees', 'refunds', 'notes',
+        'transaction_id', 'fees', 'refunds', 'notes',
     ];
 
     public function __construct(private readonly Kind $kind, private readonly Targets $targets) {}
@@ -87,7 +85,7 @@ final class OrderWriter implements Writer
         $this->refunds($order, $f->records('refunds'), self::lineItemIds($order), $taxKeys);
         $order = wc_get_order($id);
         if (!$order instanceof WC_Order) {
-            throw new ShopifyError("Order {$id} vanished while it was being written.");
+            throw new SourceError("Order {$id} vanished while it was being written.");
         }
         if ($order->get_status() !== $status) {
             $order->set_status($status);
@@ -111,7 +109,7 @@ final class OrderWriter implements Writer
 
     /**
      * Each distinct tax title gets a stable key, used as the "rate id" that links line taxes to the
-     * order's tax lines (Shopify's taxes have no WooCommerce rate).
+     * order's tax lines (mirrored taxes have no WooCommerce rate).
      *
      * @return array<string, int> tax title => key
      */
@@ -172,7 +170,7 @@ final class OrderWriter implements Writer
     }
 
     /**
-     * The product and variation a line points at. A line whose product was deleted in Shopify stays a
+     * The product and variation a line points at. A line whose product was deleted at the source stays a
      * named line with no product; one whose product exists but isn't mirrored yet waits for it.
      *
      * @return array{0: int, 1: int}
@@ -291,28 +289,17 @@ final class OrderWriter implements Writer
         $order->set_billing_phone($f->nullableString('phone') ?? $order->get_billing_phone());
         $order->set_customer_note($f->nullableString('customer_note') ?? '');
         $order->set_payment_method_title($f->nullableString('payment_method_title') ?? '');
-        $order->set_transaction_id($this->transactionId($f));
+        $order->set_transaction_id($f->nullableString('transaction_id') ?? '');
         $order->set_discount_total($f->string('discount_total'));
         $order->set_shipping_total($f->string('shipping_total'));
         $order->set_cart_tax($f->string('tax_total'));
         $order->set_total($f->string('total'));
     }
 
-    private function transactionId(Values $f): string
-    {
-        foreach ($f->records('transactions') as $transaction) {
-            if (in_array($transaction->string('kind'), self::PAYMENT_KINDS, true) && $transaction->string('status') === self::SUCCESS) {
-                return $transaction->nullableString('authorization') ?? $transaction->string('gid');
-            }
-        }
-
-        return '';
-    }
-
     /**
-     * Which WooCommerce order item each Shopify line became, for refunds to point at.
+     * Which WooCommerce order item each source line became, for refunds to point at.
      *
-     * @return array<string, int> Shopify line item GID → order item id
+     * @return array<string, int> line item GID → order item id
      */
     private static function lineItemIds(WC_Order $order): array
     {
@@ -359,13 +346,13 @@ final class OrderWriter implements Writer
                 'date_created' => $refund->nullableString('created_at'),
             ]);
             if (is_wp_error($created)) {
-                throw new ShopifyError("Refund {$refund->string('gid')}: " . $created->get_error_message());
+                throw new SourceError("Refund {$refund->string('gid')}: " . $created->get_error_message());
             }
             $this->targets->links->save(Kind::Refund, $refund->string('gid'), $created->get_id());
         }
     }
 
-    /** Adds each timeline comment and fulfillment once, as a private order note. */
+    /** Adds each note (timeline comments, shipments) once, as a private order note. */
     private function notes(WC_Order $order, Values $f): void
     {
         $added = $order->get_meta(self::NOTE_IDS_META);
@@ -374,15 +361,6 @@ final class OrderWriter implements Writer
         foreach ($f->records('notes') as $note) {
             $author = $note->nullableString('author');
             $notes[$note->string('gid')] = [($author !== null ? "{$author}: " : '') . $note->string('message'), $note->string('created_at')];
-        }
-        foreach ($f->records('fulfillments') as $fulfillment) {
-            $tracking = array_map(static fn(Values $t): string => trim(implode(' ', array_filter([
-                $t->nullableString('company'), $t->nullableString('number'), $t->nullableString('url'),
-            ]))), $fulfillment->records('tracking'));
-            $notes[$fulfillment->string('gid')] = [
-                "Shopify fulfillment {$fulfillment->string('name')} ({$fulfillment->string('status')})" . ($tracking === [] ? '' : ': ' . implode('; ', $tracking)),
-                $fulfillment->string('created_at'),
-            ];
         }
         $changed = false;
         foreach ($notes as $gid => [$text, $date]) {

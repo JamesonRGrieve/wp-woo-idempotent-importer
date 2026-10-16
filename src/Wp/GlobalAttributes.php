@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 use WC_Product_Attribute;
 
 /**
@@ -43,7 +43,7 @@ final class GlobalAttributes
     {
         $term = get_term_by('name', $value, self::taxonomyName($name));
         if (!$term instanceof \WP_Term) {
-            throw new ShopifyError("Option value \"{$value}\" of \"{$name}\" has no attribute term.");
+            throw new SourceError("Option value \"{$value}\" of \"{$name}\" has no attribute term.");
         }
 
         return $term->slug;
@@ -61,7 +61,7 @@ final class GlobalAttributes
         if (wc_attribute_taxonomy_id_by_name($taxonomy) === 0) {
             $id = wc_create_attribute(['name' => wp_strip_all_tags($name), 'slug' => $slug, 'type' => 'select', 'has_archives' => false]);
             if (is_wp_error($id)) {
-                throw new ShopifyError("Could not create the attribute \"{$name}\": " . $id->get_error_message());
+                throw new SourceError("Could not create the attribute \"{$name}\": " . $id->get_error_message());
             }
         }
         if (!taxonomy_exists($taxonomy)) {

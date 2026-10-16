@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace IdempotentImporter\Mapping;
 
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Source\Node;
 
 /**
  * Pure translation of one Shopify object into its desired WordPress state. Bump version() whenever the
@@ -25,5 +25,5 @@ interface Mapper
      *
      * @throws Unsupported when the target has no schema for the object
      */
-    public function map(ShopifyNode $node): ?Desired;
+    public function map(Node $node): ?Desired;
 }

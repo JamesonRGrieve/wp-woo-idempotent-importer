@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace IdempotentImporter\Model;
 
 /**
- * Every kind of Shopify object the importer tracks in its link table. The values are persisted; never
- * rename one. The synced kinds are imported in the order of SYNC_ORDER so dependencies exist first.
+ * Every kind of object the importer tracks in its link table, whatever the source. The values are
+ * persisted; never rename one. Synced kinds are imported in SYNC_ORDER so dependencies exist first.
  */
 enum Kind: string
 {
@@ -35,7 +35,7 @@ enum Kind: string
     case ShippingZone = 'shipping_zone';
     case Review = 'review';
 
-    /** The kinds a run reads from Shopify, in dependency order. */
+    /** The kinds a run can read, in dependency order (each adapter provides a subset). */
     public const SYNC_ORDER = [
         self::Shop,
         self::File,
@@ -52,5 +52,6 @@ enum Kind: string
         self::Menu,
         self::UrlRedirect,
         self::DeliveryProfile,
+        self::Review,
     ];
 }

@@ -16,6 +16,7 @@ use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Plugin;
 use IdempotentImporter\Services;
+use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Store\RunRecord;
 use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Scheduler;
@@ -215,7 +216,7 @@ function zeroWrites(string $before): void
 
 function webhook(): void
 {
-    update_option(Credentials::OPTION, [Credentials::WEBHOOK_SECRET => WEBHOOK_SECRET], false);
+    update_option(Credentials::OPTION, [ShopifyAdapter::WEBHOOK_SECRET => WEBHOOK_SECRET], false);
     $body = (string) json_encode(['id' => 301]);
     $request = new WP_REST_Request('POST', '/' . WebhookController::NAMESPACE . WebhookController::ROUTE);
     $request->set_body($body);

@@ -64,8 +64,10 @@ final class Plugin
         $scheduler->register();
         (new Storefront($services->settings(), $services->redirects(), $services->links()))->register();
         (new DynamicCollections())->register();
-        $webhooks = new WebhookController($scheduler);
-        add_action('rest_api_init', $webhooks->register(...));
+        if ($services->adapter()->supportsWebhooks()) {
+            $webhooks = new WebhookController($scheduler);
+            add_action('rest_api_init', $webhooks->register(...));
+        }
         if (is_admin()) {
             (new AdminPage($services, $scheduler))->register();
         }

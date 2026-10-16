@@ -7,14 +7,16 @@ declare(strict_types=1);
 namespace IdempotentImporter\Wp;
 
 use IdempotentImporter\Config\Credentials;
-use IdempotentImporter\Shopify\WebhookTopics;
-use IdempotentImporter\Shopify\WebhookVerifier;
+use IdempotentImporter\Source\Shopify\ShopifyAdapter;
+use IdempotentImporter\Source\Shopify\WebhookTopics;
+use IdempotentImporter\Source\Shopify\WebhookVerifier;
 use WP_REST_Request;
 use WP_REST_Response;
 
 /**
  * POST /wp-json/idempotent-import/v1/webhook. Authenticated by Shopify's HMAC of the raw body (constant
- * time); it only queues the object it names, so Shopify gets its 200 at once.
+ * time); it only queues the object it names, so Shopify gets its 200 at once. Registered only while the
+ * active source pushes webhooks (Shopify is the only one that does today).
  */
 final class WebhookController
 {
@@ -41,7 +43,7 @@ final class WebhookController
 
     public function isAuthentic(WP_REST_Request $request): bool
     {
-        return (new WebhookVerifier(Credentials::webhookSecret()))
+        return (new WebhookVerifier(Credentials::get(ShopifyAdapter::WEBHOOK_SECRET)))
             ->isAuthentic($request->get_body(), (string) $request->get_header(self::HMAC_HEADER));
     }
 

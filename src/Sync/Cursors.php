@@ -11,14 +11,16 @@ use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Wp\Options;
 
 /**
- * Per kind, the start time of the last run that completed it with nothing failed or deferred. The next
- * incremental run asks for objects updated since then, minus an overlap for clock skew and objects
- * updated while that run was reading.
+ * Per source and kind, the start time of the last run that completed it with nothing failed or deferred.
+ * The next incremental run asks for objects updated since then, minus an overlap for clock skew and
+ * objects updated while that run was reading.
  */
 final class Cursors
 {
     public const OPTION = 'iim_cursors';
     public const OVERLAP = 'PT10M';
+
+    public function __construct(private readonly string $sourceId) {}
 
     public function since(Kind $kind): ?DateTimeImmutable
     {
@@ -31,24 +33,34 @@ final class Cursors
     {
         $all = $this->all();
         $all[$kind->value] = $runStartedAt;
-        update_option(self::OPTION, $all, false);
+        $this->store($all);
     }
 
+    /** Forgets this source's cursors, so its next run reads everything. */
     public function reset(): void
     {
-        delete_option(self::OPTION);
+        $this->store([]);
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string> kind value → run start */
     private function all(): array
     {
+        $source = Options::array(self::OPTION)[$this->sourceId] ?? [];
         $all = [];
-        foreach (Options::array(self::OPTION) as $kind => $startedAt) {
+        foreach (is_array($source) ? $source : [] as $kind => $startedAt) {
             if (is_string($kind) && is_string($startedAt)) {
                 $all[$kind] = $startedAt;
             }
         }
 
         return $all;
+    }
+
+    /** @param array<string, string> $cursors */
+    private function store(array $cursors): void
+    {
+        $every = Options::array(self::OPTION);
+        $every[$this->sourceId] = $cursors;
+        update_option(self::OPTION, $every, false);
     }
 }

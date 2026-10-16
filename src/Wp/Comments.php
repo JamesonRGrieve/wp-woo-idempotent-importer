@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 
 /**
  * Creating or updating a mirrored comment (blog comments and product reviews).
@@ -20,14 +20,14 @@ final class Comments
     {
         if ($existingId !== null && get_comment($existingId) !== null) {
             if (is_wp_error(wp_update_comment(wp_slash(['comment_ID' => $existingId, ...$fields]), true))) {
-                throw new ShopifyError("Could not update {$what}.");
+                throw new SourceError("Could not update {$what}.");
             }
 
             return $existingId;
         }
         $id = wp_insert_comment(wp_slash($fields));
         if ($id === false) {
-            throw new ShopifyError("Could not save {$what}.");
+            throw new SourceError("Could not save {$what}.");
         }
 
         return $id;

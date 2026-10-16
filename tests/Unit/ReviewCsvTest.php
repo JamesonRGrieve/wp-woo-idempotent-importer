@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentImporter\Mapping\ReviewCsv;
-use IdempotentImporter\Mapping\ReviewMapper;
 use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Source\Shopify\Mapping\ReviewCsv;
+use IdempotentImporter\Source\Shopify\Mapping\ReviewMapper;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

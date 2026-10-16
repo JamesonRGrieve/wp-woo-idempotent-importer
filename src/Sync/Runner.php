@@ -8,24 +8,26 @@ namespace IdempotentImporter\Sync;
 
 use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\Reader;
-use IdempotentImporter\Shopify\SearchQuery;
-use IdempotentImporter\Shopify\ShopifyError;
-use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Source\Adapter;
+use IdempotentImporter\Source\Identity;
+use IdempotentImporter\Source\SourceError;
+use IdempotentImporter\Source\SourceReader;
 use IdempotentImporter\Store\LinkStore;
 use IdempotentImporter\Store\RunLog;
 use IdempotentImporter\Store\SeenStore;
 use IdempotentImporter\Wp\Log;
 
 /**
- * A run, one step at a time: each step reads and mirrors pages until its time budget is spent, then
- * persists where it got to. Kinds run in dependency order. A full run retires copies of objects Shopify
- * no longer has, but only for a kind that completed cleanly and wasn't filtered.
+ * A run of the active source, one step at a time: each step reads and mirrors pages until its time
+ * budget is spent, then persists where it got to. Kinds run in dependency order. A full run retires
+ * copies of this source's objects that it no longer has, but only for a kind that completed cleanly and
+ * wasn't filtered.
  */
 final class Runner
 {
     public function __construct(
-        private readonly Reader $reader,
+        private readonly Adapter $adapter,
+        private readonly SourceReader $reader,
         private readonly ObjectSync $sync,
         private readonly Settings $settings,
         private readonly LinkStore $links,
@@ -49,7 +51,9 @@ final class Runner
         }
         $kinds = array_values(array_filter(
             $this->settings->kinds,
-            fn(Kind $kind): bool => $this->sync->handles($kind) && ($onlyKinds === null || in_array($kind, $onlyKinds, true)),
+            fn(Kind $kind): bool => in_array($kind, $this->adapter->kinds(), true)
+                && $this->sync->handles($kind)
+                && ($onlyKinds === null || in_array($kind, $onlyKinds, true)),
         ));
         $state = new RunState($id, $mode, $dryRun, $kinds, gmdate('c'));
         $state->save();
@@ -71,7 +75,7 @@ final class Runner
             $this->lock->refresh($state->id);
             try {
                 $done = $kind === Kind::Shop ? $this->shop($state) : $this->page($state, $kind);
-            } catch (ShopifyError $e) {
+            } catch (SourceError $e) {
                 $this->log->error("Reading {$kind->value} failed: {$e->getMessage()}");
                 $state->counts->add($kind, Outcome::Failed);
                 $done = true;
@@ -106,9 +110,8 @@ final class Runner
     /** Mirrors one page of a kind; returns true when the kind has no more pages. */
     private function page(RunState $state, Kind $kind): bool
     {
-        $source = SourceRegistry::for($kind);
-        $since = $state->mode === Mode::Incremental && $source->isIncremental() ? $this->cursors->since($kind) : null;
-        $page = $this->reader->page($source, $state->cursor, SearchQuery::build($since, $this->settings->filter($kind)));
+        $since = $state->mode === Mode::Incremental && $this->reader->isIncremental($kind) ? $this->cursors->since($kind) : null;
+        $page = $this->reader->page($kind, $state->cursor, $since, $this->settings->filter($kind));
         foreach ($page->nodes as $node) {
             $state->counts->add($kind, $this->sync->sync($kind, $node, $state->dryRun));
             if ($state->mode === Mode::Full) {
@@ -131,7 +134,7 @@ final class Runner
             if ($this->settings->filter($kind) !== '') {
                 $this->log->info("{$kind->value} is filtered, so deletions aren't inferred from this full run.");
             } else {
-                foreach ($this->links->unseen($kind, $state->id) as $link) {
+                foreach ($this->links->unseen($kind, $state->id, Identity::prefix($this->adapter->id())) as $link) {
                     $state->counts->add($kind, $this->sync->retire($kind, $link->gid, $state->dryRun));
                 }
             }

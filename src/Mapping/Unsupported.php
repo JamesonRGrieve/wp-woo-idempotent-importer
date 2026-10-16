@@ -8,5 +8,5 @@ namespace IdempotentImporter\Mapping;
 
 use RuntimeException;
 
-/** A Shopify object WordPress + WooCommerce has no schema for (a COVERAGE.md gap). Reported, not fatal. */
+/** A source object WordPress + WooCommerce has no schema for (a gap in coverage/<source>.md). Reported, not fatal. */
 final class Unsupported extends RuntimeException {}

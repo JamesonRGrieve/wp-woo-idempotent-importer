@@ -16,8 +16,8 @@ use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
-use IdempotentImporter\Shopify\ApiVersion;
-use IdempotentImporter\Shopify\QueryLibrary;
+use IdempotentImporter\Source\Shopify\ApiVersion;
+use IdempotentImporter\Source\Shopify\QueryLibrary;
 use IdempotentImporter\Tests\Support\Fixtures;
 use IdempotentImporter\Tools\SchemaCache;
 

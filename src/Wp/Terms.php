@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Source\SourceError;
 use WP_Term;
 
 /** Taxonomy terms: upsert of a mirrored term, and find-or-create of terms by name (tags, brands). */
@@ -64,11 +64,11 @@ final class Terms
     private static function check(array|\WP_Error $result, string $taxonomy, string $name): int
     {
         if (is_wp_error($result)) {
-            throw new ShopifyError("Could not save {$taxonomy} term \"{$name}\": " . $result->get_error_message());
+            throw new SourceError("Could not save {$taxonomy} term \"{$name}\": " . $result->get_error_message());
         }
         $id = $result['term_id'] ?? null;
         if (!is_numeric($id)) {
-            throw new ShopifyError("Saving {$taxonomy} term \"{$name}\" returned no term id.");
+            throw new SourceError("Saving {$taxonomy} term \"{$name}\" returned no term id.");
         }
 
         return (int) $id;

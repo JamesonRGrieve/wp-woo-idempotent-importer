@@ -10,7 +10,7 @@ use IdempotentImporter\Model\Kind;
 use wpdb;
 
 /**
- * The identity map: (kind, Shopify GID) → WordPress object id + content hash. Kept in its own table so
+ * The identity map: (kind, source GID) → WordPress object id + content hash. Kept in its own table so
  * lookups are one indexed query for every kind (posts, terms, users, HPOS orders, attachments) alike.
  */
 final class LinkStore
@@ -71,21 +71,23 @@ final class LinkStore
     }
 
     /**
-     * Every link of a kind whose GID a run did not see (the deletion candidates of a full pass).
+     * Every link of a kind from one source (GID prefix) that a run did not see: the deletion candidates of
+     * that source's full pass. Other sources' links are never candidates.
      *
      * @return list<Link>
      */
-    public function unseen(Kind $kind, string $runId): array
+    public function unseen(Kind $kind, string $runId, string $prefix): array
     {
         return self::links($kind, Sql::rows(
             $this->db,
             'SELECT l.gid, l.target_id, l.hash FROM %i l
              LEFT JOIN %i s ON s.run_id = %s AND s.kind = l.kind AND s.gid = l.gid
-             WHERE l.kind = %s AND s.gid IS NULL',
+             WHERE l.kind = %s AND l.gid LIKE %s AND s.gid IS NULL',
             $this->table(),
             $this->tables->name(Tables::SEEN),
             $runId,
             $kind->value,
+            $this->db->esc_like($prefix) . '%',
         ));
     }
 

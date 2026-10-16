@@ -6,32 +6,31 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentImporter\Mapping\ArticleMapper;
-use IdempotentImporter\Mapping\BlogMapper;
-use IdempotentImporter\Mapping\CollectionMapper;
-use IdempotentImporter\Mapping\CommentMapper;
-use IdempotentImporter\Mapping\CustomerMapper;
-use IdempotentImporter\Mapping\DeliveryProfileMapper;
 use IdempotentImporter\Mapping\Desired;
-use IdempotentImporter\Mapping\DiscountMapper;
-use IdempotentImporter\Mapping\DraftOrderMapper;
-use IdempotentImporter\Mapping\FileMapper;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\MenuMapper;
-use IdempotentImporter\Mapping\OrderMapper;
-use IdempotentImporter\Mapping\PageMapper;
-use IdempotentImporter\Mapping\ProductMapper;
-use IdempotentImporter\Mapping\ShopMapper;
 use IdempotentImporter\Mapping\Unsupported;
-use IdempotentImporter\Mapping\UrlRedirectMapper;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\Connection;
-use IdempotentImporter\Shopify\GraphQlClient;
-use IdempotentImporter\Shopify\QueryLibrary;
-use IdempotentImporter\Shopify\Reader;
-use IdempotentImporter\Shopify\ShopifyNode;
-use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Shopify\Connection;
+use IdempotentImporter\Source\Shopify\GraphQlClient;
+use IdempotentImporter\Source\Shopify\Mapping\ArticleMapper;
+use IdempotentImporter\Source\Shopify\Mapping\BlogMapper;
+use IdempotentImporter\Source\Shopify\Mapping\CollectionMapper;
+use IdempotentImporter\Source\Shopify\Mapping\CommentMapper;
+use IdempotentImporter\Source\Shopify\Mapping\CustomerMapper;
+use IdempotentImporter\Source\Shopify\Mapping\DeliveryProfileMapper;
+use IdempotentImporter\Source\Shopify\Mapping\DiscountMapper;
+use IdempotentImporter\Source\Shopify\Mapping\DraftOrderMapper;
+use IdempotentImporter\Source\Shopify\Mapping\FileMapper;
+use IdempotentImporter\Source\Shopify\Mapping\MenuMapper;
+use IdempotentImporter\Source\Shopify\Mapping\OrderMapper;
+use IdempotentImporter\Source\Shopify\Mapping\PageMapper;
+use IdempotentImporter\Source\Shopify\Mapping\ProductMapper;
+use IdempotentImporter\Source\Shopify\Mapping\ShopMapper;
+use IdempotentImporter\Source\Shopify\Mapping\UrlRedirectMapper;
+use IdempotentImporter\Source\Shopify\QueryLibrary;
+use IdempotentImporter\Source\Shopify\Reader;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
@@ -47,7 +46,10 @@ final class MapperTest extends TestCase
         self::assertSame('CAD', $shop->string('currency'));
         self::assertSame('g', $shop->string('weight_unit'));
         self::assertSame('AB', $shop->record('address')?->string('state'));
-        self::assertSame('REFUND_POLICY', $shop->records('policies')[0]->string('type'));
+        $refund = $shop->records('policies')[0];
+        self::assertSame('REFUND_POLICY', $refund->string('type'));
+        self::assertNull($refund->nullableString('role'), 'a refund policy has no WordPress page setting');
+        self::assertSame(['/policies/refund-policy'], $refund->strings('legacy_paths'));
     }
 
     public function testFiles(): void
@@ -86,7 +88,7 @@ final class MapperTest extends TestCase
         self::assertSame('80', $variant->string('regular_price'));
         self::assertSame('60', $variant->string('sale_price'));
         self::assertSame('22.5', $variant->string('cost'));
-        self::assertSame(['value' => '120', 'unit' => 'GRAMS'], $variant->record('weight')?->all());
+        self::assertSame(['value' => '120', 'unit' => 'g'], $variant->record('weight')?->all());
         self::assertSame([], $scarf->records('attributes'));
 
         $braDesired = $mapper->map($nodes[1]);
@@ -148,7 +150,13 @@ final class MapperTest extends TestCase
         self::assertSame('0.5', $order->records('shipping_lines')[0]->records('taxes')[0]->string('amount'));
         self::assertSame('gid://shopify/LineItem/8101', $order->records('refunds')[0]->records('lines')[0]->string('line_item_gid'));
         self::assertSame('Called customer about size.', $order->records('notes')[0]->string('message'));
-        self::assertCount(1, $order->records('notes'));
+        self::assertSame(
+            'Shopify fulfillment #1001-F1 (SUCCESS): Canada Post 1234567890 https://www.canadapost-postescanada.ca/track/1234567890',
+            $order->records('notes')[1]->string('message'),
+        );
+        self::assertSame('gid://shopify/Fulfillment/8301', $order->records('notes')[1]->string('gid'));
+        self::assertCount(2, $order->records('notes'));
+        self::assertSame('ch_123', $order->string('transaction_id'));
         self::assertSame(['Gift message' => 'Happy birthday'], $order->stringMap('custom_attributes'));
 
         $void = Values::of($cancelled);
@@ -174,7 +182,7 @@ final class MapperTest extends TestCase
         self::assertSame('pending', $draft->string('status'));
         self::assertSame('Custom fitting', $draft->string('customer_note'));
 
-        $completed = new ShopifyNode(['status' => 'COMPLETED'] + $node->raw());
+        $completed = new Node(['status' => 'COMPLETED'] + $node->raw());
         self::assertNull((new DraftOrderMapper())->map($completed));
     }
 
@@ -222,16 +230,16 @@ final class MapperTest extends TestCase
     /** @return list<Desired> */
     private function mapAll(Kind $kind, Mapper $mapper): array
     {
-        return array_map(static fn(ShopifyNode $node): Desired => $mapper->map($node) ?? self::fail('expected a desired state'), $this->nodes($kind));
+        return array_map(static fn(Node $node): Desired => $mapper->map($node) ?? self::fail('expected a desired state'), $this->nodes($kind));
     }
 
-    /** @return list<ShopifyNode> */
+    /** @return list<Node> */
     private function nodes(Kind $kind): array
     {
-        return $this->reader()->page(SourceRegistry::for($kind), null, null)->nodes;
+        return $this->reader()->page($kind, null, null, '')->nodes;
     }
 
-    private function values(Mapper $mapper, ShopifyNode $node): Values
+    private function values(Mapper $mapper, Node $node): Values
     {
         return Values::of($mapper->map($node) ?? self::fail('expected a desired state'));
     }

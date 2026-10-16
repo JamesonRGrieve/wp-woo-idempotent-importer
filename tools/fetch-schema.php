@@ -12,7 +12,7 @@ declare(strict_types=1);
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\BuildClientSchema;
 use GraphQL\Utils\SchemaPrinter;
-use IdempotentImporter\Shopify\ApiVersion;
+use IdempotentImporter\Source\Shopify\ApiVersion;
 use IdempotentImporter\Tools\SchemaCache;
 
 require __DIR__ . '/../vendor/autoload.php';

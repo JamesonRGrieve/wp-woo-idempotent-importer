@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Unit;
 
-use IdempotentImporter\Shopify\Decimal;
+use IdempotentImporter\Support\Decimal;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

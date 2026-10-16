@@ -8,11 +8,11 @@ namespace IdempotentImporter\Tests\Unit;
 
 use DateTimeImmutable;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\Gid;
-use IdempotentImporter\Shopify\SearchQuery;
-use IdempotentImporter\Shopify\ShopifyError;
-use IdempotentImporter\Shopify\WebhookTopics;
-use IdempotentImporter\Shopify\WebhookVerifier;
+use IdempotentImporter\Source\Shopify\Gid;
+use IdempotentImporter\Source\Shopify\SearchQuery;
+use IdempotentImporter\Source\Shopify\WebhookTopics;
+use IdempotentImporter\Source\Shopify\WebhookVerifier;
+use IdempotentImporter\Source\SourceError;
 use PHPUnit\Framework\TestCase;
 
 final class ShopifyHelpersTest extends TestCase
@@ -34,7 +34,7 @@ final class ShopifyHelpersTest extends TestCase
         self::assertSame('Product', $gid->type);
         self::assertSame('123', $gid->id);
         self::assertSame('gid://shopify/Order/9', Gid::of('Order', '9'));
-        $this->expectException(ShopifyError::class);
+        $this->expectException(SourceError::class);
         Gid::parse('123');
     }
 

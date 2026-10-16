@@ -6,11 +6,12 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Mapping\ReviewCsv;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Services;
-use IdempotentImporter\Shopify\ShopifyError;
-use IdempotentImporter\Shopify\WebhookTopics;
+use IdempotentImporter\Source\Shopify\Mapping\ReviewCsv;
+use IdempotentImporter\Source\Shopify\ShopifyAdapter;
+use IdempotentImporter\Source\Shopify\WebhookTopics;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Store\RunRecord;
 use IdempotentImporter\Sync\Mode;
 use IdempotentImporter\Sync\RunCounts;
@@ -19,7 +20,7 @@ use WP_CLI;
 use WP_User;
 
 /**
- * Imports a Shopify store into WooCommerce, idempotently.
+ * Mirrors a store (Shopify, Etsy, …) into WooCommerce, idempotently.
  *
  * ## EXAMPLES
  *
@@ -39,7 +40,7 @@ final class Cli
      * ## OPTIONS
      *
      * [--full]
-     * : Read everything and retire copies of objects Shopify no longer has.
+     * : Read everything and retire copies of objects the source no longer has.
      *
      * [--dry-run]
      * : Report what would be created, updated or retired without writing anything.
@@ -96,7 +97,7 @@ final class Cli
     }
 
     /**
-     * Re-reads one object from Shopify and mirrors it now.
+     * Re-reads one object from the source and mirrors it now.
      *
      * ## OPTIONS
      *
@@ -104,7 +105,7 @@ final class Cli
      * : The kind, e.g. product.
      *
      * <gid>
-     * : The Shopify GID, e.g. gid://shopify/Product/123.
+     * : Its identity, e.g. gid://shopify/Product/123 or gid://etsy/Listing/123.
      *
      * @param list<string> $args
      */
@@ -146,6 +147,16 @@ final class Cli
      */
     public function reviews(array $args, array $assoc): void
     {
+        self::reporting(fn() => $this->importReviews($args, $assoc));
+    }
+
+    /**
+     * @param list<string> $args
+     * @param array<string, string|bool> $assoc
+     */
+    private function importReviews(array $args, array $assoc): void
+    {
+        $this->shopify();
         $file = $args[0] ?? '';
         $csv = is_readable($file) ? file_get_contents($file) : false;
         if ($csv === false) {
@@ -171,7 +182,7 @@ final class Cli
 
     private function registerWebhooks(): void
     {
-        $client = $this->services->client();
+        $client = $this->shopify()->client($this->services->settings(), $this->services->transport());
         $uri = WebhookController::url();
         foreach (WebhookTopics::topics() as $topic) {
             $result = $client->query('WebhookSubscriptionCreate', ['topic' => $topic, 'uri' => $uri])->requiredChild('webhookSubscriptionCreate');
@@ -244,12 +255,23 @@ final class Cli
         WP_CLI::success('Cleared.');
     }
 
-    /** Configuration, Shopify and argument problems end the command with their message, not a fatal. */
+    /** The active adapter, for commands that only exist for Shopify. */
+    private function shopify(): ShopifyAdapter
+    {
+        $adapter = $this->services->adapter();
+        if (!$adapter instanceof ShopifyAdapter) {
+            throw new SourceError("This command is for Shopify; the active source is {$adapter->label()}.");
+        }
+
+        return $adapter;
+    }
+
+    /** Configuration, source and argument problems end the command with their message, not a fatal. */
     private static function reporting(callable $command): void
     {
         try {
             $command();
-        } catch (ShopifyError|InvalidArgumentException $e) {
+        } catch (SourceError|InvalidArgumentException $e) {
             WP_CLI::error($e->getMessage());
         }
     }

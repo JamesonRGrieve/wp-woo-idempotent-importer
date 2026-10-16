@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Shopify\HttpResponse;
-use IdempotentImporter\Shopify\HttpTransport;
-use IdempotentImporter\Shopify\ShopifyError;
+use IdempotentImporter\Http\HttpResponse;
+use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Source\SourceError;
 
 /** HttpTransport over the WordPress HTTP API. */
 final class WpHttpTransport implements HttpTransport
@@ -17,7 +17,7 @@ final class WpHttpTransport implements HttpTransport
     {
         $response = wp_remote_post($url, ['headers' => $headers, 'body' => $body, 'timeout' => $timeoutSeconds]);
         if (is_wp_error($response)) {
-            throw new ShopifyError('Could not reach Shopify: ' . $response->get_error_message());
+            throw new SourceError('Could not reach Shopify: ' . $response->get_error_message());
         }
         $retryAfter = wp_remote_retrieve_header($response, 'retry-after');
 
@@ -40,16 +40,16 @@ final class WpHttpTransport implements HttpTransport
         ]);
         if (is_wp_error($response)) {
             wp_delete_file($file);
-            throw new ShopifyError("Could not download {$url}: " . $response->get_error_message());
+            throw new SourceError("Could not download {$url}: " . $response->get_error_message());
         }
         $status = (int) wp_remote_retrieve_response_code($response);
         if ($status !== 200) {
             wp_delete_file($file);
-            throw new ShopifyError("Could not download {$url}: HTTP {$status}");
+            throw new SourceError("Could not download {$url}: HTTP {$status}");
         }
         if ((int) filesize($file) >= $maxBytes) {
             wp_delete_file($file);
-            throw new ShopifyError("{$url} is larger than the {$maxBytes}-byte media limit.");
+            throw new SourceError("{$url} is larger than the {$maxBytes}-byte media limit.");
         }
 
         return $file;

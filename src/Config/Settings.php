@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace IdempotentImporter\Config;
 
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Wp\Options;
 
 /**
@@ -18,10 +19,11 @@ final readonly class Settings
     public const OPTION = 'iim_settings';
 
     public const DEFAULTS = [
+        'source' => Adapters::DEFAULT,
         'store_domain' => '',
         'kinds' => [
             'shop', 'file', 'collection', 'product', 'customer', 'discount', 'order', 'draft_order',
-            'page', 'blog', 'article', 'comment', 'menu', 'url_redirect',
+            'page', 'blog', 'article', 'comment', 'menu', 'url_redirect', 'review',
         ],
         'filters' => [],
         'interval_minutes' => 60,
@@ -41,9 +43,10 @@ final readonly class Settings
 
     /**
      * @param list<Kind> $kinds
-     * @param array<string, string> $filters Shopify search syntax per kind value
+     * @param array<string, string> $filters the source's own filter syntax, per kind value
      */
     public function __construct(
+        public string $source,
         public string $storeDomain,
         public array $kinds,
         public array $filters,
@@ -86,7 +89,10 @@ final readonly class Settings
             }
         }
 
+        $source = self::string($value('source'));
+
         return new self(
+            source: Adapters::exists($source) ? $source : Adapters::DEFAULT,
             storeDomain: strtolower(trim(self::string($value('store_domain')))),
             kinds: array_values(array_filter(Kind::SYNC_ORDER, static fn(Kind $kind): bool => in_array($kind, $kinds, true))),
             filters: $filters,

@@ -1,16 +1,18 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 # wp-woo-idempotent-importer
 
-A WordPress plugin that keeps a WooCommerce store an exact, one-way copy of a Shopify store until you
-cut over. Run it as often as you like: what's new in Shopify is created, what changed is updated, what
-was deleted is moved to the trash, and what didn't change isn't touched. A re-run against an unchanged
-store writes nothing at all.
+A WordPress plugin that keeps a WooCommerce store an exact, one-way copy of another store until you cut
+over. Each source platform is an adapter: **Shopify** is built; Etsy, Squarespace, Wix, BigCommerce,
+Square Online, Ecwid and Magento are listed but not built yet. Run it as often as you like: what's new
+at the source is created, what changed is updated, what was deleted is moved to the trash, and what
+didn't change isn't touched. A re-run against an unchanged store writes nothing at all.
 
-It mirrors every Shopify object WordPress + WooCommerce + WooCommerce Square has a home for: products and
-variants, collections, customers, discount codes, orders with refunds and fulfillments, draft orders,
-files, pages, blogs, articles, comments, menus, URL redirects, shop policies, store settings and shipping
-zones, plus product reviews from a review app's CSV export. [COVERAGE.md](COVERAGE.md) lists each one, and
-everything Shopify has that WordPress can't hold.
+From Shopify it mirrors every object WordPress + WooCommerce + WooCommerce Square has a home for:
+products and variants, collections, customers, discount codes, orders with refunds and fulfillments,
+draft orders, files, pages, blogs, articles, comments, menus, URL redirects, shop policies, store settings
+and shipping zones, plus product reviews from a review app's CSV export.
+[coverage/shopify.md](coverage/shopify.md) lists each one, and everything Shopify has that WordPress
+can't hold.
 
 ## How it stays idempotent
 

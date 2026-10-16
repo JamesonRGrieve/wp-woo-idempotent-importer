@@ -31,7 +31,6 @@ final class ProductWriter implements Writer
     public const PRODUCT_TYPE_ATTRIBUTE = 'Product type';
     private const BRAND_TAXONOMY = 'product_brand';
     private const TAG_TAXONOMY = 'product_tag';
-    private const WEIGHT_UNITS = ['KILOGRAMS' => 'kg', 'GRAMS' => 'g', 'POUNDS' => 'lbs', 'OUNCES' => 'oz'];
     private const DEFAULT_WEIGHT_UNIT = 'kg';
     /** WooCommerce's Cost of Goods field; the cost is always also kept as `_mirror_unit_cost` meta. */
     private const COST_OF_GOODS_FEATURE = 'cost_of_goods_sold';
@@ -160,7 +159,7 @@ final class ProductWriter implements Writer
         }
     }
 
-    /** The commerce fields of one Shopify variant, on a simple product or a variation. */
+    /** The commerce fields of one variant (weight unit in WooCommerce's units), on a simple product or a variation. */
     private function variantFields(WC_Product $product, Values $variant, string $ownerGid): void
     {
         $this->unique($ownerGid, 'SKU', static fn() => $product->set_sku($variant->nullableString('sku') ?? ''));
@@ -182,7 +181,7 @@ final class ProductWriter implements Writer
         $product->set_weight($weight === null ? '' : (string) wc_get_weight(
             (float) $weight->string('value'),
             Options::string('woocommerce_weight_unit', self::DEFAULT_WEIGHT_UNIT),
-            self::WEIGHT_UNITS[$weight->string('unit')] ?? self::DEFAULT_WEIGHT_UNIT,
+            $weight->string('unit'),
         ));
         $cost = $variant->nullableString('cost');
         if (FeaturesUtil::feature_is_enabled(self::COST_OF_GOODS_FEATURE)) {

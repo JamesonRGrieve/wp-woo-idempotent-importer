@@ -7,18 +7,19 @@ declare(strict_types=1);
 namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\QueryLibrary;
-use IdempotentImporter\Shopify\ShopifyError;
-use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Source\Shopify\EntityQueries;
+use IdempotentImporter\Source\Shopify\QueryLibrary;
+use IdempotentImporter\Source\Shopify\ShopifyAdapter;
+use IdempotentImporter\Source\SourceError;
 use PHPUnit\Framework\TestCase;
 
 final class QueryLibraryTest extends TestCase
 {
-    public function testEverySyncedKindExceptShopHasASource(): void
+    public function testEveryShopifyKindExceptShopHasAListQuery(): void
     {
-        foreach (Kind::SYNC_ORDER as $kind) {
+        foreach ((new ShopifyAdapter())->kinds() as $kind) {
             if ($kind !== Kind::Shop) {
-                self::assertSame($kind, SourceRegistry::for($kind)->kind);
+                self::assertSame($kind, EntityQueries::for($kind)->kind);
             }
         }
     }
@@ -48,14 +49,14 @@ final class QueryLibraryTest extends TestCase
 
     public function testIncrementalSources(): void
     {
-        self::assertTrue(SourceRegistry::for(Kind::Order)->isIncremental());
-        self::assertFalse(SourceRegistry::for(Kind::Menu)->isIncremental());
-        self::assertFalse(SourceRegistry::for(Kind::DeliveryProfile)->isIncremental());
+        self::assertTrue(EntityQueries::for(Kind::Order)->isIncremental());
+        self::assertFalse(EntityQueries::for(Kind::Menu)->isIncremental());
+        self::assertFalse(EntityQueries::for(Kind::DeliveryProfile)->isIncremental());
     }
 
     public function testUnknownOperation(): void
     {
-        $this->expectException(ShopifyError::class);
+        $this->expectException(SourceError::class);
         QueryLibrary::bundled()->document('Nope');
     }
 }

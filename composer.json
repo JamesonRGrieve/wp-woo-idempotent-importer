@@ -44,7 +44,10 @@
         "test": "phpunit --testsuite unit",
         "schema": "php tools/fetch-schema.php",
         "validate-graphql": "php tools/validate-graphql.php",
-        "e2e": "tests/e2e/run.sh",
+        "e2e": [
+            "Composer\\Config::disableProcessTimeout",
+            "tests/e2e/run.sh"
+        ],
         "check": [
             "@lint",
             "@format-check",

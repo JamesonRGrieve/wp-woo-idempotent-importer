@@ -8,8 +8,7 @@ namespace IdempotentImporter\Wp;
 
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Services;
-use IdempotentImporter\Shopify\ShopifyError;
-use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Sync\Mode;
 
 /**
@@ -72,7 +71,7 @@ final class Scheduler
     {
         try {
             $state = $this->services->runner()->start($mode, $dryRun);
-        } catch (ShopifyError $e) {
+        } catch (SourceError $e) {
             $this->services->log()->error("Run not started: {$e->getMessage()}");
 
             return false;
@@ -126,10 +125,7 @@ final class Scheduler
 
             return;
         }
-        if (str_contains($gid, '/InventoryItem/')) {
-            $gid = $reader->inventoryItemProduct($gid) ?? throw new ShopifyError("No product for {$gid}.");
-        }
-        $node = $reader->node(SourceRegistry::for($kind), $gid);
+        $node = $reader->node($kind, $gid);
         if ($node === null) {
             $sync->retire($kind, $gid, false);
         } else {

@@ -9,7 +9,7 @@ namespace IdempotentImporter\Sync;
 use IdempotentImporter\Mapping\Hasher;
 use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\ShopifyNode;
+use IdempotentImporter\Source\Node;
 use IdempotentImporter\Store\LinkStore;
 use IdempotentImporter\Store\RedirectStore;
 use IdempotentImporter\Wp\Log;
@@ -38,7 +38,7 @@ final class ObjectSync
         return isset($this->handlers[$kind->value]);
     }
 
-    public function sync(Kind $kind, ShopifyNode $node, bool $dryRun): Outcome
+    public function sync(Kind $kind, Node $node, bool $dryRun): Outcome
     {
         $handler = $this->handler($kind);
         $gid = $node->id();

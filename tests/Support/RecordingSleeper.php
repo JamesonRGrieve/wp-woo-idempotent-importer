@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Support;
 
-use IdempotentImporter\Shopify\Sleeper;
+use IdempotentImporter\Http\Sleeper;
 
 final class RecordingSleeper implements Sleeper
 {

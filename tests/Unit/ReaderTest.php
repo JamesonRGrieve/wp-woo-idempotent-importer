@@ -6,14 +6,14 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Unit;
 
+use DateTimeImmutable;
+use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Shopify\Connection;
-use IdempotentImporter\Shopify\GraphQlClient;
-use IdempotentImporter\Shopify\HttpResponse;
-use IdempotentImporter\Shopify\QueryLibrary;
-use IdempotentImporter\Shopify\Reader;
-use IdempotentImporter\Shopify\ShopifyError;
-use IdempotentImporter\Shopify\SourceRegistry;
+use IdempotentImporter\Source\Shopify\Connection;
+use IdempotentImporter\Source\Shopify\GraphQlClient;
+use IdempotentImporter\Source\Shopify\QueryLibrary;
+use IdempotentImporter\Source\Shopify\Reader;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
@@ -23,7 +23,7 @@ final class ReaderTest extends TestCase
 {
     public function testReadsAPageFromTheFixtures(): void
     {
-        $page = $this->reader(new ScriptedTransport(new FixtureResponder('v1')))->page(SourceRegistry::for(Kind::Product), null, null);
+        $page = $this->reader(new ScriptedTransport(new FixtureResponder('v1')))->page(Kind::Product, null, null, '');
 
         self::assertCount(3, $page->nodes);
         self::assertFalse($page->hasNextPage);
@@ -39,7 +39,7 @@ final class ReaderTest extends TestCase
         ]]]], JSON_THROW_ON_ERROR);
         $transport = new ScriptedTransport(null, [new HttpResponse(200, $firstPage), new HttpResponse(200, $secondPage)]);
 
-        $page = $this->reader($transport)->page(SourceRegistry::for(Kind::Product), null, "updated_at:>='2026-01-01T00:00:00Z'");
+        $page = $this->reader($transport)->page(Kind::Product, null, new DateTimeImmutable('2026-01-01T00:00:00Z'), '');
 
         self::assertSame(
             ['gid://shopify/ProductVariant/1', 'gid://shopify/ProductVariant/2'],
@@ -57,22 +57,42 @@ final class ReaderTest extends TestCase
             'metafields' => ['pageInfo' => ['hasNextPage' => true, 'endCursor' => 'm1'], 'nodes' => []],
         ]]);
 
-        $this->expectException(ShopifyError::class);
+        $this->expectException(SourceError::class);
         $this->expectExceptionMessage('variants.nodes.0.metafields has more than 250 entries');
-        $this->reader(new ScriptedTransport(null, [new HttpResponse(200, $page)]))->page(SourceRegistry::for(Kind::Product), null, null);
+        $this->reader(new ScriptedTransport(null, [new HttpResponse(200, $page)]))->page(Kind::Product, null, null, '');
     }
 
     public function testNodeReturnsNullWhenShopifyNoLongerHasIt(): void
     {
         $transport = new ScriptedTransport(null, [new HttpResponse(200, '{"data":{"node":null}}')]);
 
-        self::assertNull($this->reader($transport)->node(SourceRegistry::for(Kind::Product), 'gid://shopify/Product/9'));
+        self::assertNull($this->reader($transport)->node(Kind::Product, 'gid://shopify/Product/9'));
+    }
+
+    public function testAnInventoryItemReadsItsProduct(): void
+    {
+        $transport = new ScriptedTransport(null, [
+            new HttpResponse(200, '{"data":{"inventoryItem":{"variant":{"product":{"id":"gid://shopify/Product/7"}}}}}'),
+            new HttpResponse(200, '{"data":{"node":null}}'),
+        ]);
+
+        self::assertNull($this->reader($transport)->node(Kind::Product, 'gid://shopify/InventoryItem/55'));
+        self::assertSame('InventoryItemProduct', $transport->operation(0));
+        self::assertSame(['id' => 'gid://shopify/Product/7'], $transport->variables(1));
+    }
+
+    public function testAnInventoryItemWithoutAProductIsAnError(): void
+    {
+        $transport = new ScriptedTransport(null, [new HttpResponse(200, '{"data":{"inventoryItem":null}}')]);
+
+        $this->expectException(SourceError::class);
+        $this->reader($transport)->node(Kind::Product, 'gid://shopify/InventoryItem/55');
     }
 
     public function testDiscountsAreFetchedThroughTheirOwnRootField(): void
     {
         $transport = new ScriptedTransport(null, [new HttpResponse(200, '{"data":{"discountNode":null}}')]);
-        $this->reader($transport)->node(SourceRegistry::for(Kind::Discount), 'gid://shopify/DiscountCodeNode/1');
+        $this->reader($transport)->node(Kind::Discount, 'gid://shopify/DiscountCodeNode/1');
 
         self::assertStringContainsString('discountNode(id: $id)', $transport->document(0));
     }
