@@ -53,6 +53,23 @@ final class MapperTest extends TestCase
         self::assertSame(['/policies/refund-policy'], $refund->strings('legacy_paths'));
     }
 
+    public function testShopWithoutThePoliciesScopeMirrorsItsSettingsAndNamesTheGap(): void
+    {
+        $shop = $this->reader()->shop()->raw();
+        unset($shop['shopPolicies']);
+        $shop[Reader::POLICIES_DENIED] = 'ShopPolicies: Access denied for shopPolicies field.';
+        $mapper = new ShopMapper();
+
+        $desired = $mapper->map(new Node($shop, 'shop'));
+        $complete = $mapper->map($this->reader()->shop());
+
+        self::assertNull($desired->fields['policies'], 'unknown, so the policy pages are left as they are');
+        self::assertSame('CAD', Values::of($desired)->string('currency'));
+        self::assertSame(['Shop policies not mirrored: the app lacks the read_legal_policies access scope (Shopify: ShopPolicies: Access denied for shopPolicies field.)'], $desired->warnings);
+        self::assertSame([], $complete->warnings);
+        self::assertSame(array_diff_key($complete->fields, ['policies' => true]), array_diff_key($desired->fields, ['policies' => true]));
+    }
+
     public function testFiles(): void
     {
         [$image, $pdf] = $this->mapAll(Kind::File, new FileMapper());
@@ -141,7 +158,11 @@ final class MapperTest extends TestCase
 
     public function testOrders(): void
     {
-        [$paid, $cancelled] = $this->mapAll(Kind::Order, new OrderMapper());
+        [$paid, $cancelled, $fullyRefunded] = $this->mapAll(Kind::Order, new OrderMapper());
+        $refunded = Values::of($fullyRefunded);
+        self::assertSame('refunded', $refunded->string('status'));
+        self::assertSame('118.59', $refunded->string('total'));
+        self::assertSame(['118.59'], array_map(static fn(Values $refund): string => $refund->string('amount'), $refunded->records('refunds')));
         $order = Values::of($paid);
 
         self::assertSame('completed', $order->string('status'));

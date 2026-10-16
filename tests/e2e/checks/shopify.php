@@ -61,6 +61,11 @@ return [
         expect(product('gid://shopify/Product/301')->get_stock_quantity() === 7, 'mirroring orders did not reduce stock');
 
         expect(order(Kind::Order, 'gid://shopify/Order/802')->get_status() === 'cancelled', 'order #1002 cancelled');
+        $refunded = order(Kind::Order, 'gid://shopify/Order/804');
+        expect(
+            $refunded->get_status() === 'refunded' && count($refunded->get_refunds()) === 1 && money($refunded->get_total_refunded()) === '118.59',
+            "fully refunded order #1004: Shopify's one refund, not WooCommerce's automatic one as well",
+        );
         expect(order(Kind::DraftOrder, 'gid://shopify/DraftOrder/901')->get_status() === 'pending', 'open draft → pending order');
 
         $avery = user('gid://shopify/Customer/401');
