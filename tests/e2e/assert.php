@@ -34,6 +34,8 @@ const CONTENT_TABLES = [
     'woocommerce_attribute_taxonomies',
 ];
 const WEBHOOK_SECRET = 'e2e-webhook-secret';
+/** The Shopify app's client secret, as wp-config-extra.php defines it (Dev Dashboard apps sign webhooks with it). */
+const SHOPIFY_CLIENT_SECRET = 'e2e-client-secret';
 /** The fake store's trouble switch (see fake-store.php): every API request rate limited or refused. */
 const TROUBLE_FILE = '/state/trouble';
 const TROUBLE_THROTTLE = 'throttle';
@@ -203,6 +205,12 @@ function webhook(): void
     $forged->set_header('x-shopify-hmac-sha256', base64_encode('forged'));
     expect(rest_do_request($forged)->get_status() === 401, 'forged webhook rejected');
     expect(as_has_scheduled_action(Scheduler::OBJECT_HOOK, ['product', 'gid://shopify/Product/301', false], Scheduler::GROUP), 'object sync queued');
+
+    update_option(Credentials::OPTION, [], false);
+    $byApp = clone $request;
+    $byApp->set_header('x-shopify-hmac-sha256', base64_encode(hash_hmac('sha256', $body, SHOPIFY_CLIENT_SECRET, true)));
+    expect(rest_do_request($byApp)->get_status() === 200, "with no legacy signing secret, a webhook signed with the app's client secret is accepted");
+    expect(rest_do_request($request)->get_status() === 401, 'and one signed with the old secret is not');
 }
 
 /** Runs the current run to its end, a step at a time. */

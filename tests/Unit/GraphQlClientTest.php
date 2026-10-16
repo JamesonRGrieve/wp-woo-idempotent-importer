@@ -10,9 +10,11 @@ use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Source\CredentialsRejected;
 use IdempotentImporter\Source\RetryLater;
+use IdempotentImporter\Source\Shopify\ClientCredentialsAuthorizer;
 use IdempotentImporter\Source\Shopify\Connection;
 use IdempotentImporter\Source\Shopify\GraphQlClient;
 use IdempotentImporter\Source\Shopify\QueryLibrary;
+use IdempotentImporter\Source\Shopify\ShopifyTokenAuthorizer;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
@@ -118,14 +120,99 @@ final class GraphQlClientTest extends TestCase
     public function testConnectionValidatesTheStoreDomain(): void
     {
         $this->expectException(SourceError::class);
-        Connection::forStore('example.com', 'token');
+        Connection::forStore('example.com');
+    }
+
+    public function testTheTokenEndpointIsOnTheStoresHostAndFollowsATestEndpoint(): void
+    {
+        self::assertSame('https://fixture.myshopify.com/admin/oauth/access_token', Connection::forStore('Fixture.myshopify.com')->tokenUrl());
+        self::assertSame('http://shopify-fake:8080/admin/oauth/access_token', (new Connection('http://shopify-fake:8080/admin/api/graphql.json'))->tokenUrl());
+    }
+
+    public function testClientCredentialsAreExchangedForATokenOnceAndRenewedWhenShopifyRejectsIt(): void
+    {
+        $transport = new ScriptedTransport(null, [
+            new HttpResponse(200, '{"access_token":"granted-1","scope":"write_products","expires_in":86399}'),
+            new HttpResponse(200, self::SHOP),
+            new HttpResponse(200, self::SHOP),
+            new HttpResponse(401, '{"errors":"[API] Invalid API key or access token"}'),
+            new HttpResponse(200, '{"access_token":"granted-2","expires_in":86399}'),
+            new HttpResponse(200, self::SHOP),
+        ]);
+        $authorizer = new ClientCredentialsAuthorizer('https://fixture.myshopify.com/admin/oauth/access_token', 'client-id', 'client-secret', $transport);
+        $client = new GraphQlClient(Connection::forStore('fixture.myshopify.com'), QueryLibrary::bundled(), $authorizer, $transport, new RecordingSleeper());
+
+        $client->query('Shop');
+        $client->query('Shop');
+        $client->query('Shop');
+
+        self::assertSame('https://fixture.myshopify.com/admin/oauth/access_token', $transport->requests[0]['url']);
+        self::assertSame('POST', $transport->requests[0]['method']);
+        self::assertSame('grant_type=client_credentials&client_id=client-id&client_secret=client-secret', $transport->requests[0]['body']);
+        self::assertSame('application/x-www-form-urlencoded', $transport->requests[0]['headers']['Content-Type']);
+        self::assertSame('granted-1', $transport->requests[1]['headers']['X-Shopify-Access-Token']);
+        self::assertSame('granted-1', $transport->requests[2]['headers']['X-Shopify-Access-Token'], 'the token is kept between queries');
+        self::assertSame('granted-2', $transport->requests[5]['headers']['X-Shopify-Access-Token'], 'a rejected token is replaced once');
+        self::assertCount(6, $transport->requests);
+    }
+
+    public function testARefusedGrantStopsTheRunWithShopifysReasonButNoSecret(): void
+    {
+        $transport = new ScriptedTransport(null, [new HttpResponse(400, '{"error":"app_not_installed","error_description":"The application is not installed on this shop."}')]);
+        $authorizer = new ClientCredentialsAuthorizer('https://fixture.myshopify.com/admin/oauth/access_token', 'client-id', 'client-secret', $transport);
+
+        try {
+            $authorizer->headers();
+            self::fail('expected CredentialsRejected');
+        } catch (CredentialsRejected $e) {
+            self::assertStringContainsString('HTTP 400: app_not_installed', $e->getMessage());
+            self::assertStringNotContainsString('client-secret', $e->getMessage());
+        }
+    }
+
+    public function testABusyTokenEndpointPausesTheRun(): void
+    {
+        $transport = new ScriptedTransport(null, [new HttpResponse(503, '')]);
+
+        $this->expectException(RetryLater::class);
+        (new ClientCredentialsAuthorizer('https://fixture.myshopify.com/admin/oauth/access_token', 'client-id', 'client-secret', $transport))->headers();
+    }
+
+    public function testAGrantWithoutATokenIsAnError(): void
+    {
+        $transport = new ScriptedTransport(null, [new HttpResponse(200, '{"scope":"write_products"}')]);
+
+        $this->expectException(SourceError::class);
+        $this->expectExceptionMessage('Shopify issued no access token.');
+        (new ClientCredentialsAuthorizer('https://fixture.myshopify.com/admin/oauth/access_token', 'client-id', 'client-secret', $transport))->headers();
+    }
+
+    public function testMissingCredentialsAreAConfigurationError(): void
+    {
+        try {
+            new ClientCredentialsAuthorizer('https://fixture.myshopify.com/admin/oauth/access_token', 'client-id', '', new ScriptedTransport());
+            self::fail('a missing secret is an error');
+        } catch (SourceError $e) {
+            self::assertStringContainsString("enter the app's client ID and client secret", $e->getMessage());
+        }
+        $this->expectException(SourceError::class);
+        new ShopifyTokenAuthorizer('');
+    }
+
+    public function testALegacyTokenHasNothingToRenew(): void
+    {
+        $authorizer = new ShopifyTokenAuthorizer('legacy-token');
+
+        self::assertSame(['X-Shopify-Access-Token' => 'legacy-token'], $authorizer->headers());
+        self::assertFalse($authorizer->renew());
     }
 
     private function client(ScriptedTransport $transport, ?RecordingSleeper $sleeper = null): GraphQlClient
     {
         return new GraphQlClient(
-            Connection::forStore('Fixture.myshopify.com', 'secret-token'),
+            Connection::forStore('Fixture.myshopify.com'),
             QueryLibrary::bundled(),
+            new ShopifyTokenAuthorizer('secret-token'),
             $transport,
             $sleeper ?? new RecordingSleeper(),
         );

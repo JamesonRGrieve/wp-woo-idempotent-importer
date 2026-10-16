@@ -67,11 +67,15 @@ store's Instant Site redirects.
 1. Install and activate WooCommerce (9.6 or later), then this plugin (a release zip includes `vendor/`;
    from source, run `composer install --no-dev`).
 2. In WooCommerce → Store import, choose the source and save, then connect it:
-   - **Shopify:** create a custom app with read access to products, inventory, customers, orders (plus
-     `read_all_orders` for orders older than 60 days), draft orders, discounts, files, content (pages and
-     blogs), navigation, online store, shipping and locales. Install it, then enter the store's
-     `name.myshopify.com` domain and the Admin API token. For live updates, run
-     `wp idempotent-import register-webhooks`.
+   - **Shopify:** in Shopify's Dev Dashboard (dev.shopify.com, signed in to the store's organization),
+     create an app with read access to products, inventory, customers, orders, draft orders, discounts,
+     files, content (pages and blogs), navigation, online store, shipping and locales. Release a version,
+     install it on the store, then enter the store's `name.myshopify.com` domain and the app's client ID
+     and client secret. The importer exchanges them for a 24-hour token and renews it itself. The Dev
+     Dashboard doesn't offer Shopify's read-all-orders access, so only orders from the last 60 days are
+     mirrored unless the app has it. A legacy custom app (made in the store admin before 2026) can use
+     its Admin API access token instead. For live updates, run `wp idempotent-import register-webhooks`;
+     Shopify signs them with the client secret.
    - **Etsy:** register an app at etsy.com/developers with the callback URL shown on the settings page,
      enter its keystring and shared secret, save, then click **Connect to Etsy** and approve read access
      as the shop owner.
@@ -102,7 +106,8 @@ store's Instant Site redirects.
      Ecwid allows 600 requests a minute, so requests are paced at one every 0.1 seconds. Instant Site pages
      have no content API; bring them over by hand.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
-   (`IIM_SHOPIFY_ACCESS_TOKEN`, `IIM_SHOPIFY_WEBHOOK_SECRET`, `IIM_ETSY_KEYSTRING`,
+   (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
+   `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
    `IIM_ETSY_SHARED_SECRET`, `IIM_SQUARE_ONLINE_ACCESS_TOKEN`, `IIM_BIGCOMMERCE_STORE_HASH`,
    `IIM_BIGCOMMERCE_ACCESS_TOKEN`, `IIM_SQUARESPACE_API_KEY`, `IIM_WIX_API_KEY`, `IIM_WIX_SITE_ID`, `IIM_MAGENTO_STORE_URL`,
    `IIM_MAGENTO_STORE_CODE`, `IIM_MAGENTO_ACCESS_TOKEN`, `IIM_LIGHTSPEED_CLUSTER`, `IIM_LIGHTSPEED_LANGUAGE`,

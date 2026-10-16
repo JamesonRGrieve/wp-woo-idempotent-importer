@@ -27,7 +27,10 @@ use IdempotentImporter\Tests\Support\ShopifyResponder;
 
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 
+/** The token the fake Shopify issues for the e2e app's client credentials (a Dev Dashboard app's grant). */
 const SHOPIFY_ACCESS_TOKEN = 'e2e-token';
+const SHOPIFY_TOKEN_PATH = '/admin/oauth/access_token';
+const SHOPIFY_CLIENT_GRANT = ['grant_type' => 'client_credentials', 'client_id' => 'e2e-client-id', 'client_secret' => 'e2e-client-secret'];
 const ETSY_API_KEY = 'e2e-keystring:e2e-shared-secret';
 const ETSY_API_PREFIX = '/v3/';
 /** REST sources answered from their fixtures: source => [API path pattern, the headers every request must carry]. */
@@ -117,6 +120,20 @@ if (str_starts_with($path, ETSY_API_PREFIX)) {
         return;
     }
     sendJson((new EtsyResponder(fixtureState('etsy')))->respond($method, 'http://etsy-fake' . $uri, requestBody()));
+
+    return;
+}
+
+if ($method === 'POST' && $path === SHOPIFY_TOKEN_PATH) {
+    parse_str(requestBody(), $grant);
+    if ($grant !== SHOPIFY_CLIENT_GRANT) {
+        http_response_code(400);
+        echo '{"error":"invalid_client"}';
+
+        return;
+    }
+    header('Content-Type: application/json');
+    echo json_encode(['access_token' => SHOPIFY_ACCESS_TOKEN, 'scope' => 'write_products', 'expires_in' => 86399], JSON_THROW_ON_ERROR);
 
     return;
 }

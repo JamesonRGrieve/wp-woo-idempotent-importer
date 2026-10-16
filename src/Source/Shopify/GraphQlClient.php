@@ -12,14 +12,16 @@ use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Http\Sleeper;
 use IdempotentImporter\Source\CredentialsRejected;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Rest\RequestAuthorizer;
 use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use JsonException;
 
 /**
- * Sends the library's operations to the Admin GraphQL API. Waits out Shopify's cost-based throttle and
- * retries 429/5xx with backoff; when Shopify keeps pushing back it is a RetryLater (the run pauses), and a
- * rejected token is CredentialsRejected (the run stops). Any GraphQL error (including partial data) is a
+ * Sends the library's operations to the Admin GraphQL API, authenticated by the store's authorizer (a token
+ * it renews once if Shopify rejects it). Waits out Shopify's cost-based throttle and retries 429/5xx with
+ * backoff; when Shopify keeps pushing back it is a RetryLater (the run pauses), and a rejected token is
+ * CredentialsRejected (the run stops). Any GraphQL error (including partial data) is a
  * SourceError, so a response is either complete or rejected. Errors never include the access token.
  */
 final class GraphQlClient
@@ -37,6 +39,7 @@ final class GraphQlClient
     public function __construct(
         private readonly Connection $connection,
         private readonly QueryLibrary $library,
+        private readonly RequestAuthorizer $authorizer,
         private readonly HttpTransport $transport,
         private readonly Sleeper $sleeper,
     ) {}
@@ -48,14 +51,15 @@ final class GraphQlClient
             ['query' => $this->library->document($operation), 'variables' => (object) $variables, 'operationName' => $operation],
             JSON_THROW_ON_ERROR,
         );
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'X-Shopify-Access-Token' => $this->connection->accessToken,
-        ];
+        $renewed = false;
         for ($attempt = 1; ; ++$attempt) {
             $this->waitForBucket($operation);
+            $headers = ['Content-Type' => 'application/json', 'Accept' => 'application/json', ...$this->authorizer->headers()];
             $response = $this->transport->post($this->connection->endpoint, $headers, $body, self::REQUEST_TIMEOUT_SECONDS);
+            if ($response->status === self::HTTP_UNAUTHORIZED && !$renewed && $this->authorizer->renew()) {
+                $renewed = true;
+                continue;
+            }
             $wait = $this->retryWait($response, $attempt);
             if ($wait === null) {
                 $node = $this->data($response, $operation);

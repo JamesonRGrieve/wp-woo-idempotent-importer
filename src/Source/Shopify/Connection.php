@@ -9,34 +9,37 @@ namespace IdempotentImporter\Source\Shopify;
 use IdempotentImporter\Source\SourceError;
 
 /**
- * Where and how to reach one Shopify store's Admin GraphQL API. The endpoint is derived from the
- * myshopify domain; an explicit endpoint exists only for the test harness (set by constant, never UI).
+ * Where one Shopify store's Admin API lives: its GraphQL endpoint, derived from the myshopify domain, and its
+ * OAuth token endpoint on the same host. An explicit endpoint exists only for the test harness (set by
+ * constant, never UI); the token endpoint follows it, so a fake store serves both. How requests are
+ * authenticated is the authorizer's job (ShopifyTokenAuthorizer, ClientCredentialsAuthorizer).
  */
 final readonly class Connection
 {
     private const DOMAIN_PATTERN = '/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/';
+    private const TOKEN_PATH = '/admin/oauth/access_token';
 
-    public function __construct(
-        public string $endpoint,
-        #[\SensitiveParameter]
-        public string $accessToken,
-    ) {}
+    public function __construct(public string $endpoint) {}
 
-    public static function forStore(string $myshopifyDomain, #[\SensitiveParameter] string $accessToken): self
+    public static function forStore(string $myshopifyDomain): self
     {
         $domain = strtolower(trim($myshopifyDomain));
         if (preg_match(self::DOMAIN_PATTERN, $domain) !== 1) {
             throw new SourceError('The store must be its <name>.myshopify.com domain.');
         }
-        if ($accessToken === '') {
-            throw new SourceError('No Shopify access token is configured.');
-        }
 
-        return new self('https://' . $domain . '/admin/api/' . ApiVersion::PINNED . '/graphql.json', $accessToken);
+        return new self('https://' . $domain . '/admin/api/' . ApiVersion::PINNED . '/graphql.json');
     }
 
-    public function __debugInfo(): array
+    /** The store's OAuth token endpoint (the client credentials grant). */
+    public function tokenUrl(): string
     {
-        return ['endpoint' => $this->endpoint, 'accessToken' => '[redacted]'];
+        $parts = parse_url($this->endpoint);
+        if (!is_array($parts) || !isset($parts['scheme'], $parts['host'])) {
+            throw new SourceError('The Shopify endpoint is not a URL.');
+        }
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+
+        return "{$parts['scheme']}://{$parts['host']}{$port}" . self::TOKEN_PATH;
     }
 }

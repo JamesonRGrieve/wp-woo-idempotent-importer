@@ -13,6 +13,7 @@ use IdempotentImporter\Source\Shopify\Connection;
 use IdempotentImporter\Source\Shopify\GraphQlClient;
 use IdempotentImporter\Source\Shopify\QueryLibrary;
 use IdempotentImporter\Source\Shopify\Reader;
+use IdempotentImporter\Source\Shopify\ShopifyTokenAuthorizer;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
@@ -114,6 +115,6 @@ final class ReaderTest extends TestCase
 
     private function reader(ScriptedTransport $transport): Reader
     {
-        return new Reader(new GraphQlClient(Connection::forStore('fixture.myshopify.com', 't'), QueryLibrary::bundled(), $transport, new RecordingSleeper()));
+        return new Reader(new GraphQlClient(Connection::forStore('fixture.myshopify.com'), QueryLibrary::bundled(), new ShopifyTokenAuthorizer('t'), $transport, new RecordingSleeper()));
     }
 }

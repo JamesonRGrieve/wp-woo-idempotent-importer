@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Config\Credentials;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\Shopify\WebhookTopics;
 use IdempotentImporter\Source\Shopify\WebhookVerifier;
@@ -43,7 +42,7 @@ final class WebhookController
 
     public function isAuthentic(WP_REST_Request $request): bool
     {
-        return (new WebhookVerifier(Credentials::get(ShopifyAdapter::WEBHOOK_SECRET)))
+        return (new WebhookVerifier(ShopifyAdapter::webhookSecret()))
             ->isAuthentic($request->get_body(), (string) $request->get_header(self::HMAC_HEADER));
     }
 
