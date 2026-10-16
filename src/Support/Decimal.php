@@ -72,6 +72,14 @@ final class Decimal
         return self::shift((string) $total, -$places);
     }
 
+    /** Exact difference of two decimal strings ("10" − "2.5" → "7.5"). */
+    public static function subtract(string $a, string $b): string
+    {
+        $b = self::normalise($b);
+
+        return self::sum([$a, str_starts_with($b, '-') ? substr($b, 1) : "-{$b}"]);
+    }
+
     /** Exact product of a decimal string and an integer ("19.99" × 3 → "59.97"). */
     public static function multiply(string $value, int $factor): string
     {

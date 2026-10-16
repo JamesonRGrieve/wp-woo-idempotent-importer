@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from a fake Shopify and a
-# fake Etsy that serve the recorded fixtures. For each source it proves the import, that an unchanged
+# End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from a fake Shopify, a fake
+# Etsy and a fake Square that serve the recorded fixtures. For each source it proves the import, that an unchanged
 # re-run writes nothing (content tables byte-identical), that changes and deletions land; and that one
 # source's runs never touch another's mirror, and Shopify webhook authentication. Everything it creates
 # is removed on exit.
@@ -76,6 +76,11 @@ etsy_state() {
     echo "== Etsy store state: $1"
 }
 
+square_state() {
+    echo "$1" > "$STATE_DIR/square-state"
+    echo "== Square store state: $1"
+}
+
 podman network create "$NETWORK" >/dev/null
 podman volume create "$WP_VOLUME" >/dev/null
 chmod 0777 "$STATE_DIR"
@@ -84,7 +89,9 @@ podman run -d --name "$DB" --network "$NETWORK" --network-alias db \
     "$DB_IMAGE" >/dev/null
 store_state v1
 etsy_state v1
+square_state v1
 podman run -d --name "$FAKE" --network "$NETWORK" --network-alias shopify-fake --network-alias etsy-fake \
+    --network-alias square_online-fake \
     -v "$ROOT:/app:ro" -v "$STATE_DIR:/state" \
     "$PHP_IMAGE" php -S 0.0.0.0:8080 /app/tests/e2e/fake-store.php >/dev/null
 
@@ -143,6 +150,27 @@ wp iim-e2e etsy-v2
 wp iim-e2e checksum /state/checksum-etsy-v2
 wp idempotent-import run --full
 wp iim-e2e zero-writes /state/checksum-etsy-v2
+wp iim-e2e no-mail
+
+echo "== Square Online: first full import, beside the Shopify and Etsy mirrors"
+wp iim-e2e square-configure
+wp idempotent-import run --full
+wp iim-e2e square-v1
+
+echo "== Square Online unchanged: full and incremental re-runs must write nothing"
+wp iim-e2e checksum /state/checksum-square-v1
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-square-v1
+wp idempotent-import run
+wp iim-e2e zero-writes /state/checksum-square-v1
+
+square_state v2
+echo "== Square Online changed: a price, a deleted item, a refund, a new order and customer"
+wp idempotent-import run --full
+wp iim-e2e square-v2
+wp iim-e2e checksum /state/checksum-square-v2
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-square-v2
 wp iim-e2e no-mail
 
 echo "== Plugin errors and warnings logged by WordPress"

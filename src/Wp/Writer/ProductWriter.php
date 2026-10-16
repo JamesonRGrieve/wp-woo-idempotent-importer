@@ -25,7 +25,11 @@ use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
 
-/** Products and their variations, attributes, images, categories, tags and brand. */
+/**
+ * Products and their variations, attributes, images, categories, tags and brand. A product with no known
+ * creation time (`published_at` and `created_at` null, as for Square catalog items) is dated when it is
+ * first mirrored.
+ */
 final class ProductWriter implements Writer
 {
     public const PRODUCT_TYPE_ATTRIBUTE = 'Product type';
@@ -61,7 +65,10 @@ final class ProductWriter implements Writer
         $product->set_description($this->targets->html->prepare($f->string('description_html')));
         $product->set_status($f->string('status'));
         $product->set_catalog_visibility($f->string('catalog_visibility'));
-        $product->set_date_created($f->nullableString('published_at') ?? $f->string('created_at'));
+        $createdAt = $f->nullableString('published_at') ?? $f->nullableString('created_at');
+        if ($createdAt !== null) {
+            $product->set_date_created($createdAt);
+        }
         if ($categoryIds !== null) {
             $product->set_category_ids($categoryIds);
         }

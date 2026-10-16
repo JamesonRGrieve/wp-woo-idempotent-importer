@@ -22,6 +22,14 @@ final class SpecCache
     {
         return [
             new SpecDocument('etsy', 'open-api-v3', 'https://www.etsy.com/openapi/generated/oas/3.0.0.json', '', true),
+            // Square API 2026-09-16 (square/connect-api-specification, "Release 2026-09-16").
+            new SpecDocument(
+                'square_online',
+                'connect-api-2026-09-16',
+                'https://raw.githubusercontent.com/square/connect-api-specification/79ccc3f89e1527f7b943cc2f6628b6098572583e/api.json',
+                '',
+                false,
+            ),
         ];
     }
 

@@ -56,6 +56,15 @@ final class DecimalTest extends TestCase
         self::assertSame('-1.5', Decimal::sum(['1', '-2.5']));
     }
 
+    public function testSubtractIsExact(): void
+    {
+        self::assertSame('7.5', Decimal::subtract('10', '2.5'));
+        self::assertSame('0.1', Decimal::subtract('0.3', '0.2'));
+        self::assertSame('12.5', Decimal::subtract('10', '-2.5'));
+        self::assertSame('-1', Decimal::subtract('1.5', '2.50'));
+        self::assertSame('5', Decimal::subtract('5', '0'));
+    }
+
     public function testCompare(): void
     {
         self::assertSame(1, Decimal::compare('80.00', '60'));
