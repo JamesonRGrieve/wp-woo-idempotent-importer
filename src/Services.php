@@ -17,6 +17,7 @@ use IdempotentImporter\Store\RedirectStore;
 use IdempotentImporter\Store\RunLog;
 use IdempotentImporter\Store\SeenStore;
 use IdempotentImporter\Store\Tables;
+use IdempotentImporter\Sync\CredentialHold;
 use IdempotentImporter\Sync\Cursors;
 use IdempotentImporter\Sync\Handler;
 use IdempotentImporter\Sync\ObjectSync;
@@ -119,6 +120,11 @@ final class Services
         return new RunLock();
     }
 
+    public function credentialHold(): CredentialHold
+    {
+        return new CredentialHold();
+    }
+
     /** Throws SourceError when the source is deferred or its credentials aren't configured. */
     public function reader(): SourceReader
     {
@@ -148,6 +154,7 @@ final class Services
             new SeenStore($this->db, $this->tables),
             $this->cursors(),
             $this->lock(),
+            $this->credentialHold(),
             $this->runLog(),
             $this->log(),
         );

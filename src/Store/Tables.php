@@ -12,7 +12,8 @@ use wpdb;
 /** The plugin's own tables. Created and upgraded by dbDelta; dropped only on uninstall. */
 final class Tables
 {
-    public const SCHEMA_VERSION = 1;
+    /** 2: runs start with microseconds, so runs started within the same second keep their order. */
+    public const SCHEMA_VERSION = 2;
     public const VERSION_OPTION = 'iim_schema_version';
 
     public const LINKS = 'iim_links';
@@ -66,7 +67,7 @@ final class Tables
   mode varchar(16) NOT NULL,
   dry_run tinyint(1) NOT NULL,
   status varchar(16) NOT NULL,
-  started_at datetime NOT NULL,
+  started_at datetime(6) NOT NULL,
   finished_at datetime NULL,
   counts longtext NOT NULL,
   message text NULL,

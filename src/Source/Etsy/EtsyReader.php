@@ -8,6 +8,7 @@ namespace IdempotentImporter\Source\Etsy;
 
 use DateTimeImmutable;
 use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Http\RateLimit;
 use IdempotentImporter\Http\Sleeper;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Identity;
@@ -28,6 +29,14 @@ final class EtsyReader implements SourceReader
     public const PAGE_SIZE = 100;
     public const LISTING_STATES = ['active', 'inactive', 'sold_out', 'draft', 'expired'];
     public const LISTING_INCLUDES = ['Images', 'Inventory', 'Videos', 'Translations', 'Shipping', 'Personalization'];
+    /**
+     * Etsy's limits are per app (shown in its Developer Portal) and reported on every response: requests left
+     * this second and today (a rolling 24 hours); a 429 carries Retry-After
+     * (developers.etsy.com/documentation/essentials/rate-limits). A spent day's quota is a long Retry-After,
+     * which pauses the run.
+     */
+    public const REMAINING_THIS_SECOND_HEADER = 'x-remaining-this-second';
+    public const RATE_WINDOW_SECONDS = 1.0;
 
     private const API = '/v3/application';
     private const CURSOR_SEPARATOR = ':';
@@ -41,7 +50,9 @@ final class EtsyReader implements SourceReader
     {
         $owner = new EtsyAuthorizer($connection, $oauth);
 
-        return new self(new RestClient('Etsy', $connection->apiBase, $owner, $transport, $sleeper), $owner);
+        $rateLimit = new RateLimit(remainingHeader: self::REMAINING_THIS_SECOND_HEADER, windowSeconds: self::RATE_WINDOW_SECONDS);
+
+        return new self(new RestClient('Etsy', $connection->apiBase, $owner, $transport, $sleeper, $rateLimit), $owner);
     }
 
     public function shop(): Node

@@ -8,13 +8,16 @@ namespace IdempotentImporter\Wp;
 
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Services;
+use IdempotentImporter\Source\CredentialsRejected;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Sync\Mode;
 
 /**
  * Background work on Action Scheduler (bundled with WooCommerce): the recurring run, the steps that
  * carry a run forward, and one-object syncs from webhooks. A webhook job that finds a run in progress
- * waits for it rather than writing alongside it.
+ * waits for it rather than writing alongside it; one whose source is pushing back is postponed. While the
+ * source's credentials are on hold (Sync\CredentialHold), scheduled runs and webhook syncs don't call it.
  */
 final class Scheduler
 {
@@ -61,6 +64,9 @@ final class Scheduler
     /** Starts a run in the background: full when the last full run is older than the reconcile interval. */
     public function scheduledRun(): void
     {
+        if ($this->held('Scheduled run')) {
+            return;
+        }
         $last = Options::int(self::LAST_FULL_OPTION);
         $mode = time() - $last >= $this->services->settings()->fullReconcileHours * self::SECONDS_PER_HOUR ? Mode::Full : Mode::Incremental;
         $this->startInBackground($mode, false);
@@ -87,11 +93,30 @@ final class Scheduler
         return true;
     }
 
+    /** Carries the run forward; a run pausing for its source is picked up again when its pause ends. */
     public function step(): void
     {
-        if (!$this->services->runner()->step(self::STEP_BUDGET_SECONDS)) {
+        $runner = $this->services->runner();
+        if ($runner->step(self::STEP_BUDGET_SECONDS)) {
+            return;
+        }
+        $resumeAt = $runner->resumeAt();
+        if ($resumeAt !== null) {
+            as_schedule_single_action($resumeAt, self::STEP_HOOK, [], self::GROUP);
+        } else {
             as_enqueue_async_action(self::STEP_HOOK, [], self::GROUP);
         }
+    }
+
+    /** Whether the source's credentials were rejected, so scheduled work must not retry them (logged once per attempt). */
+    private function held(string $what): bool
+    {
+        $reason = $this->services->credentialHold()->reason($this->services->settings()->source);
+        if ($reason !== null) {
+            $this->services->log()->warning("{$what} skipped: the source rejected the credentials — {$reason}. Save the settings or start a run by hand to try again.");
+        }
+
+        return $reason !== null;
     }
 
     public function enqueueObject(Kind $kind, string $gid, bool $deletion): void
@@ -105,7 +130,7 @@ final class Scheduler
     public function syncObject(string $kindValue, string $gid, bool $deletion): void
     {
         $kind = Kind::tryFrom($kindValue);
-        if ($kind === null || !$this->services->settings()->syncs($kind)) {
+        if ($kind === null || !$this->services->settings()->syncs($kind) || $this->held("Syncing {$gid}")) {
             return;
         }
         if ($this->services->lock()->holder() !== null) {
@@ -119,6 +144,20 @@ final class Scheduler
 
             return;
         }
+        try {
+            $this->syncFromSource($kind, $gid);
+        } catch (RetryLater $e) {
+            $this->services->log()->warning("Syncing {$gid} postponed: {$e->getMessage()}");
+            as_schedule_single_action(time() + (int) ceil(max($e->seconds, self::LOCKED_RETRY_SECONDS)), self::OBJECT_HOOK, [$kindValue, $gid, $deletion], self::GROUP);
+        } catch (CredentialsRejected $e) {
+            $this->services->log()->error("Syncing {$gid} stopped: {$e->getMessage()} Scheduled work is held until the settings are saved or a run is started by hand.");
+            $this->services->credentialHold()->hold($this->services->settings()->source, $e->getMessage());
+        }
+    }
+
+    private function syncFromSource(Kind $kind, string $gid): void
+    {
+        $sync = $this->services->objectSync();
         $reader = $this->services->reader();
         if ($kind === Kind::Shop) {
             $sync->sync($kind, $reader->shop(), false);

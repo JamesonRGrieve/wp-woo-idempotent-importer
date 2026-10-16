@@ -33,8 +33,14 @@ final class RunLock
 
     public function refresh(string $runId): void
     {
+        $this->holdUntil($runId, time());
+    }
+
+    /** Keeps the lock through a pause: it expires TTL_SECONDS after $until, when the paused run resumes. */
+    public function holdUntil(string $runId, int $until): void
+    {
         if ($this->holder() === $runId) {
-            update_option(self::OPTION, ['run' => $runId, 'expires' => time() + self::TTL_SECONDS], false);
+            update_option(self::OPTION, ['run' => $runId, 'expires' => $until + self::TTL_SECONDS], false);
         }
     }
 
@@ -45,6 +51,7 @@ final class RunLock
         }
     }
 
+    /** @phpstan-impure */
     public function holder(): ?string
     {
         $current = get_option(self::OPTION);

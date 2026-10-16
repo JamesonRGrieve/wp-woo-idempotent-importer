@@ -6,8 +6,11 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Http;
 
-/** Waiting between throttled or retried requests; injected so tests run without real delays. */
+/** Time for throttled or retried requests: waiting, and the clock pacing is measured on. Injected so tests run without real delays. */
 interface Sleeper
 {
     public function sleep(float $seconds): void;
+
+    /** Seconds since the Unix epoch, with fractions. */
+    public function now(): float;
 }

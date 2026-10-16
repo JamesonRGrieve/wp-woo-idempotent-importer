@@ -15,7 +15,9 @@ sent as a bearer token with `Square-Version: 2026-09-16`. Square has webhooks, b
 endpoint is Shopify's; scheduled runs keep the mirror current. Every kind is incremental: categories and
 items by catalog `begin_time` (deleted objects included, so their copies are retired rather than
 re-created), stock by the counts changed since the last run (their items are re-read), customers and
-orders by `updated_at`. Full runs retire the copies of anything Square no longer has.
+orders by `updated_at`. Full runs retire the copies of anything Square no longer has. Square publishes no
+fixed request rate, so requests aren't paced; a 429 or server error is retried with exponential backoff
+and then pauses the run (README, "How it stays idempotent", for pauses and the credential hold).
 
 "The main location" is the seller's `main_location_id` (else its first active location): the location
 whose prices, stock and presence the products mirror.

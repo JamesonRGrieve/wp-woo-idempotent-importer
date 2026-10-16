@@ -9,7 +9,9 @@ namespace IdempotentImporter\Sync;
 use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Adapter;
+use IdempotentImporter\Source\CredentialsRejected;
 use IdempotentImporter\Source\Identity;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SourceReader;
 use IdempotentImporter\Store\LinkStore;
@@ -22,6 +24,12 @@ use IdempotentImporter\Wp\Log;
  * budget is spent, then persists where it got to. Kinds run in dependency order. A full run retires
  * copies of this source's objects that it no longer has, but only for a kind that completed cleanly and
  * wasn't filtered.
+ *
+ * Lockout safety, which matters most in the long first catch-up: when the source keeps pushing back
+ * (RetryLater) the run pauses exactly where it is — same kind, same page — and resumes after PausePolicy's
+ * growing pause, instead of failing the kind and carrying on against a source that is refusing requests.
+ * When the source rejects the credentials (CredentialsRejected) the run stops at once and CredentialHold
+ * keeps scheduled work from retrying them.
  */
 final class Runner
 {
@@ -34,6 +42,7 @@ final class Runner
         private readonly SeenStore $seen,
         private readonly Cursors $cursors,
         private readonly RunLock $lock,
+        private readonly CredentialHold $credentialHold,
         private readonly RunLog $runLog,
         private readonly Log $log,
     ) {}
@@ -42,6 +51,8 @@ final class Runner
      * Starts a run unless one is in progress; returns it, or null when another run holds the lock.
      *
      * @param list<Kind>|null $onlyKinds
+     *
+     * @phpstan-impure
      */
     public function start(Mode $mode, bool $dryRun, ?array $onlyKinds = null): ?RunState
     {
@@ -70,11 +81,25 @@ final class Runner
         if ($state === null) {
             return true;
         }
+        if ($state->isPaused(time())) {
+            return false;
+        }
+        $state->resumeAt = null;
         $deadline = microtime(true) + $budgetSeconds;
         while (($kind = $state->current()) !== null && microtime(true) < $deadline) {
             $this->lock->refresh($state->id);
             try {
                 $done = $kind === Kind::Shop ? $this->shop($state) : $this->page($state, $kind);
+                $state->pauses = 0;
+            } catch (RetryLater $e) {
+                if ($this->pause($state, $kind, $e)) {
+                    return false;
+                }
+                $done = true;
+            } catch (CredentialsRejected $e) {
+                $this->stop($state, $kind, $e);
+
+                return true;
             } catch (SourceError $e) {
                 $this->log->error("Reading {$kind->value} failed: {$e->getMessage()}");
                 $state->counts->add($kind, Outcome::Failed);
@@ -94,10 +119,59 @@ final class Runner
         return true;
     }
 
-    /** Whether a run is in progress (its state exists). */
+    /**
+     * Whether a run is in progress (its state exists).
+     *
+     * @phpstan-impure
+     */
     public function isRunning(): bool
     {
         return RunState::load() !== null;
+    }
+
+    /**
+     * When the run in progress resumes from a pause (Unix time), or null when it isn't paused.
+     *
+     * @phpstan-impure
+     */
+    public function resumeAt(): ?int
+    {
+        $state = RunState::load();
+
+        return $state !== null && $state->isPaused(time()) ? $state->resumeAt : null;
+    }
+
+    /**
+     * Pauses the run where it is (the kind and its cursor are kept) for PausePolicy's next pause; returns
+     * false when the pauses are exhausted, so the kind is given up as failed instead.
+     */
+    private function pause(RunState $state, Kind $kind, RetryLater $e): bool
+    {
+        ++$state->pauses;
+        if (PausePolicy::exhausted($state->pauses)) {
+            $this->log->error("Reading {$kind->value} failed after {$state->pauses} pauses: {$e->getMessage()}");
+            $state->counts->add($kind, Outcome::Failed);
+            $state->pauses = 0;
+
+            return false;
+        }
+        $seconds = PausePolicy::seconds($state->pauses, $e->seconds);
+        $resumeAt = time() + $seconds;
+        $state->resumeAt = $resumeAt;
+        $state->save();
+        $this->lock->holdUntil($state->id, $resumeAt);
+        $this->log->warning("Pausing {$seconds}s before reading {$kind->value} again (pause {$state->pauses}): {$e->getMessage()}");
+
+        return true;
+    }
+
+    /** Ends the run now: the credentials were rejected, and every further request would repeat that. */
+    private function stop(RunState $state, Kind $kind, CredentialsRejected $e): void
+    {
+        $this->log->error("Stopping the run: {$e->getMessage()} Scheduled runs are held until the settings are saved or a run is started by hand.");
+        $state->counts->add($kind, Outcome::Failed);
+        $this->credentialHold->hold($this->adapter->id(), $e->getMessage());
+        $this->finish($state);
     }
 
     private function shop(RunState $state): bool

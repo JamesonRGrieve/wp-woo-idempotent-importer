@@ -6,6 +6,11 @@ listed. **Mirrored** means the importer writes it into a native WordPress/WooCom
 WordPress + WooCommerce (+ the WooCommerce Square plugin) have no schema for it; the gap column names what
 would be needed. Gaps are decisions for the operator, tracked on the Deck card.
 
+Rate limits: Shopify's GraphQL Admin API meters a query-cost bucket and reports it on every response. Before
+each query the importer waits until the bucket can take one as costly as the last, so it doesn't run into
+the throttle; a throttled query is retried once the bucket refills (README, "How it stays idempotent", for
+pauses and the credential hold).
+
 ## Mirrored
 
 | Shopify | WordPress / WooCommerce home | Notes |

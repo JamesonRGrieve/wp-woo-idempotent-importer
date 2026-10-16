@@ -23,7 +23,15 @@ final class RunState
         public int $index = 0,
         public ?string $cursor = null,
         public RunCounts $counts = new RunCounts(),
+        public ?int $resumeAt = null,
+        public int $pauses = 0,
     ) {}
+
+    /** Whether the run is pausing for its source (see PausePolicy) at Unix time $now. */
+    public function isPaused(int $now): bool
+    {
+        return $this->resumeAt !== null && $this->resumeAt > $now;
+    }
 
     public function current(): ?Kind
     {
@@ -36,6 +44,7 @@ final class RunState
         $this->cursor = null;
     }
 
+    /** @phpstan-impure the run in progress, as last saved */
     public static function load(): ?self
     {
         $stored = get_option(self::OPTION);
@@ -63,6 +72,8 @@ final class RunState
             is_int($stored['index'] ?? null) ? $stored['index'] : 0,
             is_string($stored['cursor'] ?? null) ? $stored['cursor'] : null,
             RunCounts::fromArray(is_array($stored['counts'] ?? null) ? $stored['counts'] : []),
+            is_int($stored['resume_at'] ?? null) ? $stored['resume_at'] : null,
+            is_int($stored['pauses'] ?? null) ? $stored['pauses'] : 0,
         );
     }
 
@@ -77,6 +88,8 @@ final class RunState
             'index' => $this->index,
             'cursor' => $this->cursor,
             'counts' => $this->counts->toArray(),
+            'resume_at' => $this->resumeAt,
+            'pauses' => $this->pauses,
         ], false);
     }
 

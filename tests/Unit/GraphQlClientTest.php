@@ -8,6 +8,8 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Http\RetryPolicy;
+use IdempotentImporter\Source\CredentialsRejected;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\Shopify\Connection;
 use IdempotentImporter\Source\Shopify\GraphQlClient;
 use IdempotentImporter\Source\Shopify\QueryLibrary;
@@ -61,12 +63,36 @@ final class GraphQlClientTest extends TestCase
         self::assertSame([1.0, 7.0], $sleeper->waits);
     }
 
-    public function testGivesUpAfterMaxAttempts(): void
+    public function testPausesTheRunAfterMaxAttempts(): void
     {
         $responses = array_fill(0, RetryPolicy::MAX_ATTEMPTS, new HttpResponse(503, ''));
 
-        $this->expectException(SourceError::class);
+        $this->expectException(RetryLater::class);
         $this->client(new ScriptedTransport(null, $responses))->query('Shop');
+    }
+
+    public function testWaitsForTheCostBucketBeforeTheNextQueryInsteadOfRunningIntoTheThrottle(): void
+    {
+        $low = json_encode([
+            'data' => ['shop' => ['id' => 'gid://shopify/Shop/1']],
+            'extensions' => ['cost' => ['requestedQueryCost' => 300, 'throttleStatus' => ['currentlyAvailable' => 100, 'restoreRate' => 50]]],
+        ], JSON_THROW_ON_ERROR);
+        $sleeper = new RecordingSleeper();
+        $transport = new ScriptedTransport(null, [new HttpResponse(200, $low), new HttpResponse(200, self::SHOP)]);
+        $client = $this->client($transport, $sleeper);
+
+        $client->query('Shop');
+        $client->query('Shop');
+
+        self::assertCount(1, $sleeper->waits);
+        self::assertEqualsWithDelta(4.0, $sleeper->waits[0], 1e-6, '(300 − 100) / 50 a second');
+        self::assertCount(2, $transport->requests, 'no throttled request was sent');
+    }
+
+    public function testARejectedTokenStopsTheRun(): void
+    {
+        $this->expectException(CredentialsRejected::class);
+        $this->client(new ScriptedTransport(null, [new HttpResponse(403, '')]))->query('Shop');
     }
 
     public function testPartialDataWithErrorsIsRejected(): void

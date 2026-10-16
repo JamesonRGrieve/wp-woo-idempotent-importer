@@ -67,6 +67,12 @@ final class AdminPage
         if ($notice !== '') {
             echo '<div class="notice notice-info" role="status"><p>' . esc_html($notice) . '</p></div>';
         }
+        $hold = $this->services->credentialHold()->reason($settings->source);
+        if ($hold !== null) {
+            echo '<div class="notice notice-error" role="alert"><p>' . esc_html(
+                "Scheduled runs are paused: the source rejected the credentials — {$hold}. Fix them and save the settings, or start a run below, to try again.",
+            ) . '</p></div>';
+        }
         $this->runForm();
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field(self::SAVE_ACTION);
@@ -107,7 +113,7 @@ final class AdminPage
         $input = Input::post();
         $stored = $this->stored();
         $source = $input->text('source');
-        $stored['source'] = Adapters::exists($source) && !Adapters::for($source)->isDeferred() ? $source : $this->services->settings()->source;
+        $stored['source'] = Adapters::exists($source) ? $source : $this->services->settings()->source;
         if ($input->has('store_domain')) {
             $stored['store_domain'] = $input->text('store_domain');
         }
@@ -127,6 +133,7 @@ final class AdminPage
                 Credentials::save($secret, $value);
             }
         }
+        $this->services->credentialHold()->release();
         $this->back('Settings saved.');
     }
 
@@ -135,6 +142,7 @@ final class AdminPage
         $this->authorise(self::RUN_ACTION);
         $input = Input::post();
         $mode = Mode::tryFrom($input->text('mode')) ?? Mode::Incremental;
+        $this->services->credentialHold()->release();
         $started = $this->scheduler->startInBackground($mode, $input->has('dry_run'));
         $this->back($started ? 'Import started in the background.' : 'An import is already running, or the connection is not configured (see the log).');
     }
@@ -168,14 +176,13 @@ final class AdminPage
         echo '</tbody></table>';
     }
 
-    /** The source platform; deferred ones are listed but can't be chosen yet. Saving applies it. */
+    /** The source platform. Saving applies it. */
     private function sourceRow(Adapter $active): void
     {
         echo '<tr><th scope="row"><label for="iim-source">' . esc_html__('Import from', 'wp-woo-idempotent-importer') . '</label></th><td><select id="iim-source" name="source">';
         foreach (Adapters::all() as $adapter) {
-            $label = $adapter->label() . ($adapter->isDeferred() ? ' — ' . __('not built yet', 'wp-woo-idempotent-importer') : '');
             echo '<option value="' . esc_attr($adapter->id()) . '"' . selected($adapter->id(), $active->id(), false)
-                . disabled($adapter->isDeferred(), true, false) . '>' . esc_html($label) . '</option>';
+                . '>' . esc_html($adapter->label()) . '</option>';
         }
         echo '</select></td></tr>';
     }

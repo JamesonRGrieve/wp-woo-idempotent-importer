@@ -10,7 +10,10 @@ Gaps are decisions for the operator, tracked on the Deck card.
 Access: an Etsy app (keystring + shared secret) and the shop owner's OAuth consent with the read-only
 scopes `listings_r transactions_r shops_r email_r`. Etsy has no webhooks; scheduled runs keep the mirror
 current (receipts, buyers and reviews incrementally; listings, sections and the shop in full, unchanged
-objects skipped by hash).
+objects skipped by hash). Etsy's rate limits are per app (shown in its Developer Portal) and reported on
+every response: when `x-remaining-this-second` reaches the last request, the next one waits out the
+second; a 429's Retry-After is honoured, and a spent daily quota (a rolling 24 hours) pauses the run until
+Etsy says to retry (README, "How it stays idempotent", for pauses and the credential hold).
 
 ## Mirrored
 

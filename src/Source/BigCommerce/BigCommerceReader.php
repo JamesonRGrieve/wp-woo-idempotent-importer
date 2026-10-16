@@ -10,6 +10,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Http\RateLimit;
+use IdempotentImporter\Http\ResetFormat;
 use IdempotentImporter\Http\Sleeper;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Identity;
@@ -42,6 +44,12 @@ final class BigCommerceReader implements SourceReader
     public const ORDER_PARTS = ['products', 'shipping_addresses', 'taxes', 'coupons', 'shipments'];
     public const BLOG_PAGE_TYPE = 'blog';
     public const COUPON_PROMOTION = 'COUPON';
+    /**
+     * BigCommerce's quota is per plan, reported on every response: requests left in the window and the
+     * milliseconds until it resets (docs.bigcommerce.com/docs/start/best-practices/api-rate-limits).
+     */
+    public const REQUESTS_LEFT_HEADER = 'X-Rate-Limit-Requests-Left';
+    public const RESET_MS_HEADER = 'X-Rate-Limit-Time-Reset-Ms';
 
     private const PHASE_COUPONS = 'coupons';
     private const PHASE_PROMOTIONS = 'promotions';
@@ -62,7 +70,13 @@ final class BigCommerceReader implements SourceReader
         }
         $authorizer = new BigCommerceAuthorizer($accessToken);
 
-        return new self(new RestClient('BigCommerce', rtrim($apiBase, '/') . '/stores/' . $storeHash, $authorizer, $transport, $sleeper), $storeHash);
+        $rateLimit = new RateLimit(
+            remainingHeader: self::REQUESTS_LEFT_HEADER,
+            resetHeader: self::RESET_MS_HEADER,
+            resetFormat: ResetFormat::MillisecondsFromNow,
+        );
+
+        return new self(new RestClient('BigCommerce', rtrim($apiBase, '/') . '/stores/' . $storeHash, $authorizer, $transport, $sleeper, $rateLimit), $storeHash);
     }
 
     public function shop(): Node

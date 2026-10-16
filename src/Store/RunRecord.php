@@ -8,9 +8,12 @@ namespace IdempotentImporter\Store;
 
 use IdempotentImporter\Sync\RunCounts;
 
-/** A finished or running run, as the run log stores it. */
+/** A finished or running run, as the run log stores it (its start shown to the second). */
 final readonly class RunRecord
 {
+    /** `Y-m-d H:i:s`: the stored start's microseconds only order runs; they aren't shown. */
+    private const SECONDS_LENGTH = 19;
+
     public function __construct(
         public string $id,
         public string $mode,
@@ -31,7 +34,7 @@ final readonly class RunRecord
             (string) $row['mode'],
             $row['dry_run'] === '1',
             (string) $row['status'],
-            (string) $row['started_at'],
+            substr((string) $row['started_at'], 0, self::SECONDS_LENGTH),
             RunCounts::fromArray(is_array($counts) ? $counts : []),
             (string) $row['message'],
         );

@@ -91,6 +91,7 @@ final class OAuthConnect
         } catch (SourceError $e) {
             $this->page->back($e->getMessage());
         }
+        $this->services->credentialHold()->release();
         $this->page->back('Connected.');
     }
 

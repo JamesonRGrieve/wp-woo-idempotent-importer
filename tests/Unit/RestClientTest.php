@@ -7,8 +7,12 @@ declare(strict_types=1);
 namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Http\HttpResponse;
+use IdempotentImporter\Http\RateLimit;
+use IdempotentImporter\Http\ResetFormat;
 use IdempotentImporter\Http\RetryPolicy;
+use IdempotentImporter\Source\CredentialsRejected;
 use IdempotentImporter\Source\Rest\RestClient;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Tests\Support\CountingAuthorizer;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
@@ -104,9 +108,86 @@ final class RestClientTest extends TestCase
             new HttpResponse(200, '{}'),
         ]);
 
-        (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper, 60.0))->get('/store');
+        (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper, new RateLimit(cooldownSeconds: 20.0)))->get('/store');
 
-        self::assertSame([60.0, 5.0, RetryPolicy::BACKOFF_BASE_SECONDS * 4], $sleeper->waits, 'the cool-down for a bare 429, a Retry-After first, backoff for a server error');
+        self::assertSame([20.0, 5.0, RetryPolicy::BACKOFF_BASE_SECONDS * 4], $sleeper->waits, 'the cool-down for a bare 429, a Retry-After first, backoff for a server error');
+    }
+
+    public function testASourceThatKeepsPushingBackPausesTheRunInsteadOfFailing(): void
+    {
+        $sleeper = new RecordingSleeper();
+        $transport = new ScriptedTransport(null, array_fill(0, RetryPolicy::MAX_ATTEMPTS, new HttpResponse(503, '')));
+
+        try {
+            (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper))->get('/store');
+            self::fail('expected RetryLater');
+        } catch (RetryLater $e) {
+            self::assertSame(RetryPolicy::MAX_BACKOFF_SECONDS, $e->seconds);
+            self::assertStringContainsString('/store: Test is rate limiting or failing (HTTP 503, attempt 6)', $e->getMessage());
+        }
+        self::assertSame([1.0, 2.0, 4.0, 8.0, 16.0], $sleeper->waits, 'exponential backoff between the attempts');
+        self::assertCount(RetryPolicy::MAX_ATTEMPTS, $transport->requests);
+    }
+
+    public function testAWaitTooLongToSitOutInsideARequestPausesTheRunAtOnce(): void
+    {
+        $sleeper = new RecordingSleeper();
+        $transport = new ScriptedTransport(null, [new HttpResponse(429, '', '3600')]);
+
+        try {
+            (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper))->get('/store');
+            self::fail('expected RetryLater');
+        } catch (RetryLater $e) {
+            self::assertSame(3600.0, $e->seconds);
+        }
+        self::assertSame([], $sleeper->waits);
+        self::assertCount(1, $transport->requests, 'no request is sent into a long rate-limit window');
+    }
+
+    public function testRejectedCredentialsAreTheirOwnErrorSoTheRunStops(): void
+    {
+        foreach ([401, 403] as $status) {
+            try {
+                $this->client(new ScriptedTransport(null, [new HttpResponse($status, '{}')]))->get('/store');
+                self::fail("expected CredentialsRejected for {$status}");
+            } catch (CredentialsRejected $e) {
+                self::assertStringContainsString("HTTP {$status}", $e->getMessage());
+            }
+        }
+    }
+
+    public function testRequestsArePacedUnderTheSourcesRate(): void
+    {
+        $sleeper = new RecordingSleeper();
+        $transport = new ScriptedTransport(null, array_fill(0, 3, new HttpResponse(200, '{}')));
+        $client = new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper, new RateLimit(requestsPerSecond: 4.0));
+
+        $client->get('/a');
+        $client->get('/b');
+        $sleeper->advance(1.0);
+        $client->get('/c');
+
+        self::assertCount(1, $sleeper->waits, 'only the request sent too soon waits');
+        self::assertEqualsWithDelta(0.25, $sleeper->waits[0], 1e-6);
+    }
+
+    public function testASpentWindowIsWaitedOutBeforeTheNextRequest(): void
+    {
+        $sleeper = new RecordingSleeper();
+        $limit = new RateLimit(remainingHeader: 'X-Left', resetHeader: 'X-Reset-Ms', resetFormat: ResetFormat::MillisecondsFromNow);
+        $transport = new ScriptedTransport(null, [
+            new HttpResponse(200, '{}', null, null, ['x-left' => '5', 'x-reset-ms' => '9000']),
+            new HttpResponse(200, '{}', null, null, ['x-left' => '1', 'x-reset-ms' => '2500']),
+            new HttpResponse(200, '{}'),
+        ]);
+        $client = new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper, $limit);
+
+        $client->get('/a');
+        $client->get('/b');
+        $client->get('/c');
+
+        self::assertCount(1, $sleeper->waits, 'plenty left: no wait; down to the reserve: wait for the reset');
+        self::assertEqualsWithDelta(2.5, $sleeper->waits[0], 1e-6);
     }
 
     public function testAQueryIsAJsonPost(): void

@@ -17,7 +17,8 @@ Products and orders are incremental (Squarespace takes a modification window: af
 before the run started); store pages, profiles and discounts have no modification filter and are read in
 full (unchanged objects are skipped by hash). Full runs retire the copies of anything Squarespace no longer
 has. Squarespace allows 300 requests a minute and refuses requests for a minute after a 429 (it sends no
-Retry-After), so a 429 is waited out for that minute.
+Retry-After): requests are paced under 300 a minute, and a 429 pauses the run for at least that minute
+(README, "How it stays idempotent", for pauses and the credential hold).
 
 Money arrives as a MonetaryAmount (`value`, `currency`); the value is read exactly (a JSON number as the
 decimal its JSON spelled, a decimal string as sent), never through float arithmetic.

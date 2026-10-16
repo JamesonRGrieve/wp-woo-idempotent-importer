@@ -61,6 +61,7 @@ final class Cli
     {
         $mode = isset($assoc['full']) ? Mode::Full : Mode::Incremental;
         $kinds = isset($assoc['kinds']) && is_string($assoc['kinds']) ? self::kinds($assoc['kinds']) : null;
+        $this->services->credentialHold()->release();
         $runner = $this->services->runner();
         $state = $runner->start($mode, isset($assoc['dry-run']), $kinds);
         if ($state === null) {
@@ -69,7 +70,13 @@ final class Cli
             return;
         }
         while (!$runner->step(self::STEP_BUDGET_SECONDS)) {
-            WP_CLI::log('…');
+            $resumeAt = $runner->resumeAt();
+            if ($resumeAt === null) {
+                WP_CLI::log('…');
+                continue;
+            }
+            WP_CLI::log('The source is pushing back; pausing until ' . gmdate('H:i:s', $resumeAt) . ' UTC (see the log).');
+            sleep(max(0, $resumeAt - time()));
         }
         foreach ($this->services->runLog()->recent(1) as $latest) {
             WP_CLI::log($latest->message);
@@ -87,6 +94,10 @@ final class Cli
     {
         $holder = $this->services->lock()->holder();
         WP_CLI::log($holder === null ? 'No import is running.' : "Import {$holder} is running.");
+        $hold = $this->services->credentialHold()->reason($this->services->settings()->source);
+        if ($hold !== null) {
+            WP_CLI::warning("Scheduled runs are held: the source rejected the credentials — {$hold}.");
+        }
         $rows = array_map(static fn(RunRecord $run): array => [
             'started' => $run->startedAt,
             'mode' => $run->label(),
@@ -118,6 +129,7 @@ final class Cli
 
             return;
         }
+        $this->services->credentialHold()->release();
         self::reporting(fn() => $this->scheduler->syncObject($kind->value, $gid, false));
         WP_CLI::success("Synced {$gid}.");
     }

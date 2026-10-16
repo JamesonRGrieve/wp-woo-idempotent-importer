@@ -10,6 +10,7 @@ use DateTimeImmutable;
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\Squarespace\SquarespaceAuthorizer;
 use IdempotentImporter\Source\Squarespace\SquarespaceReader;
@@ -212,14 +213,29 @@ final class SquarespaceReaderTest extends TestCase
         self::assertCount(1, $transport->requests, 'a static key has nothing to renew');
     }
 
-    public function testRateLimitingWaitsOutSquarespacesOneMinuteCooldown(): void
+    public function testRateLimitingPausesTheRunForSquarespacesOneMinuteCooldown(): void
     {
         $transport = new ScriptedTransport(new FixtureResponder('squarespace', 'v1'), [new HttpResponse(429, '{}')]);
 
-        $this->reader($transport)->page(Kind::Collection, null, null, '');
-
-        self::assertSame([SquarespaceReader::RATE_LIMIT_COOLDOWN_SECONDS], $this->sleeper->waits);
+        try {
+            $this->reader($transport)->page(Kind::Collection, null, null, '');
+            self::fail('a cool-down longer than a request may wait pauses the run');
+        } catch (RetryLater $e) {
+            self::assertSame(SquarespaceReader::RATE_LIMIT_COOLDOWN_SECONDS, $e->seconds);
+        }
         self::assertSame(60.0, SquarespaceReader::RATE_LIMIT_COOLDOWN_SECONDS);
+        self::assertSame([], $this->sleeper->waits, 'nothing is slept inside the request');
+    }
+
+    public function testRequestsArePacedUnderThreeHundredAMinute(): void
+    {
+        $reader = $this->reader(new ScriptedTransport(new FixtureResponder('squarespace', 'v1')));
+
+        $reader->page(Kind::Collection, null, null, '');
+        $reader->page(Kind::Collection, null, null, '');
+
+        self::assertCount(1, $this->sleeper->waits);
+        self::assertEqualsWithDelta(60.0 / SquarespaceReader::REQUESTS_PER_MINUTE, $this->sleeper->waits[0], 1e-6, 'the second request waits a fifth of a second');
     }
 
     /** @return list<Node> every node of a kind, following the cursor to the end */

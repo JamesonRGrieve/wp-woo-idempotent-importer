@@ -16,4 +16,9 @@ final class SystemSleeper implements Sleeper
             usleep((int) round($seconds * self::MICROSECONDS_PER_SECOND));
         }
     }
+
+    public function now(): float
+    {
+        return microtime(true);
+    }
 }

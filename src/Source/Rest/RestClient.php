@@ -8,17 +8,23 @@ namespace IdempotentImporter\Source\Rest;
 
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Http\RateLimit;
+use IdempotentImporter\Http\RequestPacer;
 use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Http\Sleeper;
+use IdempotentImporter\Source\CredentialsRejected;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use JsonException;
 
 /**
  * A source's JSON REST API, read-only: GETs (and the POST queries some APIs use for searches) with the
- * source's authentication, a token renewed once if the source rejects it, and rate limits and server
- * errors retried through RetryPolicy. A response that is a JSON list is returned under `items`; 204 is an
- * empty list; 404 is "no such resource". Errors name the source and path, never credentials.
+ * source's authentication, a token renewed once if the source rejects it, requests paced under the source's
+ * RateLimit, and rate limits and server errors retried through RetryPolicy. When the source keeps pushing
+ * back it is a RetryLater (the run pauses); rejected credentials are CredentialsRejected (the run stops). A
+ * response that is a JSON list is returned under `items`; 204 is an empty list; 404 is "no such resource".
+ * Errors name the source and path, never credentials.
  */
 final class RestClient
 {
@@ -31,15 +37,18 @@ final class RestClient
     private const HTTP_FORBIDDEN = 403;
     private const HTTP_NOT_FOUND = 404;
 
-    /** @param float|null $rateLimitCooldownSeconds a source's documented cool-down after a 429 that carries no timing hint */
+    private readonly RequestPacer $pacer;
+
     public function __construct(
         private readonly string $label,
         private readonly string $baseUrl,
         private readonly RequestAuthorizer $authorizer,
         private readonly HttpTransport $transport,
         private readonly Sleeper $sleeper,
-        private readonly ?float $rateLimitCooldownSeconds = null,
-    ) {}
+        private readonly RateLimit $rateLimit = new RateLimit(),
+    ) {
+        $this->pacer = new RequestPacer($rateLimit, $sleeper);
+    }
 
     /**
      * Array query values are sent as repeated keys (OpenAPI's form/explode default).
@@ -75,17 +84,19 @@ final class RestClient
     {
         $renewed = false;
         for ($attempt = 1; ; ++$attempt) {
+            $this->pacer->beforeRequest($this->label);
             $response = $request(['Accept' => 'application/json', ...$this->authorizer->headers()]);
+            $this->pacer->afterResponse($response);
             if ($response->status === self::HTTP_UNAUTHORIZED && !$renewed && $this->authorizer->renew()) {
                 $renewed = true;
                 continue;
             }
-            $wait = RetryPolicy::wait($response, $attempt, $this->rateLimitCooldownSeconds);
+            $wait = RetryPolicy::wait($response, $attempt, $this->rateLimit->cooldownSeconds);
             if ($wait === null) {
                 return $this->node($response, $path);
             }
-            if ($attempt >= RetryPolicy::MAX_ATTEMPTS) {
-                throw new SourceError("{$path}: {$this->label} kept rate limiting or failing after {$attempt} attempts (HTTP {$response->status}).");
+            if (!RetryPolicy::waitsInline($wait, $attempt)) {
+                throw new RetryLater($wait, "{$path}: {$this->label} is rate limiting or failing (HTTP {$response->status}, attempt {$attempt}).");
             }
             $this->sleeper->sleep($wait);
         }
@@ -100,7 +111,7 @@ final class RestClient
             return new Node([self::LIST_KEY => []], $path);
         }
         if ($response->status === self::HTTP_UNAUTHORIZED || $response->status === self::HTTP_FORBIDDEN) {
-            throw new SourceError("{$path}: {$this->label} rejected the credentials or they lack a required scope (HTTP {$response->status}).");
+            throw new CredentialsRejected("{$path}: {$this->label} rejected the credentials or they lack a required scope (HTTP {$response->status}).");
         }
         if ($response->status !== self::HTTP_OK) {
             throw new SourceError("{$path}: {$this->label} returned HTTP {$response->status}.");

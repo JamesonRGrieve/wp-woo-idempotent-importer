@@ -16,8 +16,10 @@ access token, sent as `X-Auth-Token`. BigCommerce has webhooks, but the plugin's
 Shopify's; scheduled runs keep the mirror current. Products, customers and orders are incremental (by
 modification time); categories, coupons, promotions, pages, the blog, posts, redirects and reviews have no
 modification filter and are read in full (unchanged objects are skipped by hash). Full runs retire the
-copies of anything BigCommerce no longer has. Rate limiting (429) is waited out for the
-`X-Rate-Limit-Time-Reset-Ms` BigCommerce sends.
+copies of anything BigCommerce no longer has. BigCommerce's quota depends on the plan and is reported on
+every response (`X-Rate-Limit-Requests-Left`, `X-Rate-Limit-Time-Reset-Ms`): when the window is down to its
+last request, the next one waits for the reset, so the quota is never run out; a 429 is still waited out
+for the reset it reports (README, "How it stays idempotent", for pauses and the credential hold).
 
 Money arrives as decimal strings or JSON numbers; both are read exactly (a number as the decimal its JSON
 spelled, exponents expanded), never through float arithmetic.

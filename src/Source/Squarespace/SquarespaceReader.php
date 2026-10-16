@@ -9,6 +9,7 @@ namespace IdempotentImporter\Source\Squarespace;
 use DateTimeImmutable;
 use DateTimeZone;
 use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Http\RateLimit;
 use IdempotentImporter\Http\Sleeper;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Identity;
@@ -26,14 +27,17 @@ use IdempotentImporter\Source\SourceReader;
  * taxes) and their customer's profile, when Squarespace has one, injected as `transactions` and
  * `customer_profile`. Products and orders are incremental (by modification time, which Squarespace takes
  * only as a window: after the last run and before this reader was made); store pages, profiles and
- * discounts have no such filter and are read in full. Rate limiting is waited out for Squarespace's
- * one-minute cool-down.
+ * discounts have no such filter and are read in full. Requests are paced under Squarespace's 300 a minute;
+ * a 429 pauses the run for Squarespace's one-minute cool-down.
  */
 final class SquarespaceReader implements SourceReader
 {
     public const API_BASE = 'https://api.squarespace.com';
+    /** Squarespace allows 300 requests a minute (developers.squarespace.com/commerce-apis/rate-limits). */
+    public const REQUESTS_PER_MINUTE = 300;
     /** Squarespace answers 429 and then refuses requests for a minute (it sends no Retry-After). */
     public const RATE_LIMIT_COOLDOWN_SECONDS = 60.0;
+    private const SECONDS_PER_MINUTE = 60.0;
     /** The discounts list takes 1–1000 per page. */
     public const DISCOUNT_PAGE_SIZE = 1000;
     /** Every payment state: without the filter, Squarespace lists only NOT_CHARGED, AUTHORIZED, PAID and REFUNDED orders. */
@@ -52,7 +56,10 @@ final class SquarespaceReader implements SourceReader
     public static function connect(string $apiBase, #[\SensitiveParameter] string $apiKey, HttpTransport $transport, Sleeper $sleeper, DateTimeImmutable $now): self
     {
         return new self(
-            new RestClient('Squarespace', rtrim($apiBase, '/'), new SquarespaceAuthorizer($apiKey), $transport, $sleeper, self::RATE_LIMIT_COOLDOWN_SECONDS),
+            new RestClient('Squarespace', rtrim($apiBase, '/'), new SquarespaceAuthorizer($apiKey), $transport, $sleeper, new RateLimit(
+                requestsPerSecond: RateLimit::perPeriod(self::REQUESTS_PER_MINUTE, self::SECONDS_PER_MINUTE),
+                cooldownSeconds: self::RATE_LIMIT_COOLDOWN_SECONDS,
+            )),
             $now,
         );
     }

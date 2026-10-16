@@ -6,12 +6,18 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Store;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use wpdb;
 
-/** One row per run: mode, status, timing and outcome counts. */
+/**
+ * One row per run: mode, status, timing and outcome counts. A run's start is kept to the microsecond, so
+ * runs started within the same second (a scheduled run, then one started by hand) list in the order they ran.
+ */
 final class RunLog
 {
     public const RECENT_LIMIT = 20;
+    private const STARTED_AT_FORMAT = 'Y-m-d H:i:s.u';
 
     public function __construct(private readonly wpdb $db, private readonly Tables $tables) {}
 
@@ -25,7 +31,7 @@ final class RunLog
             $mode,
             $dryRun ? 1 : 0,
             'running',
-            gmdate('Y-m-d H:i:s'),
+            (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format(self::STARTED_AT_FORMAT),
             '{}',
         );
     }

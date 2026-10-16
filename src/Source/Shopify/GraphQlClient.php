@@ -10,14 +10,17 @@ use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Http\HttpTransport;
 use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Http\Sleeper;
+use IdempotentImporter\Source\CredentialsRejected;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\RetryLater;
 use IdempotentImporter\Source\SourceError;
 use JsonException;
 
 /**
  * Sends the library's operations to the Admin GraphQL API. Waits out Shopify's cost-based throttle and
- * retries 429/5xx with backoff; any GraphQL error (including partial data) is a SourceError, so a
- * response is either complete or rejected. Errors never include the access token.
+ * retries 429/5xx with backoff; when Shopify keeps pushing back it is a RetryLater (the run pauses), and a
+ * rejected token is CredentialsRejected (the run stops). Any GraphQL error (including partial data) is a
+ * SourceError, so a response is either complete or rejected. Errors never include the access token.
  */
 final class GraphQlClient
 {
@@ -28,6 +31,8 @@ final class GraphQlClient
     private const HTTP_UNAUTHORIZED = 401;
     private const HTTP_FORBIDDEN = 403;
     private const THROTTLED = 'THROTTLED';
+
+    private float $nextQueryAt = 0.0;
 
     public function __construct(
         private readonly Connection $connection,
@@ -49,16 +54,40 @@ final class GraphQlClient
             'X-Shopify-Access-Token' => $this->connection->accessToken,
         ];
         for ($attempt = 1; ; ++$attempt) {
+            $this->waitForBucket($operation);
             $response = $this->transport->post($this->connection->endpoint, $headers, $body, self::REQUEST_TIMEOUT_SECONDS);
             $wait = $this->retryWait($response, $attempt);
             if ($wait === null) {
-                return $this->data($response, $operation);
+                $node = $this->data($response, $operation);
+                $this->noteBucket($response);
+
+                return $node;
             }
-            if ($attempt >= RetryPolicy::MAX_ATTEMPTS) {
-                throw new SourceError("{$operation}: Shopify kept throttling or failing after {$attempt} attempts (HTTP {$response->status}).");
+            if (!RetryPolicy::waitsInline($wait, $attempt)) {
+                throw new RetryLater($wait, "{$operation}: Shopify is throttling or failing (HTTP {$response->status}, attempt {$attempt}).");
             }
             $this->sleeper->sleep($wait);
         }
+    }
+
+    /**
+     * Holds the next query until Shopify's cost bucket can take one as costly as the last, so a long import
+     * stays under the throttle instead of running into it.
+     */
+    private function waitForBucket(string $operation): void
+    {
+        $wait = $this->nextQueryAt - $this->sleeper->now();
+        if ($wait > RetryPolicy::MAX_INLINE_WAIT_SECONDS) {
+            throw new RetryLater($wait, "{$operation}: Shopify's query cost budget is spent until it refills.");
+        }
+        if ($wait > 0) {
+            $this->sleeper->sleep($wait);
+        }
+    }
+
+    private function noteBucket(HttpResponse $response): void
+    {
+        $this->nextQueryAt = $this->sleeper->now() + (self::bucketShortfall(self::decode($response->body)) ?? 0.0);
     }
 
     /** Seconds to wait before retrying (HTTP retry policy, then Shopify's cost throttle), or null when final. */
@@ -79,7 +108,7 @@ final class GraphQlClient
     private function data(HttpResponse $response, string $operation): Node
     {
         if ($response->status === self::HTTP_UNAUTHORIZED || $response->status === self::HTTP_FORBIDDEN) {
-            throw new SourceError("{$operation}: Shopify rejected the access token or the app lacks a required scope (HTTP {$response->status}).");
+            throw new CredentialsRejected("{$operation}: Shopify rejected the access token or the app lacks a required scope (HTTP {$response->status}).");
         }
         if ($response->status !== self::HTTP_OK) {
             throw new SourceError("{$operation}: Shopify returned HTTP {$response->status}.");
@@ -127,12 +156,19 @@ final class GraphQlClient
         return false;
     }
 
+    /** @param array<array-key, mixed> $decoded */
+    private static function throttleWait(array $decoded): float
+    {
+        return max(self::MIN_THROTTLE_WAIT_SECONDS, self::bucketShortfall($decoded) ?? self::MIN_THROTTLE_WAIT_SECONDS);
+    }
+
     /**
-     * How long until the bucket holds the query's cost again: (requested − available) / restore rate.
+     * How long until the bucket holds the query's cost again: (requested − available) / restore rate, 0 when
+     * it already does; null when the response doesn't report the bucket.
      *
      * @param array<array-key, mixed> $decoded
      */
-    private static function throttleWait(array $decoded): float
+    private static function bucketShortfall(array $decoded): ?float
     {
         $cost = is_array($decoded['extensions'] ?? null) && is_array($decoded['extensions']['cost'] ?? null)
             ? $decoded['extensions']['cost'] : [];
@@ -141,10 +177,10 @@ final class GraphQlClient
         $available = is_numeric($status['currentlyAvailable'] ?? null) ? (float) $status['currentlyAvailable'] : 0.0;
         $restoreRate = is_numeric($status['restoreRate'] ?? null) ? (float) $status['restoreRate'] : 0.0;
         if ($restoreRate <= 0.0) {
-            return self::MIN_THROTTLE_WAIT_SECONDS;
+            return null;
         }
 
-        return max(self::MIN_THROTTLE_WAIT_SECONDS, ($requested - $available) / $restoreRate);
+        return max(0.0, ($requested - $available) / $restoreRate);
     }
 
     private static function errorSummary(mixed $errors): string
