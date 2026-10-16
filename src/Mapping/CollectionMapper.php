@@ -12,7 +12,8 @@ use IdempotentShopifyImporter\Shopify\ShopifyNode;
 /** Collection → product category. Smart-collection rules have no home; membership comes from products. */
 final class CollectionMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
+    private const METAFIELD_CONDITION = 'CollectionRuleMetafieldCondition';
 
     public function kind(): Kind
     {
@@ -40,13 +41,27 @@ final class CollectionMapper implements Mapper
             'template_suffix' => $node->optionalString('templateSuffix'),
             'smart_rules' => $rules === null ? null : [
                 'disjunctive' => $rules->bool('appliedDisjunctively'),
-                'rules' => array_map(static fn(ShopifyNode $rule): array => [
-                    'column' => $rule->string('column'),
-                    'relation' => $rule->string('relation'),
-                    'condition' => $rule->string('condition'),
-                ], $rules->list('rules')),
+                'rules' => array_map(self::rule(...), $rules->list('rules')),
             ],
             'meta' => $metafields,
         ], [LegacyPaths::collection($node->string('handle'))]);
+    }
+
+    /**
+     * A smart-collection rule in the shape wp-woo-dynamic-collections stores (Shopify's own, plus the
+     * metafield a metafield rule tests as "namespace.key").
+     *
+     * @return array{column: string, relation: string, condition: string, metafield?: string}
+     */
+    private static function rule(ShopifyNode $rule): array
+    {
+        $mapped = ['column' => $rule->string('column'), 'relation' => $rule->string('relation'), 'condition' => $rule->string('condition')];
+        $object = $rule->child('conditionObject');
+        if ($object !== null && $object->typename() === self::METAFIELD_CONDITION) {
+            $definition = $object->requiredChild('metafieldDefinition');
+            $mapped['metafield'] = $definition->string('namespace') . '.' . $definition->string('key');
+        }
+
+        return $mapped;
     }
 }

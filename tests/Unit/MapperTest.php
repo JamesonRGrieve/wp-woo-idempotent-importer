@@ -64,7 +64,11 @@ final class MapperTest extends TestCase
 
         self::assertSame(['/collections/bras'], $bras->legacyPaths);
         self::assertSame('Bras | Fixture Boutique', Values::of($bras)->seo()['title']);
-        self::assertSame('IS_PRICE_REDUCED', Values::of($sale)->record('smart_rules')?->records('rules')[0]->string('column'));
+        $rules = Values::of($sale)->record('smart_rules') ?? self::fail('the sale collection has rules');
+        self::assertSame(['column' => 'IS_PRICE_REDUCED', 'relation' => 'IS_SET', 'condition' => ''], $rules->records('rules')[0]->all());
+        self::assertSame('custom.care', $rules->records('rules')[1]->string('metafield'));
+        self::assertFalse($rules->bool('disjunctive'));
+        self::assertNull(Values::of($bras)->record('smart_rules'));
         self::assertSame(['custom.banner' => ['type' => 'single_line_text_field', 'value' => 'Up to 50% off']], Values::of($sale)->metafields());
     }
 
@@ -77,6 +81,7 @@ final class MapperTest extends TestCase
 
         self::assertTrue($scarf->bool('simple'));
         self::assertSame('Atelier North', $scarf->nullableString('brand'));
+        self::assertSame('gid://shopify/TaxonomyCategory/aa-2-26', $scarf->nullableString('category_id'));
         self::assertSame(['gid://shopify/Collection/202'], $scarf->strings('collections'));
         self::assertSame('80', $variant->string('regular_price'));
         self::assertSame('60', $variant->string('sale_price'));

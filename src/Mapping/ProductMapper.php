@@ -21,7 +21,7 @@ final class ProductMapper implements Mapper
     public const SQUARE_MAX_VARIATIONS = 250;
     public const GENERATED_SKU_PREFIX = 'shopify-';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const STATUS = ['ACTIVE' => 'publish', 'DRAFT' => 'draft', 'ARCHIVED' => 'private', 'UNLISTED' => 'publish'];
     private const HIDDEN_STATUS = 'UNLISTED';
 
@@ -62,6 +62,7 @@ final class ProductMapper implements Mapper
             'brand' => $node->optionalString('vendor'),
             'product_type' => $node->optionalString('productType'),
             'category' => $node->child('category')?->string('fullName'),
+            'category_id' => $node->child('category')?->id(),
             'template_suffix' => $node->optionalString('templateSuffix'),
             'seo' => Fields::seo($node->child('seo'), $metafields),
             'collections' => Fields::ids($node, 'collections'),

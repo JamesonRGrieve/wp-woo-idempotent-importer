@@ -20,6 +20,15 @@ fragment CollectionFields on Collection {
       column
       relation
       condition
+      conditionObject {
+        __typename
+        ... on CollectionRuleMetafieldCondition {
+          metafieldDefinition {
+            namespace
+            key
+          }
+        }
+      }
     }
   }
   metafields(first: 250) {

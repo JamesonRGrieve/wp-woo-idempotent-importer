@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use IdempotentShopifyImporter\Config\Credentials;
 use IdempotentShopifyImporter\Config\Settings;
+use IdempotentShopifyImporter\Mapping\Values;
 use IdempotentShopifyImporter\Model\Kind;
 use IdempotentShopifyImporter\Plugin;
 use IdempotentShopifyImporter\Services;
@@ -121,6 +122,17 @@ function storeV1(): void
     expect(!str_contains($scarf->get_description(), 'shopify-fake'), 'embedded description image localised');
     expect($scarf->get_meta('_shopify_mf_custom.care') === 'Dry clean only.', 'metafield mirrored');
     expect(wp_get_post_terms($scarf->get_id(), 'product_brand', ['fields' => 'names']) === ['Atelier North'], 'vendor → brand');
+    $facts = apply_filters('wdc_product_extra_facts', [], $scarf);
+    expect(is_array($facts) && $facts['category_id'] === 'gid://shopify/TaxonomyCategory/aa-2-26'
+        && $facts['metafields'] === ['custom.care' => 'Dry clean only.'], 'dynamic-collections facts: Shopify category and metafields');
+    $stored = get_term_meta(target(Kind::Collection, 'gid://shopify/Collection/202'), '_wdc_rules', true);
+    $saleRules = new Values((array) json_decode(is_string($stored) ? $stored : '', true));
+    $ruleRows = $saleRules->records('rules');
+    expect(
+        !$saleRules->bool('disjunctive') && count($ruleRows) === 2 && $ruleRows[1]->nullableString('metafield') === 'custom.care',
+        'smart-collection rules handed to dynamic collections'
+    );
+    expect(get_term_meta(target(Kind::Collection, 'gid://shopify/Collection/201'), '_wdc_rules', true) === '', 'a hand-picked collection gets no rules');
 
     $bra = product('gid://shopify/Product/302');
     expect($bra instanceof WC_Product_Variable && count($bra->get_children()) === 2, 'the bra is variable with 2 variations');

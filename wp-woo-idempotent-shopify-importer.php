@@ -5,7 +5,7 @@
 /**
  * Plugin Name: Idempotent Shopify Importer
  * Description: Keeps WooCommerce a one-way, idempotent mirror of a Shopify store until cutover.
- * Version: 0.1.0
+ * Version: 0.0.1
  * Requires at least: 6.6
  * Requires PHP: 8.3
  * Requires Plugins: woocommerce

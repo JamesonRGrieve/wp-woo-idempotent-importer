@@ -13,7 +13,7 @@ would be needed. Gaps are decisions for the operator, tracked on the Deck card.
 | Shop name, contact email, currency, weight unit, address, timezone, taxes-included | `blogname`, `admin_email`-adjacent store email, `woocommerce_currency`, `woocommerce_weight_unit`, store address options, `timezone_string`, `woocommerce_prices_include_tax` | Opt-in (`store_settings`); off by default because it changes site configuration. |
 | Shop policies (refund, shipping, privacy, terms of service/sale, legal notice, contact, subscription) | Pages; privacy → `wp_page_for_privacy_policy`, terms → `woocommerce_terms_page_id`, refund → Woo refund/returns page | |
 | Files (images, videos, generic files) | Media library attachments | De-duplicated by source URL. |
-| Collections (custom and smart) | `product_cat` terms: name, slug (handle), description, image, SEO title/description, sort order (meta) | Smart-collection *rules* are not representable; membership is mirrored as a snapshot (see Gaps). |
+| Collections (custom and smart) | `product_cat` terms: name, slug (handle), description, image, SEO title/description, sort order (meta) | Smart-collection rules go to [wp-woo-dynamic-collections](../wp-woo-dynamic-collections) (`_wdc_rules` term meta, Shopify's shape), which keeps membership current after cutover; the importer also supplies the taxonomy category and metafields those rules test (`wdc_product_extra_facts`). |
 | Products | Simple or variable products: title, slug, description, short description (none in Shopify), status (ACTIVE→publish, DRAFT→draft, ARCHIVED→private, UNLISTED→publish + catalog visibility hidden), tags → `product_tag`, vendor → `product_brand` (core Brands), product type → global attribute, category (standard taxonomy) → meta, template suffix → meta, SEO title/description, publish date | |
 | Product options + values | Global attributes (`pa_*`) + terms, used for variations | Option order preserved. |
 | Variants | Variations: SKU, barcode → GTIN (`global_unique_id`), price/compare-at → sale/regular price, cost → Cost of Goods, weight + unit, requires shipping → virtual, taxable → tax status, inventory tracked/quantity/policy → manage stock/stock/backorders, image, position | Total quantity across Shopify locations. |
@@ -56,7 +56,6 @@ off by default). Keep Square's system of record on WooCommerce while the importe
 | Additional customer addresses (beyond the default) | Kept as meta; an address-book plugin to use them at checkout. |
 | Marketing consent acting on newsletters | Kept as meta; a newsletter plugin (MailPoet etc.) to import it. |
 | Automatic discounts, Buy X Get Y, app discounts, minimum-quantity requirements, segment/market-targeted discounts | A dynamic-pricing / BOGO plugin. |
-| Smart-collection rules | Membership is mirrored as a snapshot; rules would need a smart-category plugin. |
 | Product bundles / components, combined listings | WooCommerce Product Bundles / Composite Products. |
 | Selling plans, subscription contracts, billing attempts | WooCommerce Subscriptions. |
 | Multi-location inventory, locations, transfers, purchase orders, shipments | A multi-inventory plugin (WooCommerce Square syncs one Square location). |

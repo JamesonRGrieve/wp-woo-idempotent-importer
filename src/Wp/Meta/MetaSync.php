@@ -91,4 +91,23 @@ final class MetaSync
             self::METAFIELD_TYPES => $types === [] ? null : $types,
         ]);
     }
+
+    /**
+     * The metafields mirrored onto an object, as "<namespace>.<key>" => value.
+     *
+     * @return array<string, string>
+     */
+    public static function readMetafields(MetaTarget $target): array
+    {
+        $keys = $target->get(self::METAFIELD_KEYS);
+        $metafields = [];
+        foreach (is_array($keys) ? $keys : [] as $name) {
+            $value = is_string($name) ? $target->get(self::METAFIELD_PREFIX . $name) : null;
+            if (is_string($name) && is_scalar($value)) {
+                $metafields[$name] = (string) $value;
+            }
+        }
+
+        return $metafields;
+    }
 }

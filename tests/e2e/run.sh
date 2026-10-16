@@ -19,7 +19,8 @@ WP_IMAGE="docker.io/library/wordpress:cli-php8.3"
 PHP_IMAGE="docker.io/library/php:8.4-cli"
 PLUGIN_SLUG="wp-woo-idempotent-shopify-importer"
 PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
-DB_READY_ATTEMPTS=60
+DB_READY_ATTEMPTS=120
+DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
 
 # Optional: keep the image/container store somewhere else (e.g. local disk when $HOME is on NFS).
@@ -53,6 +54,17 @@ wp() {
         "$WP_IMAGE" php -d memory_limit="$WP_CLI_MEMORY" /usr/local/bin/wp "$@"
 }
 
+# MariaDB's image first runs a socket-only server to initialise, so readiness is a TCP ping: it only
+# answers once the real server is listening for WordPress.
+wait_for_db() {
+    for _ in $(seq "$DB_READY_ATTEMPTS"); do
+        podman exec "$DB" mariadb-admin ping -h 127.0.0.1 --protocol=tcp -uwp -pwp --silent >/dev/null 2>&1 && return 0
+        sleep "$DB_READY_INTERVAL"
+    done
+    echo "MariaDB never became ready" >&2
+    return 1
+}
+
 store_state() {
     echo "$1" > "$STATE_DIR/store-state"
     echo "== Shopify store state: $1"
@@ -69,15 +81,11 @@ podman run -d --name "$FAKE" --network "$NETWORK" --network-alias shopify-fake \
     -v "$ROOT:/app:ro" -v "$STATE_DIR:/state" \
     "$PHP_IMAGE" php -S 0.0.0.0:8080 /app/tests/e2e/fake-shopify.php >/dev/null
 
-for _ in $(seq "$DB_READY_ATTEMPTS"); do
-    podman exec "$DB" mariadb-admin ping -uwp -pwp --silent >/dev/null 2>&1 && break
-    sleep 1
-done
-
 podman run --rm --user 0:0 -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" chown -R 33:33 /var/www/html
 wp core download --quiet
 PLUGIN_MOUNT=(-v "$ROOT:$PLUGIN_PATH:ro")
 wp config create --dbname=wp --dbuser=wp --dbpass=wp --dbhost=db --skip-check --extra-php < "$ROOT/tests/e2e/wp-config-extra.php"
+wait_for_db
 wp core install --url=http://localhost --title=E2E --admin_user=e2e --admin_email=e2e@example.com --skip-email --quiet
 wp plugin install woocommerce --activate --quiet
 podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$WP_IMAGE" \

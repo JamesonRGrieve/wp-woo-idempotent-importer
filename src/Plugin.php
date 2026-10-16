@@ -8,6 +8,7 @@ namespace IdempotentShopifyImporter;
 
 use IdempotentShopifyImporter\Wp\AdminPage;
 use IdempotentShopifyImporter\Wp\Cli;
+use IdempotentShopifyImporter\Wp\DynamicCollections;
 use IdempotentShopifyImporter\Wp\Scheduler;
 use IdempotentShopifyImporter\Wp\Storefront;
 use IdempotentShopifyImporter\Wp\WebhookController;
@@ -17,7 +18,7 @@ use wpdb;
 /** Wires the plugin into WordPress once WooCommerce is loaded. */
 final class Plugin
 {
-    public const VERSION = '0.1.0';
+    public const VERSION = '0.0.1';
     public const CLI_COMMAND = 'shopify-import';
 
     public static function boot(string $pluginFile): void
@@ -62,6 +63,7 @@ final class Plugin
         $scheduler = new Scheduler($services);
         $scheduler->register();
         (new Storefront($services->settings(), $services->redirects(), $services->links()))->register();
+        (new DynamicCollections())->register();
         $webhooks = new WebhookController($scheduler);
         add_action('rest_api_init', $webhooks->register(...));
         if (is_admin()) {

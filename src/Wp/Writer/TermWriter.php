@@ -10,6 +10,7 @@ use IdempotentShopifyImporter\Mapping\Desired;
 use IdempotentShopifyImporter\Mapping\Values;
 use IdempotentShopifyImporter\Model\Kind;
 use IdempotentShopifyImporter\Store\Link;
+use IdempotentShopifyImporter\Wp\DynamicCollections;
 use IdempotentShopifyImporter\Wp\Meta\MetaSync;
 use IdempotentShopifyImporter\Wp\Meta\WpMeta;
 use IdempotentShopifyImporter\Wp\Retirement;
@@ -53,6 +54,7 @@ final class TermWriter implements Writer
             self::THUMBNAIL_META => $image === null ? null : $this->targets->media->attachment($image->string('url'), $image->nullableString('alt')),
         ]);
         MetaSync::mirror($meta, $desired->gid, $f, self::CONSUMED);
+        DynamicCollections::writeRules($meta, $f->record('smart_rules'));
         Seo::writeTerm($meta, $id, $this->taxonomy, $f->seo());
 
         return $id;

@@ -32,7 +32,10 @@
           "seo": {"title": null, "description": null},
           "ruleSet": {
             "appliedDisjunctively": false,
-            "rules": [{"column": "IS_PRICE_REDUCED", "relation": "IS_SET", "condition": ""}]
+            "rules": [
+              {"column": "IS_PRICE_REDUCED", "relation": "IS_SET", "condition": "", "conditionObject": null},
+              {"column": "PRODUCT_METAFIELD_DEFINITION", "relation": "CONTAINS", "condition": "clean", "conditionObject": {"__typename": "CollectionRuleMetafieldCondition", "metafieldDefinition": {"namespace": "custom", "key": "care"}}}
+            ]
           },
           "metafields": {
             "pageInfo": {"hasNextPage": false, "endCursor": null},
