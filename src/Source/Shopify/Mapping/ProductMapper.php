@@ -14,6 +14,7 @@ namespace IdempotentImporter\Source\Shopify\Mapping;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\LegacyPaths;
 use IdempotentImporter\Mapping\Mapper;
+use IdempotentImporter\Mapping\SquareLimits;
 use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
@@ -21,8 +22,6 @@ use IdempotentImporter\Support\Decimal;
 
 final class ProductMapper implements Mapper
 {
-    /** WooCommerce Square can't sync an item with more variations than this. */
-    public const SQUARE_MAX_VARIATIONS = 250;
     public const GENERATED_SKU_PREFIX = 'shopify-';
 
     private const VERSION = 3;
@@ -52,7 +51,7 @@ final class ProductMapper implements Mapper
         $variants = array_map($this->variant(...), $node->list('variants'));
         usort($variants, static fn(array $a, array $b): int => $a['position'] <=> $b['position']);
         [$images, $otherMedia] = self::media($node);
-        $warnings = self::squareWarnings($node->string('title'), $variants);
+        $warnings = SquareLimits::warnings($node->string('title'), $variants);
 
         return new Desired(Kind::Product, $node->id(), [
             'title' => $node->string('title'),
@@ -180,24 +179,5 @@ final class ProductMapper implements Mapper
         }
 
         return [$images, $other];
-    }
-
-    /**
-     * @param list<array<string, mixed>> $variants
-     *
-     * @return list<string>
-     */
-    private static function squareWarnings(string $title, array $variants): array
-    {
-        $warnings = [];
-        if (count($variants) > self::SQUARE_MAX_VARIATIONS) {
-            $warnings[] = "\"{$title}\" has " . count($variants) . ' variants; WooCommerce Square syncs at most ' . self::SQUARE_MAX_VARIATIONS . '.';
-        }
-        $missing = count(array_filter($variants, static fn(array $variant): bool => $variant['sku'] === null));
-        if ($missing > 0) {
-            $warnings[] = "\"{$title}\" has {$missing} variant(s) without a SKU; WooCommerce Square needs one on each.";
-        }
-
-        return $warnings;
     }
 }

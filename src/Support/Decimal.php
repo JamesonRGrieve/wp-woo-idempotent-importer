@@ -72,6 +72,14 @@ final class Decimal
         return self::shift((string) $total, -$places);
     }
 
+    /** Exact product of a decimal string and an integer ("19.99" × 3 → "59.97"). */
+    public static function multiply(string $value, int $factor): string
+    {
+        $places = strlen(explode('.', self::normalise($value), 2)[1] ?? '');
+
+        return self::shift((string) ((int) self::shift($value, $places) * $factor), -$places);
+    }
+
     /** Exact comparison of two decimal strings: -1, 0 or 1. */
     public static function compare(string $a, string $b): int
     {

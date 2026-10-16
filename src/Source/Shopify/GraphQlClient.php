@@ -8,6 +8,7 @@ namespace IdempotentImporter\Source\Shopify;
 
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Http\Sleeper;
 use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\SourceError;
@@ -21,15 +22,11 @@ use JsonException;
 final class GraphQlClient
 {
     public const REQUEST_TIMEOUT_SECONDS = 60;
-    public const MAX_ATTEMPTS = 6;
-    public const BACKOFF_BASE_SECONDS = 1.0;
     public const MIN_THROTTLE_WAIT_SECONDS = 1.0;
 
     private const HTTP_OK = 200;
     private const HTTP_UNAUTHORIZED = 401;
     private const HTTP_FORBIDDEN = 403;
-    private const HTTP_TOO_MANY_REQUESTS = 429;
-    private const HTTP_SERVER_ERROR = 500;
     private const THROTTLED = 'THROTTLED';
 
     public function __construct(
@@ -57,20 +54,19 @@ final class GraphQlClient
             if ($wait === null) {
                 return $this->data($response, $operation);
             }
-            if ($attempt >= self::MAX_ATTEMPTS) {
+            if ($attempt >= RetryPolicy::MAX_ATTEMPTS) {
                 throw new SourceError("{$operation}: Shopify kept throttling or failing after {$attempt} attempts (HTTP {$response->status}).");
             }
             $this->sleeper->sleep($wait);
         }
     }
 
-    /** Seconds to wait before retrying, or null when the response is final. */
+    /** Seconds to wait before retrying (HTTP retry policy, then Shopify's cost throttle), or null when final. */
     private function retryWait(HttpResponse $response, int $attempt): ?float
     {
-        if ($response->status === self::HTTP_TOO_MANY_REQUESTS || $response->status >= self::HTTP_SERVER_ERROR) {
-            $retryAfter = $response->retryAfter !== null && is_numeric($response->retryAfter) ? (float) $response->retryAfter : null;
-
-            return $retryAfter ?? self::BACKOFF_BASE_SECONDS * (2 ** ($attempt - 1));
+        $wait = RetryPolicy::wait($response, $attempt);
+        if ($wait !== null) {
+            return $wait;
         }
         if ($response->status !== self::HTTP_OK) {
             return null;

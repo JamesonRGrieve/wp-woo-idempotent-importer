@@ -193,7 +193,7 @@ final class Services
             new MenuWriter($targets),
             new UrlRedirectWriter(),
             new DeliveryProfileWriter($targets, $this->db),
-            new ReviewWriter(),
+            new ReviewWriter($targets),
         ];
         $byKind = [];
         foreach ($writers as $writer) {

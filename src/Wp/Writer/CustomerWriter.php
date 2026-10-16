@@ -21,7 +21,8 @@ use WP_User;
 /**
  * Customers → WooCommerce customers. A WordPress user with the same email is adopted rather than
  * duplicated; an adopted user's role is never changed. New customers get an unusable random password
- * and no emails: Shopify passwords can't be exported, so customers reset theirs at cutover.
+ * and no emails: no source exports passwords, so customers reset theirs at cutover. A customer with no
+ * known creation time (`created_at` null) is dated when it is first mirrored.
  */
 final class CustomerWriter implements Writer
 {
@@ -44,7 +45,10 @@ final class CustomerWriter implements Writer
             $customer->set_username($f->string('username'));
             $customer->set_password(wp_generate_password(self::PASSWORD_LENGTH, true, true));
             $customer->set_role(self::ROLE);
-            $customer->set_date_created(Dates::gmt($f->string('created_at')));
+            $createdAt = $f->nullableString('created_at');
+            if ($createdAt !== null) {
+                $customer->set_date_created(Dates::gmt($createdAt));
+            }
         }
         $customer->set_email($email ?? '');
         $customer->set_first_name($f->nullableString('first_name') ?? '');

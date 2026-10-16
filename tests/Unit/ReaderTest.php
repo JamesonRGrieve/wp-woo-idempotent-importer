@@ -14,16 +14,16 @@ use IdempotentImporter\Source\Shopify\GraphQlClient;
 use IdempotentImporter\Source\Shopify\QueryLibrary;
 use IdempotentImporter\Source\Shopify\Reader;
 use IdempotentImporter\Source\SourceError;
-use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
+use IdempotentImporter\Tests\Support\ShopifyResponder;
 use PHPUnit\Framework\TestCase;
 
 final class ReaderTest extends TestCase
 {
     public function testReadsAPageFromTheFixtures(): void
     {
-        $page = $this->reader(new ScriptedTransport(new FixtureResponder('v1')))->page(Kind::Product, null, null, '');
+        $page = $this->reader(new ScriptedTransport(new ShopifyResponder('v1')))->page(Kind::Product, null, null, '');
 
         self::assertCount(3, $page->nodes);
         self::assertFalse($page->hasNextPage);

@@ -118,6 +118,24 @@ final readonly class Node
         return $strings;
     }
 
+    /** @return list<int> */
+    public function ints(string $field): array
+    {
+        $value = $this->data[$field] ?? [];
+        if (!is_array($value)) {
+            throw $this->mismatch($field, 'a list of integers');
+        }
+        $ints = [];
+        foreach ($value as $item) {
+            if (!is_int($item)) {
+                throw $this->mismatch($field, 'a list of integers');
+            }
+            $ints[] = $item;
+        }
+
+        return $ints;
+    }
+
     public function child(string $field): ?self
     {
         $value = $this->data[$field] ?? null;

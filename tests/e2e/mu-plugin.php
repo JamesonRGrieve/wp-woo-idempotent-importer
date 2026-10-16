@@ -5,17 +5,17 @@
 declare(strict_types=1);
 
 /*
- * End-to-end environment only: lets WordPress download media from the fake Shopify container, whose
- * address is private (WordPress refuses private hosts by default), and registers the suite's checks as
- * `wp iim-e2e <scenario>`.
+ * End-to-end environment only: lets WordPress download media from the fake store container (Shopify and
+ * Etsy hosts), whose address is private (WordPress refuses private hosts by default), and registers the
+ * suite's checks as `wp iim-e2e <scenario>`.
  */
 
-const IIM_E2E_FAKE_HOST = 'shopify-fake';
+const IIM_E2E_FAKE_HOSTS = ['shopify-fake', 'etsy-fake'];
 const IIM_E2E_CHECKS = WP_PLUGIN_DIR . '/wp-woo-idempotent-importer/tests/e2e/assert.php';
 
 const IIM_E2E_MAIL_COUNT = 'iim_e2e_mail_sent';
 
-add_filter('http_request_host_is_external', static fn(bool $external, string $host): bool => $external || $host === IIM_E2E_FAKE_HOST, 10, 2);
+add_filter('http_request_host_is_external', static fn(bool $external, string $host): bool => $external || in_array($host, IIM_E2E_FAKE_HOSTS, true), 10, 2);
 
 // Counts every email that gets as far as the mailer (the importer's quiet writes must never get there).
 add_action('phpmailer_init', static function (): void {

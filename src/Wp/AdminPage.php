@@ -12,6 +12,7 @@ use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Services;
 use IdempotentImporter\Source\Adapter;
 use IdempotentImporter\Source\Adapters;
+use IdempotentImporter\Source\ConnectsByOAuth;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Sync\Mode;
 
@@ -38,10 +39,16 @@ final class AdminPage
     /** Kinds switched by their own setting rather than the kinds list. */
     private const SEPARATELY_SWITCHED_KINDS = [Kind::DeliveryProfile];
 
-    public function __construct(private readonly Services $services, private readonly Scheduler $scheduler) {}
+    private readonly OAuthConnect $oauth;
+
+    public function __construct(private readonly Services $services, private readonly Scheduler $scheduler)
+    {
+        $this->oauth = new OAuthConnect($services, $this);
+    }
 
     public function register(): void
     {
+        $this->oauth->register();
         add_action('admin_menu', $this->menu(...));
         add_action('admin_post_' . self::SAVE_ACTION, $this->save(...));
         add_action('admin_post_' . self::RUN_ACTION, $this->runNow(...));
@@ -72,6 +79,9 @@ final class AdminPage
         }
         foreach ($adapter->credentialFields() as $name => $label) {
             $this->secretRow($name, $label);
+        }
+        if ($adapter instanceof ConnectsByOAuth) {
+            $this->oauth->row($adapter);
         }
         $this->numberRow('interval_minutes', 'Run every (minutes)', $settings->intervalMinutes, Settings::MIN_INTERVAL_MINUTES);
         $this->numberRow('full_reconcile_hours', 'Full reconcile every (hours)', $settings->fullReconcileHours, 1);
@@ -226,7 +236,7 @@ final class AdminPage
         return Options::array(Settings::OPTION);
     }
 
-    private function authorise(string $action): void
+    public function authorise(string $action): void
     {
         if (!current_user_can(self::CAPABILITY)) {
             wp_die(esc_html__('You are not allowed to do this.', 'wp-woo-idempotent-importer'), 403);
@@ -234,7 +244,8 @@ final class AdminPage
         check_admin_referer($action);
     }
 
-    private function back(string $notice): void
+    /** Back to the settings page with a notice. */
+    public function back(string $notice): never
     {
         wp_safe_redirect(add_query_arg([self::NOTICE_PARAM => rawurlencode($notice)], admin_url('admin.php?page=' . self::SLUG)));
         exit; // WordPress's redirect contract.

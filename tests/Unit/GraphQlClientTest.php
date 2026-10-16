@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Http\HttpResponse;
+use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Source\Shopify\Connection;
 use IdempotentImporter\Source\Shopify\GraphQlClient;
 use IdempotentImporter\Source\Shopify\QueryLibrary;
@@ -62,7 +63,7 @@ final class GraphQlClientTest extends TestCase
 
     public function testGivesUpAfterMaxAttempts(): void
     {
-        $responses = array_fill(0, GraphQlClient::MAX_ATTEMPTS, new HttpResponse(503, ''));
+        $responses = array_fill(0, RetryPolicy::MAX_ATTEMPTS, new HttpResponse(503, ''));
 
         $this->expectException(SourceError::class);
         $this->client(new ScriptedTransport(null, $responses))->query('Shop');

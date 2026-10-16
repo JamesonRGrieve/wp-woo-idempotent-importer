@@ -12,6 +12,9 @@ interface HttpTransport
     /** @param array<string, string> $headers */
     public function post(string $url, array $headers, string $body, int $timeoutSeconds): HttpResponse;
 
+    /** @param array<string, string> $headers */
+    public function get(string $url, array $headers, int $timeoutSeconds): HttpResponse;
+
     /** Downloads a URL to a local temporary file and returns its path; the caller deletes it. */
     public function download(string $url, int $timeoutSeconds, int $maxBytes): string;
 }

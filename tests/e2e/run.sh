@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from a fake Shopify that
-# serves the recorded fixtures. Proves the import, that an unchanged re-run writes nothing (content
-# tables byte-identical), that changes and deletions land, and webhook authentication. Everything it
-# creates is removed on exit.
+# End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from a fake Shopify and a
+# fake Etsy that serve the recorded fixtures. For each source it proves the import, that an unchanged
+# re-run writes nothing (content tables byte-identical), that changes and deletions land; and that one
+# source's runs never touch another's mirror, and Shopify webhook authentication. Everything it creates
+# is removed on exit.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -70,6 +71,11 @@ store_state() {
     echo "== Shopify store state: $1"
 }
 
+etsy_state() {
+    echo "$1" > "$STATE_DIR/etsy-state"
+    echo "== Etsy store state: $1"
+}
+
 podman network create "$NETWORK" >/dev/null
 podman volume create "$WP_VOLUME" >/dev/null
 chmod 0777 "$STATE_DIR"
@@ -77,9 +83,10 @@ podman run -d --name "$DB" --network "$NETWORK" --network-alias db \
     -e MARIADB_DATABASE=wp -e MARIADB_USER=wp -e MARIADB_PASSWORD=wp -e MARIADB_RANDOM_ROOT_PASSWORD=1 \
     "$DB_IMAGE" >/dev/null
 store_state v1
-podman run -d --name "$FAKE" --network "$NETWORK" --network-alias shopify-fake \
+etsy_state v1
+podman run -d --name "$FAKE" --network "$NETWORK" --network-alias shopify-fake --network-alias etsy-fake \
     -v "$ROOT:/app:ro" -v "$STATE_DIR:/state" \
-    "$PHP_IMAGE" php -S 0.0.0.0:8080 /app/tests/e2e/fake-shopify.php >/dev/null
+    "$PHP_IMAGE" php -S 0.0.0.0:8080 /app/tests/e2e/fake-store.php >/dev/null
 
 podman run --rm --user 0:0 -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" chown -R 33:33 /var/www/html
 wp core download --quiet
@@ -116,6 +123,27 @@ wp iim-e2e no-mail
 
 echo "== Webhooks"
 wp iim-e2e webhook
+
+echo "== Etsy: first full import, beside the Shopify mirror"
+wp iim-e2e etsy-configure
+wp idempotent-import run --full
+wp iim-e2e etsy-v1
+
+echo "== Etsy unchanged: full and incremental re-runs must write nothing"
+wp iim-e2e checksum /state/checksum-etsy-v1
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-etsy-v1
+wp idempotent-import run
+wp iim-e2e zero-writes /state/checksum-etsy-v1
+
+etsy_state v2
+echo "== Etsy changed: a price, a removed listing, a refund, a new receipt and review"
+wp idempotent-import run --full
+wp iim-e2e etsy-v2
+wp iim-e2e checksum /state/checksum-etsy-v2
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-etsy-v2
+wp iim-e2e no-mail
 
 echo "== Plugin errors and warnings logged by WordPress"
 podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/debug.log 2>/dev/null || true'

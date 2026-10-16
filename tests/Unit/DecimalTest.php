@@ -39,6 +39,15 @@ final class DecimalTest extends TestCase
         self::assertSame('-250', Decimal::shift('-2.5', 2));
     }
 
+    public function testMultiplyByAnIntegerIsExact(): void
+    {
+        self::assertSame('59.97', Decimal::multiply('19.99', 3));
+        self::assertSame('0.3', Decimal::multiply('0.1', 3));
+        self::assertSame('64', Decimal::multiply('32', 2));
+        self::assertSame('0', Decimal::multiply('12.5', 0));
+        self::assertSame('-2.5', Decimal::multiply('1.25', -2));
+    }
+
     public function testSumIsExact(): void
     {
         self::assertSame('0.3', Decimal::sum(['0.1', '0.2']));

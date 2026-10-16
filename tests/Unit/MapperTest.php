@@ -31,9 +31,9 @@ use IdempotentImporter\Source\Shopify\Mapping\ShopMapper;
 use IdempotentImporter\Source\Shopify\Mapping\UrlRedirectMapper;
 use IdempotentImporter\Source\Shopify\QueryLibrary;
 use IdempotentImporter\Source\Shopify\Reader;
-use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
+use IdempotentImporter\Tests\Support\ShopifyResponder;
 use PHPUnit\Framework\TestCase;
 
 /** Every mapper, run over the v1 store exactly as the importer reads it. */
@@ -246,7 +246,7 @@ final class MapperTest extends TestCase
 
     private function reader(): Reader
     {
-        $transport = new ScriptedTransport(new FixtureResponder('v1'));
+        $transport = new ScriptedTransport(new ShopifyResponder('v1'));
 
         return new Reader(new GraphQlClient(Connection::forStore('fixture.myshopify.com', 't'), QueryLibrary::bundled(), $transport, new RecordingSleeper()));
     }

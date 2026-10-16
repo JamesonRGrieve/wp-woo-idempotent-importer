@@ -15,9 +15,21 @@ final class WpHttpTransport implements HttpTransport
 {
     public function post(string $url, array $headers, string $body, int $timeoutSeconds): HttpResponse
     {
-        $response = wp_remote_post($url, ['headers' => $headers, 'body' => $body, 'timeout' => $timeoutSeconds]);
+        return self::response($url, wp_remote_post($url, ['headers' => $headers, 'body' => $body, 'timeout' => $timeoutSeconds]));
+    }
+
+    public function get(string $url, array $headers, int $timeoutSeconds): HttpResponse
+    {
+        return self::response($url, wp_remote_get($url, ['headers' => $headers, 'timeout' => $timeoutSeconds]));
+    }
+
+    /** @param array<string, mixed>|\WP_Error $response */
+    private static function response(string $url, array|\WP_Error $response): HttpResponse
+    {
         if (is_wp_error($response)) {
-            throw new SourceError('Could not reach Shopify: ' . $response->get_error_message());
+            $host = wp_parse_url($url, PHP_URL_HOST);
+
+            throw new SourceError('Could not reach ' . (is_string($host) ? $host : 'the source') . ': ' . $response->get_error_message());
         }
         $retryAfter = wp_remote_retrieve_header($response, 'retry-after');
 

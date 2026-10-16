@@ -212,6 +212,9 @@ final class OrderWriter implements Writer
     }
 
     /**
+     * One tax item per tax title, totalled from the line taxes; a tax line with an `order_amount` (a source
+     * that reports a tax only for the whole order) uses that amount instead, with no shipping share.
+     *
      * @param array<string, int> $taxKeys
      *
      * @return list<WC_Order_Item_Tax>
@@ -219,8 +222,10 @@ final class OrderWriter implements Writer
     private function taxItems(Values $f, array $taxKeys): array
     {
         $rates = [];
+        $orderAmounts = [];
         foreach ($f->records('tax_lines') as $tax) {
             $rates[$tax->string('title')] = $tax->nullableString('rate');
+            $orderAmounts[$tax->string('title')] = $tax->nullableString('order_amount');
         }
         $items = [];
         foreach ($taxKeys as $title => $key) {
@@ -228,8 +233,9 @@ final class OrderWriter implements Writer
             $item->set_rate_id($key);
             $item->set_label($title);
             $item->set_rate_code(sanitize_title($title));
-            $item->set_tax_total(self::taxTotal([...$f->records('line_items'), ...$f->records('fees')], $title));
-            $item->set_shipping_tax_total(self::taxTotal($f->records('shipping_lines'), $title));
+            $orderAmount = $orderAmounts[$title] ?? null;
+            $item->set_tax_total($orderAmount ?? self::taxTotal([...$f->records('line_items'), ...$f->records('fees')], $title));
+            $item->set_shipping_tax_total($orderAmount === null ? self::taxTotal($f->records('shipping_lines'), $title) : '0');
             $rate = $rates[$title] ?? null;
             if ($rate !== null) {
                 $item->set_rate_percent((float) Decimal::shift($rate, self::PERCENT_PLACES));

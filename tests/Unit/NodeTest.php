@@ -21,6 +21,7 @@ final class NodeTest extends TestCase
             'rate' => 0.05,
             'empty' => '',
             'tags' => ['a', 'b'],
+            'value_ids' => [1001, 1002],
             'conn' => ['nodes' => [['id' => 'x']]],
             'list' => [['id' => 'y']],
         ]);
@@ -30,6 +31,8 @@ final class NodeTest extends TestCase
         self::assertSame('0.05', $node->decimal('rate'));
         self::assertNull($node->optionalString('empty'));
         self::assertSame(['a', 'b'], $node->strings('tags'));
+        self::assertSame([1001, 1002], $node->ints('value_ids'));
+        self::assertSame([], $node->ints('missing'));
         self::assertSame('x', $node->list('conn')[0]->id());
         self::assertSame('y', $node->list('list')[0]->id());
         self::assertSame([], $node->list('missing'));
@@ -43,6 +46,13 @@ final class NodeTest extends TestCase
         $this->expectException(SourceError::class);
         $this->expectExceptionMessage('Product.child.title is not a string');
         $node->requiredChild('child')->string('title');
+    }
+
+    public function testAListOfIntegersRejectsOtherValues(): void
+    {
+        $this->expectException(SourceError::class);
+        $this->expectExceptionMessage('$.value_ids is not a list of integers');
+        (new Node(['value_ids' => [1, '2']]))->ints('value_ids');
     }
 
     public function testNonNumericDecimalIsRejected(): void
