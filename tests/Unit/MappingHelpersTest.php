@@ -8,9 +8,14 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Mapping\HtmlImages;
 use IdempotentImporter\Mapping\LegacyPaths;
+use IdempotentImporter\Mapping\Slugs;
+use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Mapping\Values;
+use IdempotentImporter\Mapping\VariantAttributes;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\Shopify\Mapping\ProductMapper;
+use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Sync\Outcome;
 use IdempotentImporter\Sync\RunCounts;
 use InvalidArgumentException;
@@ -45,6 +50,54 @@ final class MappingHelpersTest extends TestCase
         self::assertSame('/', LegacyPaths::normalise('/'));
         self::assertSame('/policies/refund-policy', LegacyPaths::policy('REFUND_POLICY'));
         self::assertSame('/blogs/news/fall', LegacyPaths::article('news', 'fall'));
+        self::assertSame('/shop/p/trail-mug', LegacyPaths::pathOf('https://trail.example/shop/p/Trail-Mug/'));
+        self::assertSame('/kitchen', LegacyPaths::pathOf('/kitchen/'));
+        self::assertNull(LegacyPaths::pathOf('https://trail.example/'), 'the home page has nothing to redirect');
+        self::assertNull(LegacyPaths::pathOf(' '));
+        self::assertNull(LegacyPaths::pathOf(null));
+    }
+
+    public function testTimesAreIsoUtc(): void
+    {
+        $node = new Node(['iso' => '2026-09-01T10:00:00.187Z', 'offset' => '2026-09-01T10:00:00-06:00', 'rfc' => 'Tue, 01 Sep 2026 10:00:00 -0600', 'empty' => '', 'bad' => 'soon']);
+
+        self::assertSame('2026-09-01T10:00:00Z', Times::iso($node, 'iso'), 'fractions of a second dropped');
+        self::assertSame('2026-09-01T16:00:00Z', Times::iso($node, 'offset'));
+        self::assertSame('2026-09-01T16:00:00Z', Times::requiredIso($node, 'rfc'), 'RFC 2822');
+        self::assertNull(Times::iso($node, 'empty'));
+        self::assertNull(Times::iso($node, 'missing'));
+        try {
+            Times::requiredIso($node, 'missing');
+            self::fail('a required time must be there');
+        } catch (SourceError $e) {
+            self::assertSame('missing is missing.', $e->getMessage());
+        }
+        $this->expectException(SourceError::class);
+        $this->expectExceptionMessage('bad is not a timestamp: soon');
+        Times::iso($node, 'bad');
+    }
+
+    public function testVariantAttributesInFirstUseOrder(): void
+    {
+        $variants = [
+            ['options' => ['Size' => 'S', 'Colour' => 'Red']],
+            ['options' => ['Size' => 'M', 'Colour' => 'Red']],
+            ['options' => ['Colour' => 'Navy', 'Fit' => 'Slim']],
+            ['options' => []],
+        ];
+
+        self::assertSame([
+            ['name' => 'Size', 'position' => 1, 'values' => ['S', 'M']],
+            ['name' => 'Colour', 'position' => 2, 'values' => ['Red', 'Navy']],
+            ['name' => 'Fit', 'position' => 3, 'values' => ['Slim']],
+        ], VariantAttributes::fromVariants($variants));
+        self::assertSame([], VariantAttributes::fromVariants([]));
+    }
+
+    public function testSlugsFromTitles(): void
+    {
+        self::assertSame('wool-toque-navy', Slugs::fromTitle('Wool Toque (Navy)'));
+        self::assertSame('', Slugs::fromTitle('!!!'));
     }
 
     public function testCompareAtPriceRule(): void

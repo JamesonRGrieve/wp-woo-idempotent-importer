@@ -11,6 +11,7 @@ use IdempotentImporter\Mapping\LegacyPaths;
 use IdempotentImporter\Mapping\Mapper;
 use IdempotentImporter\Mapping\SquareLimits;
 use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\VariantAttributes;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\SourceError;
@@ -106,7 +107,7 @@ final class ItemMapper implements Mapper
             'tags' => [],
             'collections' => self::collections($node, $item),
             'images' => Fields::images($node, $item->strings('image_ids')),
-            'attributes' => $simple ? [] : self::attributes($variants),
+            'attributes' => $simple ? [] : VariantAttributes::fromVariants($variants),
             'variants' => $variants,
             'simple' => $simple,
             'seo' => ['title' => $seo?->optionalString('page_title'), 'description' => $seo?->optionalString('page_description')],
@@ -220,30 +221,6 @@ final class ItemMapper implements Mapper
         }
 
         return $selected;
-    }
-
-    /**
-     * Each attribute (in variant option order) with every value it takes.
-     *
-     * @param list<array<string, mixed>> $variants
-     *
-     * @return list<array{name: string, position: int, values: list<string>}>
-     */
-    private static function attributes(array $variants): array
-    {
-        $attributes = [];
-        foreach ($variants as $variant) {
-            $options = $variant['options'];
-            foreach (is_array($options) ? $options : [] as $name => $value) {
-                $name = (string) $name;
-                $attributes[$name] ??= ['name' => $name, 'position' => count($attributes) + 1, 'values' => []];
-                if (is_string($value) && !in_array($value, $attributes[$name]['values'], true)) {
-                    $attributes[$name]['values'][] = $value;
-                }
-            }
-        }
-
-        return array_values($attributes);
     }
 
     /** @return list<string> the item's categories that are mirrored (live and named), in the item's order */

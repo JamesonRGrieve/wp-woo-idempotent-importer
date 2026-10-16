@@ -6,14 +6,12 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Source\BigCommerce\Mapping;
 
-use DateTimeImmutable;
-use DateTimeZone;
-use Exception;
 use IdempotentImporter\Mapping\LegacyPaths;
+use IdempotentImporter\Mapping\Slugs;
+use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Source\BigCommerce\BigCommerceAdapter;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Node;
-use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Support\Decimal;
 
 /** Field readers shared by the BigCommerce mappers, so each BigCommerce shape is translated in exactly one place. */
@@ -26,10 +24,6 @@ final class Fields
         'kgs' => 'kg', 'kg' => 'kg', 'kilograms' => 'kg',
         'grams' => 'g', 'g' => 'g',
     ];
-
-    private const ISO_FORMAT = 'Y-m-d\TH:i:s\Z';
-    /** A normalised path with nothing to redirect. */
-    private const ROOT_PATH = '/';
 
     /** Money or a measurement (a decimal string such as "12.5000", or a JSON number), zero when absent. */
     public static function decimalOrZero(Node $node, string $field): string
@@ -48,20 +42,12 @@ final class Fields
     /** A v3 ISO 8601 or v2 RFC 2822 timestamp as ISO 8601 UTC; null when absent or empty. */
     public static function time(Node $node, string $field): ?string
     {
-        $value = $node->optionalString($field);
-        if ($value === null) {
-            return null;
-        }
-        try {
-            return (new DateTimeImmutable($value))->setTimezone(new DateTimeZone('UTC'))->format(self::ISO_FORMAT);
-        } catch (Exception) {
-            throw new SourceError("{$field} is not a timestamp: {$value}");
-        }
+        return Times::iso($node, $field);
     }
 
     public static function requiredTime(Node $node, string $field): string
     {
-        return self::time($node, $field) ?? throw new SourceError("{$field} is missing.");
+        return Times::requiredIso($node, $field);
     }
 
     public static function id(string $type, int|string $id): string
@@ -100,12 +86,7 @@ final class Fields
     /** A storefront URL or path ("/trail-mug/", "https://shop.example/trail-mug/") as its normalised path. */
     public static function path(?string $url): ?string
     {
-        if ($url === null || trim($url) === '') {
-            return null;
-        }
-        $path = LegacyPaths::normalise($url);
-
-        return $path === self::ROOT_PATH ? null : $path;
+        return LegacyPaths::pathOf($url);
     }
 
     /** @return list<string> the old storefront path to redirect, if there is one */
@@ -122,7 +103,7 @@ final class Fields
         $path = self::path($url);
         $last = $path === null ? '' : basename($path);
 
-        return $last !== '' ? $last : trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($title)), '-');
+        return $last !== '' ? $last : Slugs::fromTitle($title);
     }
 
     /** The store's weight unit in WooCommerce's units; null for a unit WooCommerce has no equivalent of. */
@@ -191,7 +172,7 @@ final class Fields
      */
     public static function details(Node $node, array $fields): array
     {
-        return array_intersect_key($node->raw(), array_flip($fields));
+        return $node->only($fields);
     }
 
     /**

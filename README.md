@@ -14,7 +14,8 @@ Each source platform is an adapter over the same engine:
 | Etsy | Built | The shop and its policies, sections, listings in every state with variations, buyers, receipts with refunds and shipments, and reviews — [coverage/etsy.md](coverage/etsy.md) |
 | Square Online | Built | The seller's store settings and return policy, catalog categories, items with variations, options, images and main-location stock, customers, and orders with refunds and fulfillments — [coverage/square_online.md](coverage/square_online.md) |
 | BigCommerce | Built | Store settings, categories, products with variants, images, brands and custom fields, customers, coupons and coupon promotions, orders with taxes, shipping, refunds and shipments, content pages, the blog and its posts, storefront redirects, and product reviews — [coverage/bigcommerce.md](coverage/bigcommerce.md) |
-| Squarespace, Wix, Ecwid, Magento | Not built yet | Listed (so the choice exists) but refuse to run |
+| Squarespace | Built | Store settings, store pages, products with variants, images and stock, customers, promo-code discounts, and orders with payments, taxes, refunds and fulfillments — [coverage/squarespace.md](coverage/squarespace.md) |
+| Wix, Ecwid, Magento | Not built yet | Listed (so the choice exists) but refuse to run |
 
 Each coverage page lists everything the source has, and what WordPress can't hold.
 
@@ -28,7 +29,8 @@ written, so anything else edited in WordPress is kept. Fields with no native Wor
 
 - **Incremental runs** (every hour by default) read only what changed since the last clean run, where
   the source can say (Shopify: everything; Etsy: receipts, buyers and reviews; Square Online:
-  everything, including stock changes; BigCommerce: products, customers and orders).
+  everything, including stock changes; BigCommerce: products, customers and orders; Squarespace:
+  products and orders).
 - **Full runs** (daily by default) read everything and trash the copies of objects the source no longer
   has. A source's runs only ever retire that source's copies.
 - **Webhooks** (Shopify) re-read one object as soon as it changes, signed with your app's client secret.
@@ -36,7 +38,7 @@ written, so anything else edited in WordPress is kept. Fields with no native Wor
 Mirroring history has no side effects: no customer or admin emails, no stock changes, no coupon usage.
 Old Shopify URLs (`/products/…`, `/collections/…`, `/pages/…`, `/blogs/…`, `/policies/…`, and your
 Shopify URL redirects) answer with a 301 to the new page, as do old BigCommerce storefront URLs (products,
-categories, pages, blog posts and the store's 301 redirects).
+categories, pages, blog posts and the store's 301 redirects) and old Squarespace product and store page URLs.
 
 ## Setup
 
@@ -57,10 +59,13 @@ categories, pages, blog posts and the store's 301 redirects).
    - **BigCommerce:** under Settings → API, create a store-level API account with the read-only scopes
      listed in [coverage/bigcommerce.md](coverage/bigcommerce.md), then enter the store hash (the code
      after `/stores/` in its API path) and the access token.
+   - **Squarespace:** under Settings → Developer API keys, generate a key with the read-only permissions
+     listed in [coverage/squarespace.md](coverage/squarespace.md), then enter it. Pages and blog posts have
+     no API; bring them over with the site's WordPress export.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_ACCESS_TOKEN`, `IIM_SHOPIFY_WEBHOOK_SECRET`, `IIM_ETSY_KEYSTRING`,
    `IIM_ETSY_SHARED_SECRET`, `IIM_SQUARE_ONLINE_ACCESS_TOKEN`, `IIM_BIGCOMMERCE_STORE_HASH`,
-   `IIM_BIGCOMMERCE_ACCESS_TOKEN`); Etsy's refresh token is kept by the connect flow, since Etsy replaces it
+   `IIM_BIGCOMMERCE_ACCESS_TOKEN`, `IIM_SQUARESPACE_API_KEY`); Etsy's refresh token is kept by the connect flow, since Etsy replaces it
    on every use.
 4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
 

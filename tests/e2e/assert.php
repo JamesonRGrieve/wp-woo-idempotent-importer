@@ -32,7 +32,7 @@ const CONTENT_TABLES = [
 ];
 const WEBHOOK_SECRET = 'e2e-webhook-secret';
 /** The sources in the order run.sh imports them, each beside the mirrors of the ones before it. */
-const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce'];
+const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce', 'squarespace'];
 const FIRST_STATE = 'v1';
 
 function expect(bool $condition, string $what): void

@@ -1,8 +1,8 @@
 # wp-woo-idempotent-importer — Agent Operating Guide
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent store → WooCommerce mirror kept current until
-cutover, with one adapter per source platform (Shopify, Etsy, Square Online and BigCommerce built;
-Squarespace, Wix, Ecwid and Magento deferred). README.md is the user-facing contract; `coverage/<source>.md`
+cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce and Squarespace
+built; Wix, Ecwid and Magento deferred). README.md is the user-facing contract; `coverage/<source>.md`
 is the single source of truth for what each source mirrors and what is a gap. PHP rules:
 `/home/jameson/Source/ai-prompts/php.md`.
 

@@ -39,6 +39,14 @@ final class NodeTest extends TestCase
         self::assertNull($node->child('missing'));
     }
 
+    public function testOnlyKeepsTheNamedFieldsThatArePresent(): void
+    {
+        $node = new Node(['a' => 1, 'b' => null, 'c' => ['d' => true]]);
+
+        self::assertSame(['a' => 1, 'b' => null], $node->only(['a', 'b', 'missing']));
+        self::assertSame([], $node->only([]));
+    }
+
     public function testMismatchNamesThePath(): void
     {
         $node = new Node(['child' => ['title' => 5]], 'Product');

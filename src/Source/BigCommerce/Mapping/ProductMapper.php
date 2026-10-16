@@ -9,6 +9,7 @@ namespace IdempotentImporter\Source\BigCommerce\Mapping;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
 use IdempotentImporter\Mapping\SquareLimits;
+use IdempotentImporter\Mapping\VariantAttributes;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\SourceError;
@@ -102,7 +103,7 @@ final class ProductMapper implements Mapper
             'tags' => [],
             'collections' => array_map(Fields::categoryId(...), self::categoryIds($node)),
             'images' => self::images($node),
-            'attributes' => $simple ? [] : self::attributes($variants),
+            'attributes' => $simple ? [] : VariantAttributes::fromVariants($variants),
             'variants' => $variants,
             'simple' => $simple,
             'seo' => ['title' => $node->optionalString('page_title'), 'description' => $node->optionalString('meta_description')],
@@ -176,30 +177,6 @@ final class ProductMapper implements Mapper
         }
 
         return $options;
-    }
-
-    /**
-     * Each attribute (in the order variants first use it) with every value it takes.
-     *
-     * @param list<array<string, mixed>> $variants
-     *
-     * @return list<array{name: string, position: int, values: list<string>}>
-     */
-    private static function attributes(array $variants): array
-    {
-        $attributes = [];
-        foreach ($variants as $variant) {
-            $options = $variant['options'];
-            foreach (is_array($options) ? $options : [] as $name => $value) {
-                $name = (string) $name;
-                $attributes[$name] ??= ['name' => $name, 'position' => count($attributes) + 1, 'values' => []];
-                if (is_string($value) && !in_array($value, $attributes[$name]['values'], true)) {
-                    $attributes[$name]['values'][] = $value;
-                }
-            }
-        }
-
-        return array_values($attributes);
     }
 
     /** @return list<int> the product's category ids (BigCommerce sends them as JSON numbers) */

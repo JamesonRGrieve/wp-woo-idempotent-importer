@@ -9,6 +9,22 @@ namespace IdempotentImporter\Mapping;
 /** The URL paths an object had on the Shopify storefront, so they can 301 to its new home. */
 final class LegacyPaths
 {
+    private const ROOT = '/';
+
+    /**
+     * Any storefront's URL or path ("/trail-mug/", "https://shop.example/shop/p/trail-mug") as its
+     * normalised path; null when there is none, or it is the home page (nothing to redirect).
+     */
+    public static function pathOf(?string $url): ?string
+    {
+        if ($url === null || trim($url) === '') {
+            return null;
+        }
+        $path = self::normalise($url);
+
+        return $path === self::ROOT ? null : $path;
+    }
+
     public static function product(string $handle): string
     {
         return '/products/' . $handle;

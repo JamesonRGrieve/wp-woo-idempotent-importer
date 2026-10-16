@@ -56,6 +56,18 @@ final class SpecCache
                 false,
             ),
             ...self::bigCommerce(),
+            // Squarespace's Commerce APIs (OpenAPI 3.1.1, linked from the docs' schemas page), published at an
+            // unversioned URL, so pinned to the bytes fetched on 2026-10-16 (last modified 2026-10-12). Its
+            // paths carry their /1.0, /v1 or /v2 prefix and its server is the bare API host.
+            new SpecDocument(
+                'squarespace',
+                'commerce-apis',
+                'https://developers.squarespace.com/commerce-apis/latest/schema-processor-version-version-latest.json',
+                '',
+                false,
+                SpecDocument::FORMAT_JSON,
+                '5dd4b1b7cd387d7db65f2f25418dac62c822ded5d90f4d41bba152fa305db368',
+            ),
         ];
     }
 

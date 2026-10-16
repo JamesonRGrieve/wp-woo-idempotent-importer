@@ -15,6 +15,7 @@ declare(strict_types=1);
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Source\BigCommerce\BigCommerceAuthorizer;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAuthorizer;
+use IdempotentImporter\Source\Squarespace\SquarespaceAuthorizer;
 use IdempotentImporter\Tests\Support\EtsyResponder;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\ShopifyResponder;
@@ -24,10 +25,11 @@ require dirname(__DIR__, 2) . '/vendor/autoload.php';
 const SHOPIFY_ACCESS_TOKEN = 'e2e-token';
 const ETSY_API_KEY = 'e2e-keystring:e2e-shared-secret';
 const ETSY_API_PREFIX = '/v3/';
-/** REST sources answered from their fixtures: source => [API path prefix, the headers every request must carry]. */
+/** REST sources answered from their fixtures: source => [API path pattern, the headers every request must carry]. */
 const REST_SOURCES = [
-    'square_online' => ['/v2/', ['Authorization' => 'Bearer e2e-square-token', 'Square-Version' => SquareOnlineAuthorizer::API_VERSION]],
-    'bigcommerce' => ['/stores/', [BigCommerceAuthorizer::TOKEN_HEADER => 'e2e-bigcommerce-token']],
+    'square_online' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-square-token', 'Square-Version' => SquareOnlineAuthorizer::API_VERSION]],
+    'bigcommerce' => ['#^/stores/#', [BigCommerceAuthorizer::TOKEN_HEADER => 'e2e-bigcommerce-token']],
+    'squarespace' => ['#^/(1\.0|v1|v2)/#', ['Authorization' => 'Bearer e2e-squarespace-key', 'User-Agent' => SquarespaceAuthorizer::USER_AGENT]],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 const PNG_1X1 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
@@ -63,7 +65,7 @@ $path = (string) parse_url($uri, PHP_URL_PATH);
 $host = is_string($_SERVER['HTTP_HOST'] ?? null) ? (string) parse_url('http://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST) : '';
 $source = str_ends_with($host, FAKE_HOST_SUFFIX) ? substr($host, 0, -strlen(FAKE_HOST_SUFFIX)) : '';
 
-if (isset(REST_SOURCES[$source]) && str_starts_with($path, REST_SOURCES[$source][0])) {
+if (isset(REST_SOURCES[$source]) && preg_match(REST_SOURCES[$source][0], $path) === 1) {
     foreach (REST_SOURCES[$source][1] as $name => $expected) {
         if (requestHeader($name) !== $expected) {
             http_response_code(401);

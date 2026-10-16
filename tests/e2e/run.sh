@@ -23,7 +23,7 @@ PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
-SOURCES=(shopify etsy square_online bigcommerce)
+SOURCES=(shopify etsy square_online bigcommerce squarespace)
 
 # Optional: keep the image/container store somewhere else (e.g. local disk when $HOME is on NFS).
 if [ -n "${E2E_PODMAN_ROOT:-}" ]; then
@@ -132,6 +132,7 @@ wp iim-e2e webhook
 import_source etsy "a price, a removed listing, a refund, a new receipt and review"
 import_source square_online "a price, a deleted item, a refund, a new order and customer"
 import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review"
+import_source squarespace "a price, a deleted product, a refund, a new order and customer"
 
 echo "== Plugin errors and warnings logged by WordPress"
 podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/debug.log 2>/dev/null || true'

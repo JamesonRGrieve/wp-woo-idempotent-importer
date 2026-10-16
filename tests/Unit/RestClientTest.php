@@ -94,6 +94,21 @@ final class RestClientTest extends TestCase
         self::assertSame([1.5, 2.0, RetryPolicy::BACKOFF_BASE_SECONDS * 4], $sleeper->waits, 'reset ms, then Retry-After first, then backoff for a hint that is not a number');
     }
 
+    public function testASourcesRateLimitCooldownIsWaitedOutWhenItSendsNoHint(): void
+    {
+        $sleeper = new RecordingSleeper();
+        $transport = new ScriptedTransport(null, [
+            new HttpResponse(429, ''),
+            new HttpResponse(429, '', '5'),
+            new HttpResponse(503, ''),
+            new HttpResponse(200, '{}'),
+        ]);
+
+        (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper, 60.0))->get('/store');
+
+        self::assertSame([60.0, 5.0, RetryPolicy::BACKOFF_BASE_SECONDS * 4], $sleeper->waits, 'the cool-down for a bare 429, a Retry-After first, backoff for a server error');
+    }
+
     public function testAQueryIsAJsonPost(): void
     {
         $transport = new ScriptedTransport(null, [new HttpResponse(200, '{"products":[]}')]);

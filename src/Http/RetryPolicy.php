@@ -9,7 +9,8 @@ namespace IdempotentImporter\Http;
 /**
  * When a source API's response is worth retrying: rate limiting (429) and server errors (5xx), after the
  * server's Retry-After when it sends one, else after the rate-limit window's reset time when it sends that
- * (in milliseconds), else an exponential backoff. Shared by every source client.
+ * (in milliseconds), else (for rate limiting) the source's documented cool-down when it has one, else an
+ * exponential backoff. Shared by every source client.
  */
 final class RetryPolicy
 {
@@ -20,8 +21,11 @@ final class RetryPolicy
     private const HTTP_SERVER_ERROR = 500;
     private const MILLISECONDS_PER_SECOND = 1000;
 
-    /** Seconds to wait before attempt $attempt + 1, or null when the response is not a retryable failure. */
-    public static function wait(HttpResponse $response, int $attempt): ?float
+    /**
+     * Seconds to wait before attempt $attempt + 1, or null when the response is not a retryable failure.
+     * $rateLimitCooldownSeconds is how long a source that sends no timing hint refuses requests after a 429.
+     */
+    public static function wait(HttpResponse $response, int $attempt, ?float $rateLimitCooldownSeconds = null): ?float
     {
         if ($response->status !== self::HTTP_TOO_MANY_REQUESTS && $response->status < self::HTTP_SERVER_ERROR) {
             return null;
@@ -29,6 +33,7 @@ final class RetryPolicy
 
         return self::seconds($response->retryAfter)
             ?? self::milliseconds($response->rateLimitResetMs)
+            ?? ($response->status === self::HTTP_TOO_MANY_REQUESTS ? $rateLimitCooldownSeconds : null)
             ?? self::BACKOFF_BASE_SECONDS * (2 ** ($attempt - 1));
     }
 

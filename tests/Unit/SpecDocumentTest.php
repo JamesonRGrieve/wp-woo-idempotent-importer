@@ -43,4 +43,13 @@ final class SpecDocumentTest extends TestCase
             self::assertStringStartsWith('https://docs.bigcommerce.com/openapi/', $document->url);
         }
     }
+
+    public function testTheUnversionedSquarespaceDocumentIsPinnedByHash(): void
+    {
+        $documents = SpecCache::forSource('squarespace');
+
+        self::assertCount(1, $documents);
+        self::assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $documents[0]->sha256 ?? '');
+        self::assertStringStartsWith('https://developers.squarespace.com/commerce-apis/', $documents[0]->url);
+    }
 }

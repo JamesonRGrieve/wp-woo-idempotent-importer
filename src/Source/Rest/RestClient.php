@@ -31,12 +31,14 @@ final class RestClient
     private const HTTP_FORBIDDEN = 403;
     private const HTTP_NOT_FOUND = 404;
 
+    /** @param float|null $rateLimitCooldownSeconds a source's documented cool-down after a 429 that carries no timing hint */
     public function __construct(
         private readonly string $label,
         private readonly string $baseUrl,
         private readonly RequestAuthorizer $authorizer,
         private readonly HttpTransport $transport,
         private readonly Sleeper $sleeper,
+        private readonly ?float $rateLimitCooldownSeconds = null,
     ) {}
 
     /**
@@ -78,7 +80,7 @@ final class RestClient
                 $renewed = true;
                 continue;
             }
-            $wait = RetryPolicy::wait($response, $attempt);
+            $wait = RetryPolicy::wait($response, $attempt, $this->rateLimitCooldownSeconds);
             if ($wait === null) {
                 return $this->node($response, $path);
             }

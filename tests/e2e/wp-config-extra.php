@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// End-to-end environment: the importer talks to the fake store container (Shopify, Etsy, Square and BigCommerce).
+// End-to-end environment: the importer talks to the fake store container (Shopify, Etsy, Square, BigCommerce and Squarespace).
 define('IIM_SHOPIFY_ENDPOINT', 'http://shopify-fake:8080/admin/api/graphql.json');
 define('IIM_SHOPIFY_ACCESS_TOKEN', 'e2e-token');
 define('IIM_ETSY_ENDPOINT', 'http://etsy-fake:8080');
@@ -10,6 +10,8 @@ define('IIM_SQUARE_ONLINE_ACCESS_TOKEN', 'e2e-square-token');
 define('IIM_BIGCOMMERCE_ENDPOINT', 'http://bigcommerce-fake:8080');
 define('IIM_BIGCOMMERCE_STORE_HASH', 'bcfix123');
 define('IIM_BIGCOMMERCE_ACCESS_TOKEN', 'e2e-bigcommerce-token');
+define('IIM_SQUARESPACE_ENDPOINT', 'http://squarespace-fake:8080');
+define('IIM_SQUARESPACE_API_KEY', 'e2e-squarespace-key');
 define('DISABLE_WP_CRON', true);
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);

@@ -24,6 +24,18 @@ final readonly class Node
         return $this->data;
     }
 
+    /**
+     * The named fields that are present, as sent (an object's details kept as meta).
+     *
+     * @param list<string> $fields
+     *
+     * @return array<array-key, mixed>
+     */
+    public function only(array $fields): array
+    {
+        return array_intersect_key($this->data, array_flip($fields));
+    }
+
     public function has(string $field): bool
     {
         return isset($this->data[$field]);

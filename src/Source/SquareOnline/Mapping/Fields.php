@@ -6,13 +6,11 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Source\SquareOnline\Mapping;
 
-use DateTimeImmutable;
-use DateTimeZone;
-use Exception;
+use IdempotentImporter\Mapping\Slugs;
+use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Node;
-use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
 use IdempotentImporter\Support\Currency;
 use IdempotentImporter\Support\Decimal;
@@ -21,7 +19,6 @@ use InvalidArgumentException;
 /** Field readers shared by the Square Online mappers, so each Square shape is translated in exactly one place. */
 final class Fields
 {
-    private const ISO_FORMAT = 'Y-m-d\TH:i:s\Z';
     /** Square's placeholder for an unknown country. */
     private const UNKNOWN_COUNTRY = 'ZZ';
     private const WHOLE_NUMBER = '/^-?\d+$/';
@@ -53,20 +50,12 @@ final class Fields
     /** An RFC 3339 timestamp field as ISO 8601 UTC. */
     public static function time(Node $node, string $field): ?string
     {
-        $value = $node->optionalString($field);
-        if ($value === null) {
-            return null;
-        }
-        try {
-            return (new DateTimeImmutable($value))->setTimezone(new DateTimeZone('UTC'))->format(self::ISO_FORMAT);
-        } catch (Exception) {
-            throw new SourceError("{$field} is not a timestamp: {$value}");
-        }
+        return Times::iso($node, $field);
     }
 
     public static function requiredTime(Node $node, string $field): string
     {
-        return self::time($node, $field) ?? throw new SourceError("{$field} is missing.");
+        return Times::requiredIso($node, $field);
     }
 
     /**
@@ -102,7 +91,7 @@ final class Fields
     /** A URL slug from a title (WordPress keeps slugs unique itself). */
     public static function slug(string $title): string
     {
-        return trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($title)), '-');
+        return Slugs::fromTitle($title);
     }
 
     public static function id(string $type, string $id): string
