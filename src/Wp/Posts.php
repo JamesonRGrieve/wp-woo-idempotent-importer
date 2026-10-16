@@ -38,6 +38,19 @@ final class Posts
         return ['post_date' => Dates::local($iso), 'post_date_gmt' => Dates::gmt($iso)];
     }
 
+    /**
+     * The dates a post was given when first mirrored, for a source with no publication time: an update keeps
+     * them (WordPress would otherwise re-date the post to now); a new post has none and is dated now.
+     *
+     * @return array{post_date?: string, post_date_gmt?: string}
+     */
+    public static function keptDates(?int $postId): array
+    {
+        $post = $postId === null ? null : get_post($postId);
+
+        return $post instanceof WP_Post ? ['post_date' => $post->post_date, 'post_date_gmt' => $post->post_date_gmt] : [];
+    }
+
     public static function exists(int $postId, string $postType): bool
     {
         $post = get_post($postId);

@@ -94,6 +94,41 @@ final class OpenApiValidatorTest extends TestCase
         self::assertSame(['$.id is missing', '$.meta.size should be string, got int'], $validator->validate(['meta' => ['size' => 3]], $product));
     }
 
+    public function testOpenApi31TypeListsAllowEachListedTypeAndNull(): void
+    {
+        $validator = new OpenApiValidator([], '#/components/schemas/', false);
+        $price = ['type' => ['number', 'null']];
+
+        self::assertSame([], $validator->validate(19.99, $price));
+        self::assertSame([], $validator->validate(null, $price));
+        self::assertSame(['$ should be number or null, got string'], $validator->validate('19.99', $price));
+        self::assertSame(['$ is null but not nullable'], $validator->validate(null, ['type' => ['string']]));
+    }
+
+    public function testAValueMustMatchOneOfSeveralMembers(): void
+    {
+        $schemas = [
+            'Fixed' => ['type' => 'object', 'required' => ['fixed_amount'], 'properties' => ['fixed_amount' => ['type' => 'string']]],
+            'Percent' => ['type' => 'object', 'required' => ['percentage_amount'], 'properties' => ['percentage_amount' => ['type' => 'string']]],
+        ];
+        $validator = new OpenApiValidator($schemas, '#/components/schemas/', false);
+        $discount = ['oneOf' => [['$ref' => '#/components/schemas/Fixed'], ['$ref' => '#/components/schemas/Percent']]];
+        $amount = ['oneOf' => [['type' => 'number'], ['type' => 'string']]];
+        $optional = ['oneOf' => [['$ref' => '#/components/schemas/Fixed'], ['type' => 'null']]];
+
+        self::assertSame([], $validator->validate(['percentage_amount' => '15'], $discount));
+        self::assertSame([], $validator->validate(['fixed_amount' => '5'], $discount));
+        self::assertSame(
+            ['$ matches no oneOf/anyOf member ($.fixed_amount is missing | $.percentage_amount is missing)'],
+            $validator->validate(['free_shipping' => true], $discount),
+        );
+        self::assertSame([], $validator->validate('12.50', $amount));
+        self::assertSame([], $validator->validate(12.5, $amount));
+        self::assertSame(['$ matches no oneOf/anyOf member ($ should be number, got bool | $ should be string, got bool)'], $validator->validate(true, $amount));
+        self::assertSame([], $validator->validate(null, $optional), 'a null member makes the union nullable');
+        self::assertSame(['$ is null but not nullable'], $validator->validate(null, $discount));
+    }
+
     /** @return array<string, mixed> */
     private static function listing(): array
     {

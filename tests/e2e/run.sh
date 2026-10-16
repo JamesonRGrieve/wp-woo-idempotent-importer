@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from a fake Shopify, a fake
-# Etsy and a fake Square that serve the recorded fixtures. For each source it proves the import, that an unchanged
+# Etsy, a fake Square and a fake BigCommerce that serve the recorded fixtures. For each source it proves the import, that an unchanged
 # re-run writes nothing (content tables byte-identical), that changes and deletions land; and that one
 # source's runs never touch another's mirror, and Shopify webhook authentication. Everything it creates
 # is removed on exit.
@@ -81,6 +81,11 @@ square_state() {
     echo "== Square store state: $1"
 }
 
+bigcommerce_state() {
+    echo "$1" > "$STATE_DIR/bigcommerce-state"
+    echo "== BigCommerce store state: $1"
+}
+
 podman network create "$NETWORK" >/dev/null
 podman volume create "$WP_VOLUME" >/dev/null
 chmod 0777 "$STATE_DIR"
@@ -90,8 +95,9 @@ podman run -d --name "$DB" --network "$NETWORK" --network-alias db \
 store_state v1
 etsy_state v1
 square_state v1
+bigcommerce_state v1
 podman run -d --name "$FAKE" --network "$NETWORK" --network-alias shopify-fake --network-alias etsy-fake \
-    --network-alias square_online-fake \
+    --network-alias square_online-fake --network-alias bigcommerce-fake \
     -v "$ROOT:/app:ro" -v "$STATE_DIR:/state" \
     "$PHP_IMAGE" php -S 0.0.0.0:8080 /app/tests/e2e/fake-store.php >/dev/null
 
@@ -171,6 +177,27 @@ wp iim-e2e square-v2
 wp iim-e2e checksum /state/checksum-square-v2
 wp idempotent-import run --full
 wp iim-e2e zero-writes /state/checksum-square-v2
+wp iim-e2e no-mail
+
+echo "== BigCommerce: first full import, beside the Shopify, Etsy and Square mirrors"
+wp iim-e2e bigcommerce-configure
+wp idempotent-import run --full
+wp iim-e2e bigcommerce-v1
+
+echo "== BigCommerce unchanged: full and incremental re-runs must write nothing"
+wp iim-e2e checksum /state/checksum-bigcommerce-v1
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-bigcommerce-v1
+wp idempotent-import run
+wp iim-e2e zero-writes /state/checksum-bigcommerce-v1
+
+bigcommerce_state v2
+echo "== BigCommerce changed: a price, a deleted product, a refund, a new order, customer, post and review"
+wp idempotent-import run --full
+wp iim-e2e bigcommerce-v2
+wp iim-e2e checksum /state/checksum-bigcommerce-v2
+wp idempotent-import run --full
+wp iim-e2e zero-writes /state/checksum-bigcommerce-v2
 wp iim-e2e no-mail
 
 echo "== Plugin errors and warnings logged by WordPress"

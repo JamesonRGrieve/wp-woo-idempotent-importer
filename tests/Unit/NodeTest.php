@@ -60,4 +60,15 @@ final class NodeTest extends TestCase
         $this->expectException(SourceError::class);
         (new Node(['price' => 'ten']))->decimal('price');
     }
+
+    public function testDecimalsSentAsJsonNumbersAreExact(): void
+    {
+        $node = new Node(['price' => 19.99, 'rate' => 0.1, 'big' => 1e2, 'text' => '1E2', 'whole' => 7]);
+
+        self::assertSame('19.99', $node->decimal('price'));
+        self::assertSame('0.1', $node->decimal('rate'));
+        self::assertSame('100', $node->decimal('big'));
+        self::assertSame('100', $node->decimal('text'));
+        self::assertSame('7', $node->decimal('whole'));
+    }
 }

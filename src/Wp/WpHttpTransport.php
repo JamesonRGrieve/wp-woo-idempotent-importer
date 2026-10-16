@@ -13,6 +13,10 @@ use IdempotentImporter\Source\SourceError;
 /** HttpTransport over the WordPress HTTP API. */
 final class WpHttpTransport implements HttpTransport
 {
+    private const RETRY_AFTER_HEADER = 'retry-after';
+    /** BigCommerce's rate-limit hint: milliseconds until the window resets (it sends no Retry-After). */
+    private const RATE_LIMIT_RESET_MS_HEADER = 'x-rate-limit-time-reset-ms';
+
     public function post(string $url, array $headers, string $body, int $timeoutSeconds): HttpResponse
     {
         return self::response($url, wp_remote_post($url, ['headers' => $headers, 'body' => $body, 'timeout' => $timeoutSeconds]));
@@ -31,13 +35,20 @@ final class WpHttpTransport implements HttpTransport
 
             throw new SourceError('Could not reach ' . (is_string($host) ? $host : 'the source') . ': ' . $response->get_error_message());
         }
-        $retryAfter = wp_remote_retrieve_header($response, 'retry-after');
-
         return new HttpResponse(
             (int) wp_remote_retrieve_response_code($response),
             wp_remote_retrieve_body($response),
-            is_string($retryAfter) && $retryAfter !== '' ? $retryAfter : null,
+            self::header($response, self::RETRY_AFTER_HEADER),
+            self::header($response, self::RATE_LIMIT_RESET_MS_HEADER),
         );
+    }
+
+    /** @param array<string, mixed> $response */
+    private static function header(array $response, string $name): ?string
+    {
+        $value = wp_remote_retrieve_header($response, $name);
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 
     public function download(string $url, int $timeoutSeconds, int $maxBytes): string

@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Http\HttpResponse;
+use IdempotentImporter\Http\RetryPolicy;
 use IdempotentImporter\Source\Rest\RestClient;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Tests\Support\CountingAuthorizer;
@@ -76,6 +77,21 @@ final class RestClientTest extends TestCase
         (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper))->get('/store');
 
         self::assertSame([3.0], $sleeper->waits);
+    }
+
+    public function testARateLimitResetInMillisecondsIsWaitedOutWhenThereIsNoRetryAfter(): void
+    {
+        $sleeper = new RecordingSleeper();
+        $transport = new ScriptedTransport(null, [
+            new HttpResponse(429, '', null, '1500'),
+            new HttpResponse(429, '', '2', '9000'),
+            new HttpResponse(503, '', null, 'soon'),
+            new HttpResponse(200, '{}'),
+        ]);
+
+        (new RestClient('Test', 'https://api.test', new CountingAuthorizer(false), $transport, $sleeper))->get('/store');
+
+        self::assertSame([1.5, 2.0, RetryPolicy::BACKOFF_BASE_SECONDS * 4], $sleeper->waits, 'reset ms, then Retry-After first, then backoff for a hint that is not a number');
     }
 
     public function testAQueryIsAJsonPost(): void

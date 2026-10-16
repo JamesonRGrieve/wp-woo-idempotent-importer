@@ -81,4 +81,39 @@ final class DecimalTest extends TestCase
         self::assertTrue(Decimal::isZero('0.00'));
         self::assertFalse(Decimal::isZero('0.01'));
     }
+
+    /** @return iterable<string, array{int|float|string, string}> */
+    public static function numbers(): iterable
+    {
+        yield 'a JSON float' => [19.99, '19.99'];
+        yield 'a float with no exact binary form' => [0.1, '0.1'];
+        yield 'a sum that is not 0.3 in binary' => [0.1 + 0.2, '0.30000000000000004'];
+        yield 'an exponent float' => [1e2, '100'];
+        yield 'a large float' => [1.5e25, '15000000000000000000000000'];
+        yield 'a small float' => [2.5e-7, '0.00000025'];
+        yield 'a negative float' => [-12.5, '-12.5'];
+        yield 'an integer' => [42, '42'];
+        yield 'an exponent string' => ['1e2', '100'];
+        yield 'a negative exponent string' => ['1.5E-3', '0.0015'];
+        yield 'a money string' => ['225.0000', '225'];
+        yield 'a padded string' => [' 7.10 ', '7.1'];
+    }
+
+    #[DataProvider('numbers')]
+    public function testANumberIsReadExactlyAsSpelled(int|float|string $number, string $expected): void
+    {
+        self::assertSame($expected, Decimal::of($number));
+    }
+
+    public function testANonNumberIsNotADecimal(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Decimal::of('12,50');
+    }
+
+    public function testInfinityIsNotADecimal(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Decimal::of(INF);
+    }
 }

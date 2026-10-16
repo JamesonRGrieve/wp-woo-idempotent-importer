@@ -6,10 +6,41 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Support;
 
-/** Decimal strings as Shopify sends money and rates, kept exact (never through a float). */
+use InvalidArgumentException;
+
+/** Decimal strings as sources send money and rates, kept exact (never through float arithmetic). */
 final class Decimal
 {
-    /** "10.50" → "10.5", "10.00" → "10", "-0.0" → "0", "1e2" is rejected by is_numeric callers. */
+    /** A float's significant digits: 17 always round-trip an IEEE 754 double. */
+    private const MAX_SIGNIFICANT_DIGITS = 17;
+    private const NUMBER_PATTERN = '/^([+-]?(?:\d+\.?\d*|\.\d+))(?:[eE]([+-]?\d+))?$/';
+
+    /**
+     * A JSON number (or a numeric string, exponent allowed) as an exact decimal string: "1e2" → "100",
+     * "1.5E-3" → "0.0015", 19.99 → "19.99". A float is read as the shortest decimal that converts back to it
+     * exactly, which is the number the JSON text spelled, whatever PHP's precision settings.
+     *
+     * @throws InvalidArgumentException for a non-finite float or a string that isn't a decimal number
+     */
+    public static function of(int|float|string $value): string
+    {
+        if (is_int($value)) {
+            return self::normalise((string) $value);
+        }
+        if (is_float($value)) {
+            if (!is_finite($value)) {
+                throw new InvalidArgumentException('A non-finite number is not a decimal.');
+            }
+            $value = self::shortest($value);
+        }
+        if (preg_match(self::NUMBER_PATTERN, trim($value), $match) !== 1) {
+            throw new InvalidArgumentException("\"{$value}\" is not a decimal number.");
+        }
+
+        return self::shift($match[1], (int) ($match[2] ?? '0'));
+    }
+
+    /** "10.50" → "10.5", "10.00" → "10", "-0.0" → "0" (no exponent; see of()). */
     public static function normalise(string $value): string
     {
         $value = trim($value);
@@ -101,6 +132,19 @@ final class Decimal
         $magnitude = self::compareMagnitude(ltrim($a, '-'), ltrim($b, '-'));
 
         return $negativeA ? -$magnitude : $magnitude;
+    }
+
+    /** The shortest scientific-notation spelling of a float that converts back to exactly that float. */
+    private static function shortest(float $value): string
+    {
+        for ($digits = 0; $digits < self::MAX_SIGNIFICANT_DIGITS; ++$digits) {
+            $spelled = sprintf('%.' . $digits . 'e', $value);
+            if ((float) $spelled === $value) {
+                return $spelled;
+            }
+        }
+
+        return sprintf('%.' . (self::MAX_SIGNIFICANT_DIGITS - 1) . 'e', $value);
     }
 
     private static function compareMagnitude(string $a, string $b): int

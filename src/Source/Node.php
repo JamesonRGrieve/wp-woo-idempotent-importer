@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace IdempotentImporter\Source;
 
 use IdempotentImporter\Support\Decimal;
+use InvalidArgumentException;
 
 /**
  * Typed, validated read access to one object of a source platform's response. Every read names the field
@@ -78,21 +79,24 @@ final readonly class Node
         return $this->optionalInt($field) ?? throw $this->mismatch($field, 'an integer');
     }
 
-    /** A Decimal/Float scalar, normalised to a plain decimal string (no float rounding). */
+    /**
+     * A decimal sent as a string or a JSON number, as a plain decimal string (see Decimal::of: a number is
+     * read exactly as the JSON spelled it, exponent included, never rounded).
+     */
     public function optionalDecimal(string $field): ?string
     {
         $value = $this->data[$field] ?? null;
         if ($value === null) {
             return null;
         }
-        if (is_int($value) || is_float($value)) {
-            $value = (string) $value;
-        }
-        if (!is_string($value) || !is_numeric($value)) {
+        if (!is_int($value) && !is_float($value) && !(is_string($value) && is_numeric($value))) {
             throw $this->mismatch($field, 'a decimal or null');
         }
-
-        return Decimal::normalise($value);
+        try {
+            return Decimal::of($value);
+        } catch (InvalidArgumentException) {
+            throw $this->mismatch($field, 'a decimal or null');
+        }
     }
 
     public function decimal(string $field): string

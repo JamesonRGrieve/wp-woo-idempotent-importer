@@ -16,6 +16,10 @@ use IdempotentImporter\Wp\Posts;
 use IdempotentImporter\Wp\Retirement;
 use IdempotentImporter\Wp\Seo;
 
+/**
+ * Pages → WordPress pages. A page with no known publication time (`published_at` null, as for BigCommerce
+ * content pages) is dated when it is first mirrored.
+ */
 final class PageWriter implements Writer
 {
     private const POST_TYPE = 'page';
@@ -31,12 +35,13 @@ final class PageWriter implements Writer
     public function write(Desired $desired, ?Link $existing): int
     {
         $f = Values::of($desired);
+        $publishedAt = $f->nullableString('published_at');
         $id = Posts::upsert(self::POST_TYPE, $existing?->targetId, [
             'post_title' => $f->string('title'),
             'post_name' => $f->string('slug'),
             'post_content' => $this->targets->html->prepare($f->string('content_html')),
             'post_status' => $f->string('status'),
-            ...Posts::dates($f->string('published_at')),
+            ...($publishedAt === null ? Posts::keptDates($existing?->targetId) : Posts::dates($publishedAt)),
         ]);
         $meta = WpMeta::post($id);
         MetaSync::mirror($meta, $desired->gid, $f, self::CONSUMED);

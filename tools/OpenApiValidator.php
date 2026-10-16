@@ -11,11 +11,14 @@ namespace IdempotentImporter\Tools;
  * fixture can't invent a field) unless the schema allows extra keys (`additionalProperties`). With
  * `completeObjects` every declared property must be present (sources that return complete objects);
  * otherwise only the schema's `required` ones, and an optional property may be null (Swagger 2 has no
- * `nullable`). Supports type, nullable / x-nullable, enum, minimum, maximum, items, properties, required,
- * additionalProperties, allOf, $ref and single-member oneOf/anyOf.
+ * `nullable`). Supports type (a name, or OpenAPI 3.1's list of names, `null` included), nullable /
+ * x-nullable, enum, minimum, maximum, items, properties, required, additionalProperties, allOf, $ref, and
+ * oneOf/anyOf (a value must match at least one member; overlapping members aren't rejected).
  */
 final class OpenApiValidator
 {
+    private const NULL_TYPE = 'null';
+
     /** @param array<string, array<string, mixed>> $schemas the document's schemas, by name */
     public function __construct(
         private readonly array $schemas,
@@ -31,12 +34,16 @@ final class OpenApiValidator
     public function validate(mixed $value, array $schema, string $path = '$', bool $optional = false): array
     {
         $schema = $this->resolve($schema);
+        $members = self::members($schema);
         if ($value === null) {
-            return self::isNullable($schema) || $optional && !$this->completeObjects ? [] : ["{$path} is null but not nullable"];
+            return $this->isNullable($schema) || $optional && !$this->completeObjects ? [] : ["{$path} is null but not nullable"];
         }
-        $type = $schema['type'] ?? null;
-        if (is_string($type) && !self::hasType($value, $type)) {
-            return ["{$path} should be {$type}, got " . get_debug_type($value)];
+        if ($members !== null) {
+            return $this->anyMember($value, $members, $path);
+        }
+        $types = self::types($schema);
+        if ($types !== [] && array_filter($types, static fn(string $type): bool => self::hasType($value, $type)) === []) {
+            return ["{$path} should be " . implode(' or ', $types) . ', got ' . get_debug_type($value)];
         }
         $errors = [];
         if (is_array($schema['enum'] ?? null) && !in_array($value, $schema['enum'], true)) {
@@ -110,7 +117,7 @@ final class OpenApiValidator
      */
     private function resolve(array $schema): array
     {
-        $nullable = self::isNullable($schema);
+        $nullable = self::declaresNull($schema);
         while (true) {
             $one = is_array($schema['oneOf'] ?? null) ? $schema['oneOf'] : (is_array($schema['anyOf'] ?? null) ? $schema['anyOf'] : null);
             if (is_string($schema['$ref'] ?? null) && str_starts_with($schema['$ref'], $this->refPrefix)) {
@@ -123,8 +130,60 @@ final class OpenApiValidator
             } else {
                 return $nullable ? [...$schema, 'nullable' => true] : $schema;
             }
-            $nullable = $nullable || self::isNullable($schema);
+            $nullable = $nullable || self::declaresNull($schema);
         }
+    }
+
+    /**
+     * The value against each oneOf/anyOf member in turn: valid when one member accepts it.
+     *
+     * @param list<array<string, mixed>> $members
+     *
+     * @return list<string>
+     */
+    private function anyMember(mixed $value, array $members, string $path): array
+    {
+        $rejections = [];
+        foreach ($members as $member) {
+            $errors = $this->validate($value, $member, $path);
+            if ($errors === []) {
+                return [];
+            }
+            $rejections[] = $errors[0];
+        }
+
+        return ["{$path} matches no oneOf/anyOf member (" . implode(' | ', $rejections) . ')'];
+    }
+
+    /**
+     * A multi-member oneOf/anyOf's members (a single member is resolved like a $ref), or null.
+     *
+     * @param array<string, mixed> $schema
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    private static function members(array $schema): ?array
+    {
+        $members = is_array($schema['oneOf'] ?? null) ? $schema['oneOf'] : (is_array($schema['anyOf'] ?? null) ? $schema['anyOf'] : null);
+        if ($members === null || count($members) < 2) {
+            return null;
+        }
+
+        return array_values(array_map(static fn(mixed $member): array => Json::object($member, 'oneOf member'), $members));
+    }
+
+    /**
+     * A schema's type names: OpenAPI 3.0's single name or 3.1's list.
+     *
+     * @param array<string, mixed> $schema
+     *
+     * @return list<string>
+     */
+    private static function types(array $schema): array
+    {
+        $type = $schema['type'] ?? null;
+
+        return is_string($type) ? [$type] : (is_array($type) ? array_values(array_filter($type, is_string(...))) : []);
     }
 
     /**
@@ -154,15 +213,35 @@ final class OpenApiValidator
         return [...$schema, 'properties' => $properties, 'required' => array_values(array_unique($required, SORT_REGULAR))];
     }
 
-    /** @param array<string, mixed> $schema */
-    private static function isNullable(array $schema): bool
+    /**
+     * Null is allowed by the schema itself or, for a oneOf/anyOf, by one of its members.
+     *
+     * @param array<string, mixed> $schema
+     */
+    private function isNullable(array $schema): bool
     {
-        return ($schema['nullable'] ?? false) === true || ($schema['x-nullable'] ?? false) === true;
+        if (self::declaresNull($schema)) {
+            return true;
+        }
+        foreach (self::members($schema) ?? [] as $member) {
+            if ($this->isNullable($this->resolve($member))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** @param array<string, mixed> $schema */
+    private static function declaresNull(array $schema): bool
+    {
+        return ($schema['nullable'] ?? false) === true || ($schema['x-nullable'] ?? false) === true || in_array(self::NULL_TYPE, self::types($schema), true);
     }
 
     private static function hasType(mixed $value, string $type): bool
     {
         return match ($type) {
+            self::NULL_TYPE => $value === null,
             'object' => is_array($value) && ($value === [] || !array_is_list($value)),
             'array' => is_array($value) && array_is_list($value),
             'string' => is_string($value),

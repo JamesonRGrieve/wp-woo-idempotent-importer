@@ -5,12 +5,12 @@
 declare(strict_types=1);
 
 /*
- * End-to-end environment only: lets WordPress download media from the fake store container (Shopify, Etsy
- * and Square hosts), whose address is private (WordPress refuses private hosts by default), and registers
- * the suite's checks as `wp iim-e2e <scenario>`.
+ * End-to-end environment only: lets WordPress download media from the fake store container (Shopify, Etsy,
+ * Square and BigCommerce hosts), whose address is private (WordPress refuses private hosts by default), and
+ * registers the suite's checks as `wp iim-e2e <scenario>`.
  */
 
-const IIM_E2E_FAKE_HOSTS = ['shopify-fake', 'etsy-fake', 'square_online-fake'];
+const IIM_E2E_FAKE_HOSTS = ['shopify-fake', 'etsy-fake', 'square_online-fake', 'bigcommerce-fake'];
 const IIM_E2E_CHECKS = WP_PLUGIN_DIR . '/wp-woo-idempotent-importer/tests/e2e/assert.php';
 
 const IIM_E2E_MAIL_COUNT = 'iim_e2e_mail_sent';
