@@ -58,7 +58,7 @@ return [
     'v2' => static function (): void {
         expect(product('gid://etsy/Listing/601')->get_regular_price() === '34', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://etsy/Listing/603') === null, 'removed listing unlinked');
-        expect(count(get_posts(['post_type' => 'product', 'post_status' => 'trash', 'fields' => 'ids'])) === 2, 'removed listing trashed beside the earlier Shopify deletion');
+        expect(trashedProducts() === 2, 'removed listing trashed beside the earlier Shopify deletion');
         $refunded = order(Kind::Order, 'gid://etsy/Receipt/801');
         expect(count($refunded->get_refunds()) === 1 && money($refunded->get_total_refunded()) === '10.00', 'partial refund mirrored');
         expect(order(Kind::Order, 'gid://etsy/Receipt/803')->get_status() === 'processing', 'new paid receipt → processing order');

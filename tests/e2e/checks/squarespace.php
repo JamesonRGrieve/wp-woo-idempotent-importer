@@ -75,7 +75,7 @@ return [
     'v2' => static function () use ($boardGid, $orderGid): void {
         expect(product($boardGid)->get_regular_price() === '52', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://squarespace/Product/6b2000000000000000000013') === null, 'deleted product unlinked');
-        expect(count(get_posts(['post_type' => 'product', 'post_status' => 'trash', 'fields' => 'ids'])) === 5, 'deleted product trashed beside the earlier deletions');
+        expect(trashedProducts() === 5, 'deleted product trashed beside the earlier deletions');
         $refunded = order(Kind::Order, $orderGid);
         expect($refunded->get_status() === 'completed' && count($refunded->get_refunds()) === 1 && money($refunded->get_total_refunded()) === '10.00', 'partial refund mirrored');
         $new = order(Kind::Order, 'gid://squarespace/Order/6d4000000000000000000033');

@@ -10,6 +10,7 @@ namespace IdempotentImporter\Mapping;
 final class LegacyPaths
 {
     private const ROOT = '/';
+    private const WWW = 'www.';
 
     /**
      * Any storefront's URL or path ("/trail-mug/", "https://shop.example/shop/p/trail-mug") as its
@@ -23,6 +24,21 @@ final class LegacyPaths
         $path = self::normalise($url);
 
         return $path === self::ROOT ? null : $path;
+    }
+
+    /**
+     * A storefront redirect's target: a path, or a URL on the store's own host ($storeHost, `www.` or not),
+     * is an old storefront URL, so its path (which resolves to wherever its object was mirrored); any other
+     * URL as it is. Null when it targets the home page.
+     */
+    public static function redirectTarget(string $target, ?string $storeHost): ?string
+    {
+        $host = parse_url($target, PHP_URL_HOST);
+        if (!is_string($host)) {
+            return self::pathOf($target);
+        }
+
+        return $storeHost !== null && self::bareHost($host) === self::bareHost($storeHost) ? self::pathOf($target) : $target;
     }
 
     public static function product(string $handle): string
@@ -69,5 +85,12 @@ final class LegacyPaths
         }
 
         return $path;
+    }
+
+    private static function bareHost(string $host): string
+    {
+        $host = strtolower($host);
+
+        return str_starts_with($host, self::WWW) ? substr($host, strlen(self::WWW)) : $host;
     }
 }

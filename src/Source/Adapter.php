@@ -22,9 +22,6 @@ interface Adapter
 
     public function label(): string;
 
-    /** A deferred adapter is a placeholder: it is listed, but has no reader or mappers yet. */
-    public function isDeferred(): bool;
-
     /**
      * The kinds this source provides, in Kind::SYNC_ORDER.
      *
@@ -35,7 +32,7 @@ interface Adapter
     /** @return list<Mapper> one per kind in kinds() */
     public function mappers(Settings $settings): array;
 
-    /** @throws SourceError when the adapter is deferred or its credentials aren't configured */
+    /** @throws SourceError when the source's credentials aren't configured */
     public function reader(Settings $settings, HttpTransport $transport): SourceReader;
 
     /** Whether the source pushes change notifications (then the webhook endpoint is registered). */

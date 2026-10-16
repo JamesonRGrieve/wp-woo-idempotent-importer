@@ -47,11 +47,6 @@ final class SquarespaceAdapter implements Adapter
         return 'Squarespace';
     }
 
-    public function isDeferred(): bool
-    {
-        return false;
-    }
-
     public function kinds(): array
     {
         return [Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order];

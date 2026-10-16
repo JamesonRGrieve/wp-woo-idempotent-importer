@@ -51,11 +51,6 @@ final class BigCommerceAdapter implements Adapter
         return 'BigCommerce';
     }
 
-    public function isDeferred(): bool
-    {
-        return false;
-    }
-
     public function kinds(): array
     {
         return [

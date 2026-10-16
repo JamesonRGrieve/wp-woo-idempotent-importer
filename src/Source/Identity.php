@@ -25,6 +25,21 @@ final class Identity
         return self::SCHEME . "{$adapterId}/";
     }
 
+    /**
+     * The object's own id at its source (the last part of `gid://<adapter id>/<Type>/<id>`): a node's `id` is
+     * its identity, so a mapper that needs the source's id reads it back from there.
+     */
+    public static function sourceId(string $gid): string
+    {
+        self::prefixOf($gid);
+        $id = substr((string) strrchr($gid, '/'), 1);
+        if ($id === '') {
+            throw new SourceError("Not a source identity: {$gid}");
+        }
+
+        return $id;
+    }
+
     /** The prefix of the source $gid came from. */
     public static function prefixOf(string $gid): string
     {

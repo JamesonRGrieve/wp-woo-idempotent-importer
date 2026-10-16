@@ -13,7 +13,6 @@ use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SourceError;
-use IdempotentImporter\Tests\Support\ScriptedTransport;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -23,12 +22,11 @@ final class AdaptersTest extends TestCase
     {
         $adapters = Adapters::all();
 
-        self::assertSame(['shopify', 'etsy', 'squarespace', 'wix', 'bigcommerce', 'square_online', 'ecwid', 'magento'], array_keys($adapters));
+        self::assertSame(['shopify', 'etsy', 'squarespace', 'wix', 'bigcommerce', 'square_online', 'ecwid', 'magento', 'lightspeed'], array_keys($adapters));
         foreach ($adapters as $id => $adapter) {
             self::assertSame($id, $adapter->id());
             self::assertMatchesRegularExpression('/^[a-z_]+$/', $id, 'ids are the host of every identity they mint');
         }
-        self::assertFalse(Adapters::for(Adapters::DEFAULT)->isDeferred());
     }
 
     public function testAnUnknownSourceIsAnError(): void
@@ -50,6 +48,7 @@ final class AdaptersTest extends TestCase
     public function testKindsAreInSyncOrderAndEachHasAMapper(Adapter $adapter): void
     {
         $kinds = $adapter->kinds();
+        self::assertNotSame([], $kinds, "{$adapter->id()} reads something");
         self::assertSame(
             array_values(array_filter(Kind::SYNC_ORDER, static fn(Kind $kind): bool => in_array($kind, $kinds, true))),
             $kinds,
@@ -59,23 +58,6 @@ final class AdaptersTest extends TestCase
             self::assertContains($kind, $mapped, "{$adapter->id()} reads {$kind->value} but has no mapper for it");
         }
         self::assertSame(count($mapped), count(array_unique(array_map(static fn(Kind $kind): string => $kind->value, $mapped))), 'one mapper per kind');
-    }
-
-    #[DataProvider('adapters')]
-    public function testADeferredAdapterReadsNothingAndSaysSo(Adapter $adapter): void
-    {
-        if (!$adapter->isDeferred()) {
-            self::assertNotSame([], $adapter->kinds());
-
-            return;
-        }
-        self::assertSame([], $adapter->kinds());
-        self::assertSame([], $adapter->mappers(self::settings()));
-        self::assertSame([], $adapter->credentialFields());
-        self::assertFalse($adapter->supportsWebhooks());
-        $this->expectException(SourceError::class);
-        $this->expectExceptionMessage("Importing from {$adapter->label()} is not built yet.");
-        $adapter->reader(self::settings(), new ScriptedTransport());
     }
 
     public function testShopifyReviewsComeFromCsvNotRuns(): void
@@ -92,6 +74,18 @@ final class AdaptersTest extends TestCase
         self::assertSame('gid://etsy/', Identity::prefix('etsy'));
         self::assertSame('gid://shopify/', Identity::prefixOf('gid://shopify/Product/1'));
         self::assertSame('gid://etsy/', Identity::prefixOf(Identity::of('etsy', 'Receipt', '9')));
+    }
+
+    public function testTheSourcesOwnIdIsReadBackFromAnIdentity(): void
+    {
+        self::assertSame('9201', Identity::sourceId(Identity::of('ecwid', 'Product', 9201)));
+        self::assertSame('CW-1001', Identity::sourceId('gid://ecwid/Order/CW-1001'));
+    }
+
+    public function testAnIdentityWithoutAnIdHasNoSourceId(): void
+    {
+        $this->expectException(SourceError::class);
+        Identity::sourceId('gid://ecwid/Product/');
     }
 
     public function testANonIdentityHasNoSource(): void

@@ -54,7 +54,7 @@ return [
     'v2' => static function (): void {
         expect(product('gid://square_online/Item/ITEM_MUG')->get_regular_price() === '34', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://square_online/Item/ITEM_SAMPLE') === null, 'deleted item unlinked');
-        expect(count(get_posts(['post_type' => 'product', 'post_status' => 'trash', 'fields' => 'ids'])) === 3, 'deleted item trashed beside the earlier Shopify and Etsy deletions');
+        expect(trashedProducts() === 3, 'deleted item trashed beside the earlier Shopify and Etsy deletions');
         $refunded = order(Kind::Order, 'gid://square_online/Order/ORDER_1');
         expect(count($refunded->get_refunds()) === 1 && money($refunded->get_total_refunded()) === '10.00', 'partial refund mirrored');
         $new = order(Kind::Order, 'gid://square_online/Order/ORDER_3');

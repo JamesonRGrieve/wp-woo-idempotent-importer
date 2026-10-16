@@ -102,7 +102,7 @@ return [
         $scarf = product('gid://shopify/Product/301');
         expect($scarf->get_sale_price() === '55' && $scarf->get_stock_quantity() === 6, 'price and stock updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://shopify/Product/302') === null, 'deleted product unlinked');
-        expect(count(get_posts(['post_type' => 'product', 'post_status' => 'trash', 'fields' => 'ids'])) === 1, 'deleted product trashed, not deleted');
+        expect(trashedProducts() === 1, 'deleted product trashed, not deleted');
         order(Kind::Order, 'gid://shopify/Order/803');
         expect(services()->links()->targetId(Kind::DraftOrder, 'gid://shopify/DraftOrder/901') === null, 'completed draft retired');
     },

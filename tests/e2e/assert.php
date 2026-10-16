@@ -18,6 +18,9 @@ use IdempotentImporter\Services;
 use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Store\RunRecord;
+use IdempotentImporter\Sync\Mode;
+use IdempotentImporter\Sync\Runner;
+use IdempotentImporter\Sync\RunState;
 use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Scheduler;
 use IdempotentImporter\Wp\WebhookController;
@@ -31,8 +34,15 @@ const CONTENT_TABLES = [
     'woocommerce_attribute_taxonomies',
 ];
 const WEBHOOK_SECRET = 'e2e-webhook-secret';
+/** The fake store's trouble switch (see fake-store.php): every API request rate limited or refused. */
+const TROUBLE_FILE = '/state/trouble';
+const TROUBLE_THROTTLE = 'throttle';
+const TROUBLE_REJECT = 'reject';
+const THROTTLE_RETRY_AFTER_SECONDS = 120;
+const CLOCK_SLACK_SECONDS = 5;
+const STEP_BUDGET_SECONDS = 60.0;
 /** The sources in the order run.sh imports them, each beside the mirrors of the ones before it. */
-const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce', 'squarespace'];
+const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce', 'squarespace', 'wix', 'magento', 'lightspeed', 'ecwid'];
 const FIRST_STATE = 'v1';
 
 function expect(bool $condition, string $what): void
@@ -80,6 +90,12 @@ function user(string $gid): WP_User
 function money(float|string $amount): string
 {
     return wc_format_decimal((string) $amount, 2);
+}
+
+/** How many products are in the trash, across every source (get_posts would stop at its default page of 5). */
+function trashedProducts(): int
+{
+    return count(get_posts(['post_type' => 'product', 'post_status' => 'trash', 'fields' => 'ids', 'numberposts' => -1]));
 }
 
 /** @return list<WP_Comment> a product's approved reviews */
@@ -189,6 +205,57 @@ function webhook(): void
     expect(as_has_scheduled_action(Scheduler::OBJECT_HOOK, ['product', 'gid://shopify/Product/301', false], Scheduler::GROUP), 'object sync queued');
 }
 
+/** Runs the current run to its end, a step at a time. */
+function finishRun(Runner $runner): void
+{
+    while (!$runner->step(STEP_BUDGET_SECONDS)) {
+        expect(!$runner->isRunning() || $runner->resumeAt() === null, 'the run does not pause while the source is healthy');
+    }
+}
+
+/**
+ * Lockout safety against real WordPress, with the active source in trouble (the fake store's TROUBLE_FILE).
+ * Rate limited for longer than a request may wait: the run pauses where it is (nothing failed, nothing
+ * written, the lock kept) and finishes cleanly once the source recovers. Refusing the credentials: the run
+ * stops at once, and scheduled runs hold off until a run is started by hand.
+ */
+function lockout(): void
+{
+    $runner = services()->runner();
+    file_put_contents(TROUBLE_FILE, TROUBLE_THROTTLE);
+    $run = $runner->start(Mode::Incremental, false) ?? throw new RuntimeException('FAILED: the run did not start');
+    expect(!$runner->step(STEP_BUDGET_SECONDS), 'a source rate limiting for longer than a request may wait pauses the run');
+    $paused = RunState::load() ?? throw new RuntimeException('FAILED: the paused run kept no state');
+    $resumeAt = $paused->resumeAt ?? 0;
+    expect($runner->resumeAt() === $resumeAt && $resumeAt - time() >= THROTTLE_RETRY_AFTER_SECONDS - CLOCK_SLACK_SECONDS, "the pause lasts at least the source's Retry-After");
+    $kind = $paused->current() ?? throw new RuntimeException('FAILED: the paused run has no kind');
+    expect($paused->index === 0 && $paused->cursor === null && !$paused->counts->isIncomplete($kind) && $paused->counts->writes() === 0, 'it pauses where it was, with nothing failed or written');
+    expect(services()->lock()->holder() === $run->id, 'the paused run keeps the lock, so no other run starts meanwhile');
+    expect(!$runner->step(STEP_BUDGET_SECONDS) && (RunState::load()->resumeAt ?? 0) === $resumeAt, 'a step during the pause sends nothing and leaves the pause as it was');
+
+    unlink(TROUBLE_FILE);
+    $paused->resumeAt = time() - 1;
+    $paused->save();
+    finishRun($runner);
+    $latest = latestRun();
+    expect($latest->id === $run->id && $latest->status === 'complete' && $latest->counts->writes() === 0, 'once the source recovers, the paused run finishes cleanly');
+
+    file_put_contents(TROUBLE_FILE, TROUBLE_REJECT);
+    $runner->start(Mode::Incremental, false) ?? throw new RuntimeException('FAILED: the run did not start');
+    expect($runner->step(STEP_BUDGET_SECONDS), 'rejected credentials end the run at once');
+    expect(latestRun()->status === 'incomplete', 'the stopped run is recorded as incomplete');
+    $source = services()->settings()->source;
+    expect(services()->credentialHold()->reason($source) !== null, 'the source is put on hold');
+    (new Scheduler(services()))->scheduledRun();
+    expect(RunState::load() === null && services()->lock()->holder() === null, 'a scheduled run does not retry the rejected credentials');
+
+    unlink(TROUBLE_FILE);
+    services()->credentialHold()->release();
+    $retried = $runner->start(Mode::Incremental, false) ?? throw new RuntimeException('FAILED: the run did not start');
+    finishRun($runner);
+    expect(latestRun()->id === $retried->id && latestRun()->status === 'complete', 'a run started by hand (which releases the hold) completes');
+}
+
 /** @param array<array-key, mixed> $arguments */
 function argument(array $arguments, int $index): string
 {
@@ -208,6 +275,7 @@ function scenario(array $arguments): void
         'zero-writes' => zeroWrites((string) file_get_contents(argument($arguments, 1))),
         'webhook' => webhook(),
         'no-mail' => noMail(),
+        'lockout' => lockout(),
         default => throw new RuntimeException("Unknown scenario {$scenario}"),
     };
 }

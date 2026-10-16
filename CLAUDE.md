@@ -1,8 +1,8 @@
 # wp-woo-idempotent-importer — Agent Operating Guide
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent store → WooCommerce mirror kept current until
-cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce and Squarespace
-built; Wix, Ecwid and Magento deferred). README.md is the user-facing contract; `coverage/<source>.md`
+cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce, Squarespace, Wix,
+Magento, Lightspeed eCom and Ecwid). README.md is the user-facing contract; `coverage/<source>.md`
 is the single source of truth for what each source mirrors and what is a gap. PHP rules:
 `/home/jameson/Source/ai-prompts/php.md`.
 
@@ -10,7 +10,8 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 
 - `src/Source/` — the source boundary (pure): `Adapter` (one per platform, listed in `Adapters`),
   `SourceReader` (complete objects, paged), `Node` (validated reads), `Identity` (`gid://<source>/…`),
-  `DeferredAdapter` (placeholder for a planned platform).
+  `RetryLater` / `CredentialsRejected` (lockout safety, below), `Rest/` (the shared REST client).
+- `src/Http/` — the outbound boundary: transport, `RateLimit` + `RequestPacer`, `RetryPolicy`.
 - `src/Source/<Platform>/` — one adapter: its API client, reader and `Mapping/` (pure source → desired
   state, one mapper per kind). Shopify's GraphQL lives in `graphql/`; list, by-id and nested-page
   operations are generated per `EntityQuery` by `QueryLibrary`, never hand-written.
@@ -38,6 +39,11 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 - Something WooCommerce can't represent exactly is `Unsupported` (and a coverage gap), never
   approximated. A missing dependency is `UnresolvedDependency` (retried), never skipped.
 - Every write runs inside `Quiet` (no emails, no stock or coupon side effects).
+- Lockout safety: every source client declares its documented limits as an `Http\RateLimit` (cited in a
+  docblock; no guessed numbers) and goes through `RequestPacer` + `RetryPolicy`. A source that keeps
+  pushing back is `RetryLater` (the run pauses in place, `PausePolicy`); rejected credentials are
+  `CredentialsRejected` (the run stops, `CredentialHold` blocks scheduled work). Never retry either in a
+  loop of your own.
 - Credentials come from constants/env first; they are never rendered, logged or put in errors.
 - New Shopify GraphQL: add the fragment/operation, run `composer validate-graphql`, add or extend
   fixtures in `tests/fixtures/shopify/<state>/` (they must execute against the real schema). Etsy

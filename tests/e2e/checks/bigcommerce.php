@@ -81,7 +81,7 @@ return [
     'v2' => static function (): void {
         expect(product('gid://bigcommerce/Product/111')->get_regular_price() === '26', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://bigcommerce/Product/113') === null, 'deleted product unlinked');
-        expect(count(get_posts(['post_type' => 'product', 'post_status' => 'trash', 'fields' => 'ids'])) === 4, 'deleted product trashed beside the earlier deletions');
+        expect(trashedProducts() === 4, 'deleted product trashed beside the earlier deletions');
         $refunded = order(Kind::Order, 'gid://bigcommerce/Order/501');
         expect($refunded->get_status() === 'completed' && count($refunded->get_refunds()) === 1 && money($refunded->get_total_refunded()) === '10.00', 'partial refund mirrored');
         $new = order(Kind::Order, 'gid://bigcommerce/Order/503');

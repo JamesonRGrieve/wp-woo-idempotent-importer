@@ -9,6 +9,7 @@ namespace IdempotentImporter\Source;
 use IdempotentImporter\Source\BigCommerce\BigCommerceAdapter;
 use IdempotentImporter\Source\Ecwid\EcwidAdapter;
 use IdempotentImporter\Source\Etsy\EtsyAdapter;
+use IdempotentImporter\Source\Lightspeed\LightspeedAdapter;
 use IdempotentImporter\Source\Magento\MagentoAdapter;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
@@ -33,6 +34,7 @@ final class Adapters
             new SquareOnlineAdapter(),
             new EcwidAdapter(),
             new MagentoAdapter(),
+            new LightspeedAdapter(),
         ] as $adapter) {
             $byId[$adapter->id()] = $adapter;
         }

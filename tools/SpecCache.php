@@ -68,6 +68,29 @@ final class SpecCache
                 SpecDocument::FORMAT_JSON,
                 '5dd4b1b7cd387d7db65f2f25418dac62c822ded5d90f4d41bba152fa305db368',
             ),
+            // Wix publishes no OpenAPI document: the response shapes the adapter reads, transcribed from Wix's
+            // official REST reference (each schema cites its page). Its paths are full (the server is the bare
+            // www.wixapis.com host).
+            SpecDocument::committed('wix', 'rest-reference', 'tests/schemas/wix.json', '', false),
+            // Adobe Commerce / Magento Open Source 2.4.9 admin REST schema, "All inclusive" (Swagger 2.0,
+            // AdobeDocs/commerce-webapi at the commit of 2026-06-02). Its basePath is /rest/default; a store
+            // answers under /rest/<store view code>, so any store code is stripped.
+            new SpecDocument(
+                'magento',
+                'admin-schema-2.4.9',
+                'https://raw.githubusercontent.com/AdobeDocs/commerce-webapi/ed5aedf78cb2dd1a28a39f3d03f7e5aabab65fb4/src/openapi/admin-schema-2.4.9.yaml',
+                '/rest/[^/]+',
+                false,
+                SpecDocument::FORMAT_YAML,
+            ),
+            // Lightspeed eCom publishes no OpenAPI document: the responses the adapter reads, transcribed from the
+            // official endpoint reference (developers.lightspeedhq.com/ecom/endpoints/, each schema cites its page).
+            // Requests go to <cluster>/<language>/…, so the two-letter shop language is stripped.
+            SpecDocument::committed('lightspeed', 'endpoint-reference', 'tests/schemas/lightspeed.json', '/[a-z]{2}', false),
+            // Ecwid publishes no OpenAPI document: the responses the adapter reads, transcribed from the official
+            // REST API reference (docs.ecwid.com/api-reference/rest-api/, each schema cites its page). Requests go
+            // to /api/v3/<store id>/…, so that prefix is stripped.
+            SpecDocument::committed('ecwid', 'rest-api-reference', 'tests/schemas/ecwid.json', '/api/v3/\d+', false),
         ];
     }
 
@@ -90,6 +113,9 @@ final class SpecCache
 
     public static function write(SpecDocument $document, string $body): void
     {
+        if ($document->isCommitted()) {
+            throw new RuntimeException("{$document->source}/{$document->name} is committed at {$document->cachePath()}; it is edited there, never fetched.");
+        }
         $document->verify($body);
         self::decode($document, $body);
         $path = $document->cachePath();
@@ -106,7 +132,7 @@ final class SpecCache
     {
         $path = $document->cachePath();
         if (!is_file($path)) {
-            throw new RuntimeException("No cached spec at {$path}; run `composer specs` first.");
+            throw new RuntimeException($document->isCommitted() ? "The committed spec {$path} is missing." : "No cached spec at {$path}; run `composer specs` first.");
         }
 
         $body = (string) file_get_contents($path);

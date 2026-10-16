@@ -55,6 +55,11 @@ final class MappingHelpersTest extends TestCase
         self::assertNull(LegacyPaths::pathOf('https://trail.example/'), 'the home page has nothing to redirect');
         self::assertNull(LegacyPaths::pathOf(' '));
         self::assertNull(LegacyPaths::pathOf(null));
+        self::assertSame('/shop/p/trail-mug', LegacyPaths::redirectTarget('https://WWW.Trail.example/shop/p/trail-mug', 'trail.example'), "a URL on the store's own host is its path");
+        self::assertSame('/kitchen', LegacyPaths::redirectTarget('/kitchen/', null), 'a path');
+        self::assertSame('https://sale.example/trail', LegacyPaths::redirectTarget('https://sale.example/trail', 'trail.example'), 'a URL elsewhere is kept');
+        self::assertSame('https://trail.example/mug', LegacyPaths::redirectTarget('https://trail.example/mug', null), 'no store host: kept');
+        self::assertNull(LegacyPaths::redirectTarget('https://trail.example/', 'www.trail.example'), 'the home page');
     }
 
     public function testTimesAreIsoUtc(): void
@@ -64,6 +69,13 @@ final class MappingHelpersTest extends TestCase
         self::assertSame('2026-09-01T10:00:00Z', Times::iso($node, 'iso'), 'fractions of a second dropped');
         self::assertSame('2026-09-01T16:00:00Z', Times::iso($node, 'offset'));
         self::assertSame('2026-09-01T16:00:00Z', Times::requiredIso($node, 'rfc'), 'RFC 2822');
+        $zone = date_default_timezone_get();
+        date_default_timezone_set('America/Edmonton');
+        try {
+            self::assertSame('2026-09-01T16:00:00Z', Times::iso(new Node(['plain' => '2026-09-01 16:00:00']), 'plain'), 'no offset is UTC, not the default timezone');
+        } finally {
+            date_default_timezone_set($zone);
+        }
         self::assertNull(Times::iso($node, 'empty'));
         self::assertNull(Times::iso($node, 'missing'));
         try {

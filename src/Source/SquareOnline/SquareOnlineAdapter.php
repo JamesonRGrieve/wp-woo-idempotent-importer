@@ -42,11 +42,6 @@ final class SquareOnlineAdapter implements Adapter
         return 'Square Online';
     }
 
-    public function isDeferred(): bool
-    {
-        return false;
-    }
-
     public function kinds(): array
     {
         return [Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Order];

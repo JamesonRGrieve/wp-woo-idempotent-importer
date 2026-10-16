@@ -23,7 +23,7 @@ PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
-SOURCES=(shopify etsy square_online bigcommerce squarespace)
+SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid)
 
 # Optional: keep the image/container store somewhere else (e.g. local disk when $HOME is on NFS).
 if [ -n "${E2E_PODMAN_ROOT:-}" ]; then
@@ -133,6 +133,13 @@ import_source etsy "a price, a removed listing, a refund, a new receipt and revi
 import_source square_online "a price, a deleted item, a refund, a new order and customer"
 import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review"
 import_source squarespace "a price, a deleted product, a refund, a new order and customer"
+import_source wix "a price, a deleted product, a refund, a new order, contact and post"
+import_source magento "a price, a deleted product, a refund, a new order, customer and page"
+import_source lightspeed "a price, a deleted product, a credit note, a new order, customer, article and review"
+import_source ecwid "a price, a deleted product, a refund, a new order, customer and review"
+
+echo "== Lockout safety: a rate-limited source pauses the run; rejected credentials stop it and hold scheduled runs"
+wp iim-e2e lockout
 
 echo "== Plugin errors and warnings logged by WordPress"
 podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/debug.log 2>/dev/null || true'

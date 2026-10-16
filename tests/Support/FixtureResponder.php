@@ -11,8 +11,10 @@ use IdempotentImporter\Http\HttpResponse;
 /**
  * Answers a REST source's requests from one store state's fixtures (see SourceFixtures): by method and
  * path, the query parameters each fixture names (others, like page sizes, are ignored) and, for POST
- * queries, the body values it names. Unknown requests get a 404, as the source would answer. Shared by
- * the unit tests' transport and the end-to-end fake store.
+ * queries, the body values it names: an object matches when every key it names matches (others, like a
+ * modified-since filter, are ignored), a list when it has as many items and each matches, anything else
+ * when it is equal. Unknown requests get a 404, as the source would answer. Shared by the unit tests'
+ * transport and the end-to-end fake store.
  */
 final class FixtureResponder implements Responder
 {
@@ -58,13 +60,33 @@ final class FixtureResponder implements Responder
     }
 
     /**
-     * @param array<string, mixed> $recorded
+     * @param array<array-key, mixed> $recorded
      * @param array<array-key, mixed> $sent
      */
     private static function bodyMatches(array $recorded, array $sent): bool
     {
         foreach ($recorded as $name => $value) {
-            if (!array_key_exists($name, $sent) || $sent[$name] !== $value) {
+            if (!array_key_exists($name, $sent) || !self::valueMatches($value, $sent[$name])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static function valueMatches(mixed $recorded, mixed $sent): bool
+    {
+        if (!is_array($recorded) || !is_array($sent)) {
+            return $recorded === $sent;
+        }
+        if (!array_is_list($recorded) || $recorded === []) {
+            return ($recorded !== [] || $sent === []) && self::bodyMatches($recorded, $sent);
+        }
+        if (!array_is_list($sent) || count($sent) !== count($recorded)) {
+            return false;
+        }
+        foreach ($recorded as $index => $item) {
+            if (!self::valueMatches($item, $sent[$index])) {
                 return false;
             }
         }

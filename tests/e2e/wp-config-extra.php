@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// End-to-end environment: the importer talks to the fake store container (Shopify, Etsy, Square, BigCommerce and Squarespace).
+// End-to-end environment: the importer talks to the fake store container (Shopify, Etsy, Square, BigCommerce, Squarespace, Wix, Magento, Lightspeed eCom and Ecwid).
 define('IIM_SHOPIFY_ENDPOINT', 'http://shopify-fake:8080/admin/api/graphql.json');
 define('IIM_SHOPIFY_ACCESS_TOKEN', 'e2e-token');
 define('IIM_ETSY_ENDPOINT', 'http://etsy-fake:8080');
@@ -12,6 +12,19 @@ define('IIM_BIGCOMMERCE_STORE_HASH', 'bcfix123');
 define('IIM_BIGCOMMERCE_ACCESS_TOKEN', 'e2e-bigcommerce-token');
 define('IIM_SQUARESPACE_ENDPOINT', 'http://squarespace-fake:8080');
 define('IIM_SQUARESPACE_API_KEY', 'e2e-squarespace-key');
+define('IIM_WIX_ENDPOINT', 'http://wix-fake:8080');
+define('IIM_WIX_API_KEY', 'e2e-wix-key');
+define('IIM_WIX_SITE_ID', 'e2e-wix-site');
+define('IIM_MAGENTO_ENDPOINT', 'http://magento-fake:8080');
+define('IIM_MAGENTO_ACCESS_TOKEN', 'e2e-magento-token');
+define('IIM_LIGHTSPEED_ENDPOINT', 'http://lightspeed-fake:8080');
+define('IIM_LIGHTSPEED_CLUSTER', 'eu1');
+define('IIM_LIGHTSPEED_LANGUAGE', 'en');
+define('IIM_LIGHTSPEED_API_KEY', 'e2e-lightspeed-key');
+define('IIM_LIGHTSPEED_API_SECRET', 'e2e-lightspeed-secret');
+define('IIM_ECWID_ENDPOINT', 'http://ecwid-fake:8080');
+define('IIM_ECWID_STORE_ID', '7400100');
+define('IIM_ECWID_SECRET_TOKEN', 'e2e-ecwid-token');
 define('DISABLE_WP_CRON', true);
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);

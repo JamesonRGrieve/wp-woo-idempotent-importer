@@ -15,12 +15,15 @@ use RuntimeException;
  * fixtures are validated against). It names the server path prefix its paths sit under and how strictly a
  * response object is checked: `completeObjects` for APIs that return every declared property (Etsy),
  * otherwise only the spec's own required properties must be present. Undeclared properties are always
- * rejected.
+ * rejected. A source that publishes no machine-readable spec has one hand-authored from its official
+ * reference docs and committed to this repository: its URL is `file://<path from the repository root>`,
+ * it is read where it is (nothing is fetched or cached), and it is pinned by the commit that holds it.
  */
 final readonly class SpecDocument
 {
     public const FORMAT_JSON = 'json';
     public const FORMAT_YAML = 'yaml';
+    public const COMMITTED_SCHEME = 'file://';
 
     public function __construct(
         public string $source,
@@ -32,9 +35,28 @@ final readonly class SpecDocument
         public ?string $sha256 = null,
     ) {}
 
+    /** A hand-authored document committed at $path (relative to the repository root). */
+    public static function committed(string $source, string $name, string $path, string $prefixPattern, bool $completeObjects): self
+    {
+        $format = strtolower(pathinfo($path, PATHINFO_EXTENSION)) === self::FORMAT_YAML ? self::FORMAT_YAML : self::FORMAT_JSON;
+
+        return new self($source, $name, self::COMMITTED_SCHEME . ltrim($path, '/'), $prefixPattern, $completeObjects, $format);
+    }
+
+    /** Whether the document is committed to this repository rather than fetched from its publisher. */
+    public function isCommitted(): bool
+    {
+        return str_starts_with($this->url, self::COMMITTED_SCHEME);
+    }
+
+    /** Where the document is read from: the committed file itself, or its fetched copy in .cache/specs. */
     public function cachePath(): string
     {
-        return dirname(__DIR__) . "/.cache/specs/{$this->source}/{$this->name}.{$this->format}";
+        $root = dirname(__DIR__);
+
+        return $this->isCommitted()
+            ? $root . '/' . substr($this->url, strlen(self::COMMITTED_SCHEME))
+            : $root . "/.cache/specs/{$this->source}/{$this->name}.{$this->format}";
     }
 
     /** @throws RuntimeException when the document is pinned by hash and $body isn't that document */

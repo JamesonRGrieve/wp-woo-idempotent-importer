@@ -52,11 +52,6 @@ final class ShopifyAdapter implements Adapter
         return 'Shopify';
     }
 
-    public function isDeferred(): bool
-    {
-        return false;
-    }
-
     public function kinds(): array
     {
         return [

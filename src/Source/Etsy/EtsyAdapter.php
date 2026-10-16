@@ -45,11 +45,6 @@ final class EtsyAdapter implements Adapter, ConnectsByOAuth
         return 'Etsy';
     }
 
-    public function isDeferred(): bool
-    {
-        return false;
-    }
-
     public function kinds(): array
     {
         return [Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Order, Kind::Review];

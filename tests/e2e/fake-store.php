@@ -9,13 +9,18 @@ declare(strict_types=1);
  * <source>-fake. Each source answers from the fixture state run.sh wrote to /state/<source>-state, through
  * the responders the unit tests use: Shopify GraphQL POSTs through the ShopifyResponder, Etsy (`/v3/…`)
  * through the EtsyResponder, and the REST sources in REST_SOURCES through the FixtureResponder. Requests
- * must carry the test credentials. Media paths return small generated files of the right type.
+ * must carry the test credentials. Media paths return small generated files of the right type. While
+ * TROUBLE_FILE exists, every API request is rate limited or refused instead (the lockout-safety checks).
  */
 
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Source\BigCommerce\BigCommerceAuthorizer;
+use IdempotentImporter\Source\Ecwid\EcwidAuthorizer;
+use IdempotentImporter\Source\Lightspeed\LightspeedAuthorizer;
+use IdempotentImporter\Source\Magento\MagentoAuthorizer;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAuthorizer;
 use IdempotentImporter\Source\Squarespace\SquarespaceAuthorizer;
+use IdempotentImporter\Source\Wix\WixAuthorizer;
 use IdempotentImporter\Tests\Support\EtsyResponder;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\ShopifyResponder;
@@ -30,8 +35,21 @@ const REST_SOURCES = [
     'square_online' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-square-token', 'Square-Version' => SquareOnlineAuthorizer::API_VERSION]],
     'bigcommerce' => ['#^/stores/#', [BigCommerceAuthorizer::TOKEN_HEADER => 'e2e-bigcommerce-token']],
     'squarespace' => ['#^/(1\.0|v1|v2)/#', ['Authorization' => 'Bearer e2e-squarespace-key', 'User-Agent' => SquarespaceAuthorizer::USER_AGENT]],
+    'wix' => [
+        '#^/(stores|stores-reader|categories|site-properties|contacts|ecom|blog|seo-redirects-service|reviews)/#',
+        ['Authorization' => 'e2e-wix-key', WixAuthorizer::SITE_HEADER => 'e2e-wix-site'],
+    ],
+    'magento' => ['#^/rest/[^/]+/V1/#', ['Authorization' => MagentoAuthorizer::BEARER . 'e2e-magento-token']],
+    // HTTP Basic with e2e-lightspeed-key:e2e-lightspeed-secret, under the shop language's path.
+    'lightspeed' => ['#^/[a-z]{2}/#', [LightspeedAuthorizer::HEADER => 'Basic ZTJlLWxpZ2h0c3BlZWQta2V5OmUyZS1saWdodHNwZWVkLXNlY3JldA==']],
+    'ecwid' => ['#^/api/v3/\d+/#', [EcwidAuthorizer::HEADER => EcwidAuthorizer::BEARER . 'e2e-ecwid-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
+/** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */
+const TROUBLE_FILE = '/state/trouble';
+const TROUBLE_THROTTLE = 'throttle';
+const THROTTLE_RETRY_AFTER_SECONDS = 120;
+const MEDIA_EXTENSIONS = ['png', 'pdf'];
 const PNG_1X1 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 const PDF_MINIMAL = "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
 
@@ -64,6 +82,18 @@ $uri = is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '/
 $path = (string) parse_url($uri, PHP_URL_PATH);
 $host = is_string($_SERVER['HTTP_HOST'] ?? null) ? (string) parse_url('http://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST) : '';
 $source = str_ends_with($host, FAKE_HOST_SUFFIX) ? substr($host, 0, -strlen(FAKE_HOST_SUFFIX)) : '';
+
+// The lockout-safety checks switch every source into trouble: rate limited for longer than a request
+// may wait, or refusing the credentials. Media keeps being served.
+$trouble = is_file(TROUBLE_FILE) ? trim((string) file_get_contents(TROUBLE_FILE)) : '';
+if ($trouble !== '' && !in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), MEDIA_EXTENSIONS, true)) {
+    if ($trouble === TROUBLE_THROTTLE) {
+        header('Retry-After: ' . THROTTLE_RETRY_AFTER_SECONDS);
+    }
+    http_response_code($trouble === TROUBLE_THROTTLE ? 429 : 401);
+
+    return;
+}
 
 if (isset(REST_SOURCES[$source]) && preg_match(REST_SOURCES[$source][0], $path) === 1) {
     foreach (REST_SOURCES[$source][1] as $name => $expected) {
