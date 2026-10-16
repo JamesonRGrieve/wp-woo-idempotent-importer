@@ -55,7 +55,7 @@ final class AdminPage
     {
         $settings = $this->services->settings();
         $notice = Input::query()->text(self::NOTICE_PARAM);
-        echo '<div class="wrap"><h1>' . esc_html__('Shopify import', 'wp-idempotent-shopify-importer') . '</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Shopify import', 'wp-woo-idempotent-shopify-importer') . '</h1>';
         if ($notice !== '') {
             echo '<div class="notice notice-info" role="status"><p>' . esc_html($notice) . '</p></div>';
         }
@@ -76,10 +76,10 @@ final class AdminPage
         $this->numberRow('default_author', 'Default article author (user ID)', $settings->defaultAuthor, 0);
         $this->textRow('notify_email', 'Email a summary after each run to', $settings->notifyEmail);
         echo '</tbody></table>';
-        submit_button(__('Save settings', 'wp-idempotent-shopify-importer'));
+        submit_button(__('Save settings', 'wp-woo-idempotent-shopify-importer'));
         echo '</form>';
         $this->recentRuns();
-        echo '<p>' . esc_html__('Webhook URL:', 'wp-idempotent-shopify-importer') . ' <code>' . esc_html(WebhookController::url()) . '</code></p></div>';
+        echo '<p>' . esc_html__('Webhook URL:', 'wp-woo-idempotent-shopify-importer') . ' <code>' . esc_html(WebhookController::url()) . '</code></p></div>';
     }
 
     public function save(): void
@@ -121,18 +121,18 @@ final class AdminPage
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><p>';
         wp_nonce_field(self::RUN_ACTION);
         echo '<input type="hidden" name="action" value="' . esc_attr(self::RUN_ACTION) . '">';
-        echo '<label for="isi-mode">' . esc_html__('Run', 'wp-idempotent-shopify-importer') . '</label> <select id="isi-mode" name="mode">';
+        echo '<label for="isi-mode">' . esc_html__('Run', 'wp-woo-idempotent-shopify-importer') . '</label> <select id="isi-mode" name="mode">';
         foreach (Mode::cases() as $mode) {
             echo '<option value="' . esc_attr($mode->value) . '">' . esc_html(ucfirst($mode->value)) . '</option>';
         }
-        echo '</select> <label><input type="checkbox" name="dry_run"> ' . esc_html__('Dry run', 'wp-idempotent-shopify-importer') . '</label> ';
-        submit_button(__('Start', 'wp-idempotent-shopify-importer'), 'secondary', 'submit', false);
+        echo '</select> <label><input type="checkbox" name="dry_run"> ' . esc_html__('Dry run', 'wp-woo-idempotent-shopify-importer') . '</label> ';
+        submit_button(__('Start', 'wp-woo-idempotent-shopify-importer'), 'secondary', 'submit', false);
         echo '</p></form>';
     }
 
     private function recentRuns(): void
     {
-        echo '<h2>' . esc_html__('Recent runs', 'wp-idempotent-shopify-importer') . '</h2><table class="widefat striped"><thead><tr>';
+        echo '<h2>' . esc_html__('Recent runs', 'wp-woo-idempotent-shopify-importer') . '</h2><table class="widefat striped"><thead><tr>';
         foreach (['Started (UTC)', 'Mode', 'Status', 'Writes', 'Summary'] as $heading) {
             echo '<th scope="col">' . esc_html($heading) . '</th>';
         }
@@ -147,15 +147,15 @@ final class AdminPage
 
     private function kindsRow(Settings $settings): void
     {
-        echo '<tr><th scope="row">' . esc_html__('Mirror', 'wp-idempotent-shopify-importer') . '</th><td><fieldset><legend class="screen-reader-text">'
-            . esc_html__('Kinds to mirror, with optional Shopify search filters', 'wp-idempotent-shopify-importer') . '</legend>';
+        echo '<tr><th scope="row">' . esc_html__('Mirror', 'wp-woo-idempotent-shopify-importer') . '</th><td><fieldset><legend class="screen-reader-text">'
+            . esc_html__('Kinds to mirror, with optional Shopify search filters', 'wp-woo-idempotent-shopify-importer') . '</legend>';
         foreach (self::SYNCABLE_KINDS as $kind) {
             $id = 'isi-kind-' . $kind->value;
             echo '<p><label for="' . esc_attr($id) . '"><input type="checkbox" id="' . esc_attr($id) . '" name="kinds[]" value="' . esc_attr($kind->value) . '"'
                 . checked($settings->syncs($kind), true, false) . '> ' . esc_html($kind->value) . '</label> ';
             echo '<label class="screen-reader-text" for="' . esc_attr($id . '-filter') . '">' . esc_html("Filter for {$kind->value}") . '</label>';
             echo '<input type="text" class="regular-text" id="' . esc_attr($id . '-filter') . '" name="filters[' . esc_attr($kind->value) . ']" placeholder="'
-                . esc_attr__('Shopify search, e.g. status:active', 'wp-idempotent-shopify-importer') . '" value="' . esc_attr($settings->filter($kind)) . '"></p>';
+                . esc_attr__('Shopify search, e.g. status:active', 'wp-woo-idempotent-shopify-importer') . '" value="' . esc_attr($settings->filter($kind)) . '"></p>';
         }
         echo '</fieldset></td></tr>';
     }
@@ -175,7 +175,7 @@ final class AdminPage
     private function checkboxRow(string $key, string $label, bool $checked): void
     {
         echo '<tr><th scope="row">' . esc_html($label) . '</th><td><label for="isi-' . esc_attr($key) . '"><input type="checkbox" id="isi-' . esc_attr($key)
-            . '" name="' . esc_attr($key) . '"' . checked($checked, true, false) . '> ' . esc_html__('Enabled', 'wp-idempotent-shopify-importer') . '</label></td></tr>';
+            . '" name="' . esc_attr($key) . '"' . checked($checked, true, false) . '> ' . esc_html__('Enabled', 'wp-woo-idempotent-shopify-importer') . '</label></td></tr>';
     }
 
     /** A write-only secret field: the saved value is never rendered back to the page. */
@@ -197,7 +197,7 @@ final class AdminPage
     private function authorise(string $action): void
     {
         if (!current_user_can(self::CAPABILITY)) {
-            wp_die(esc_html__('You are not allowed to do this.', 'wp-idempotent-shopify-importer'), 403);
+            wp_die(esc_html__('You are not allowed to do this.', 'wp-woo-idempotent-shopify-importer'), 403);
         }
         check_admin_referer($action);
     }

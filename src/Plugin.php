@@ -52,7 +52,7 @@ final class Plugin
     {
         if (!class_exists(\WooCommerce::class)) {
             add_action('admin_notices', static function (): void {
-                echo '<div class="notice notice-error"><p>' . esc_html__('Shopify import needs WooCommerce to be active.', 'wp-idempotent-shopify-importer') . '</p></div>';
+                echo '<div class="notice notice-error"><p>' . esc_html__('Shopify import needs WooCommerce to be active.', 'wp-woo-idempotent-shopify-importer') . '</p></div>';
             });
 
             return;

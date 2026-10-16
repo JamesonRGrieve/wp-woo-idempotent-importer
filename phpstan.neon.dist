@@ -7,7 +7,7 @@ parameters:
         - src
         - tests
         - tools
-        - wp-idempotent-shopify-importer.php
+        - wp-woo-idempotent-shopify-importer.php
         - uninstall.php
     excludePaths:
         - tests/e2e/wordpress (?)

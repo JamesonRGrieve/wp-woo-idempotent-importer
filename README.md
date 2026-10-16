@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
-# wp-idempotent-shopify-importer
+# wp-woo-idempotent-shopify-importer
 
 A WordPress plugin that keeps a WooCommerce store an exact, one-way copy of a Shopify store until you
 cut over. Run it as often as you like: what's new in Shopify is created, what changed is updated, what

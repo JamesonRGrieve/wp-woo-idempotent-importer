@@ -1,4 +1,4 @@
-# wp-idempotent-shopify-importer — Agent Operating Guide
+# wp-woo-idempotent-shopify-importer — Agent Operating Guide
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent Shopify → WooCommerce mirror kept current
 until cutover. README.md is the user-facing contract; COVERAGE.md is the single source of truth for what

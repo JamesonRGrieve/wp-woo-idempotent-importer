@@ -13,7 +13,7 @@
  * Author: Jameson Grieve
  * License: AGPL-3.0-or-later
  * License URI: https://www.gnu.org/licenses/agpl-3.0.html
- * Text Domain: wp-idempotent-shopify-importer
+ * Text Domain: wp-woo-idempotent-shopify-importer
  *
  * Portions adapted from "S2W - Import Shopify to WooCommerce" by VillaTheme (GPL-2.0-or-later); see NOTICE.
  */

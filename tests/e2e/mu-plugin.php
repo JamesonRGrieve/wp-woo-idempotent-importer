@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 
 const ISI_E2E_FAKE_HOST = 'shopify-fake';
-const ISI_E2E_CHECKS = WP_PLUGIN_DIR . '/wp-idempotent-shopify-importer/tests/e2e/assert.php';
+const ISI_E2E_CHECKS = WP_PLUGIN_DIR . '/wp-woo-idempotent-shopify-importer/tests/e2e/assert.php';
 
 const ISI_E2E_MAIL_COUNT = 'isi_e2e_mail_sent';
 

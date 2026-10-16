@@ -17,7 +17,8 @@ STATE_DIR="$(mktemp -d)"
 DB_IMAGE="docker.io/library/mariadb:11.4"
 WP_IMAGE="docker.io/library/wordpress:cli-php8.3"
 PHP_IMAGE="docker.io/library/php:8.4-cli"
-PLUGIN_PATH="/var/www/html/wp-content/plugins/wp-idempotent-shopify-importer"
+PLUGIN_SLUG="wp-woo-idempotent-shopify-importer"
+PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=60
 WP_CLI_MEMORY=1G
 
@@ -81,7 +82,7 @@ wp core install --url=http://localhost --title=E2E --admin_user=e2e --admin_emai
 wp plugin install woocommerce --activate --quiet
 podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$WP_IMAGE" \
     sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/isi-e2e.php'
-wp plugin activate wp-idempotent-shopify-importer
+wp plugin activate "$PLUGIN_SLUG"
 wp isi-e2e configure
 
 echo "== First full import"
