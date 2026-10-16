@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from a fake Shopify, a fake
-# Etsy, a fake Square and a fake BigCommerce that serve the recorded fixtures. For each source it proves the import, that an unchanged
-# re-run writes nothing (content tables byte-identical), that changes and deletions land; and that one
-# source's runs never touch another's mirror, and Shopify webhook authentication. Everything it creates
-# is removed on exit.
+# End-to-end suite: a real WordPress + WooCommerce (HPOS) + MariaDB, importing from fake stores of every
+# built source (SOURCES, in import order; the same list as SOURCES in assert.php) that serve the recorded
+# fixtures. For each source it proves the import, that an unchanged re-run writes nothing (content tables
+# byte-identical), that changes and deletions land; that one source's runs never touch another's mirror;
+# and Shopify webhook authentication. Everything it creates is removed on exit.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -23,6 +23,7 @@ PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
+SOURCES=(shopify etsy square_online bigcommerce)
 
 # Optional: keep the image/container store somewhere else (e.g. local disk when $HOME is on NFS).
 if [ -n "${E2E_PODMAN_ROOT:-}" ]; then
@@ -66,24 +67,37 @@ wait_for_db() {
     return 1
 }
 
-store_state() {
-    echo "$1" > "$STATE_DIR/store-state"
-    echo "== Shopify store state: $1"
+# Which fixture state (v1, v2) a source's fake store serves.
+source_state() {
+    echo "$2" > "$STATE_DIR/$1-state"
+    echo "== $1 store state: $2"
 }
 
-etsy_state() {
-    echo "$1" > "$STATE_DIR/etsy-state"
-    echo "== Etsy store state: $1"
-}
+# One source, imported beside the mirrors of the sources before it (tests/e2e/checks/<source>.php): the
+# first full import, full and incremental re-runs of the unchanged store that must write nothing, then the
+# changed store ($2 says what changed) and a re-run of it that must write nothing.
+import_source() {
+    local source="$1" changes="$2"
+    echo "== $source: first full import"
+    wp iim-e2e configure "$source"
+    wp idempotent-import run --full
+    wp iim-e2e state "$source" v1
 
-square_state() {
-    echo "$1" > "$STATE_DIR/square-state"
-    echo "== Square store state: $1"
-}
+    echo "== $source unchanged: full and incremental re-runs must write nothing"
+    wp iim-e2e checksum "/state/checksum-$source-v1"
+    wp idempotent-import run --full
+    wp iim-e2e zero-writes "/state/checksum-$source-v1"
+    wp idempotent-import run
+    wp iim-e2e zero-writes "/state/checksum-$source-v1"
 
-bigcommerce_state() {
-    echo "$1" > "$STATE_DIR/bigcommerce-state"
-    echo "== BigCommerce store state: $1"
+    source_state "$source" v2
+    echo "== $source changed: $changes"
+    wp idempotent-import run --full
+    wp iim-e2e state "$source" v2
+    wp iim-e2e checksum "/state/checksum-$source-v2"
+    wp idempotent-import run --full
+    wp iim-e2e zero-writes "/state/checksum-$source-v2"
+    wp iim-e2e no-mail
 }
 
 podman network create "$NETWORK" >/dev/null
@@ -92,12 +106,12 @@ chmod 0777 "$STATE_DIR"
 podman run -d --name "$DB" --network "$NETWORK" --network-alias db \
     -e MARIADB_DATABASE=wp -e MARIADB_USER=wp -e MARIADB_PASSWORD=wp -e MARIADB_RANDOM_ROOT_PASSWORD=1 \
     "$DB_IMAGE" >/dev/null
-store_state v1
-etsy_state v1
-square_state v1
-bigcommerce_state v1
-podman run -d --name "$FAKE" --network "$NETWORK" --network-alias shopify-fake --network-alias etsy-fake \
-    --network-alias square_online-fake --network-alias bigcommerce-fake \
+FAKE_ALIASES=()
+for source in "${SOURCES[@]}"; do
+    source_state "$source" v1
+    FAKE_ALIASES+=(--network-alias "$source-fake")
+done
+podman run -d --name "$FAKE" --network "$NETWORK" "${FAKE_ALIASES[@]}" \
     -v "$ROOT:/app:ro" -v "$STATE_DIR:/state" \
     "$PHP_IMAGE" php -S 0.0.0.0:8080 /app/tests/e2e/fake-store.php >/dev/null
 
@@ -111,94 +125,13 @@ wp plugin install woocommerce --activate --quiet
 podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$WP_IMAGE" \
     sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/iim-e2e.php'
 wp plugin activate "$PLUGIN_SLUG"
-wp iim-e2e configure
 
-echo "== First full import"
-wp idempotent-import run --full
-wp iim-e2e v1
-
-echo "== Unchanged store: full and incremental re-runs must write nothing"
-wp iim-e2e checksum /state/checksum-v1
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-v1
-wp idempotent-import run
-wp iim-e2e zero-writes /state/checksum-v1
-
-store_state v2
-echo "== Changed store: updates, a new order, a deletion and a completed draft"
-wp idempotent-import run --full
-wp iim-e2e v2
-wp iim-e2e checksum /state/checksum-v2
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-v2
-
-wp iim-e2e no-mail
-
-echo "== Webhooks"
+import_source shopify "updates, a new order, a deletion and a completed draft"
+echo "== Shopify webhooks"
 wp iim-e2e webhook
-
-echo "== Etsy: first full import, beside the Shopify mirror"
-wp iim-e2e etsy-configure
-wp idempotent-import run --full
-wp iim-e2e etsy-v1
-
-echo "== Etsy unchanged: full and incremental re-runs must write nothing"
-wp iim-e2e checksum /state/checksum-etsy-v1
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-etsy-v1
-wp idempotent-import run
-wp iim-e2e zero-writes /state/checksum-etsy-v1
-
-etsy_state v2
-echo "== Etsy changed: a price, a removed listing, a refund, a new receipt and review"
-wp idempotent-import run --full
-wp iim-e2e etsy-v2
-wp iim-e2e checksum /state/checksum-etsy-v2
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-etsy-v2
-wp iim-e2e no-mail
-
-echo "== Square Online: first full import, beside the Shopify and Etsy mirrors"
-wp iim-e2e square-configure
-wp idempotent-import run --full
-wp iim-e2e square-v1
-
-echo "== Square Online unchanged: full and incremental re-runs must write nothing"
-wp iim-e2e checksum /state/checksum-square-v1
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-square-v1
-wp idempotent-import run
-wp iim-e2e zero-writes /state/checksum-square-v1
-
-square_state v2
-echo "== Square Online changed: a price, a deleted item, a refund, a new order and customer"
-wp idempotent-import run --full
-wp iim-e2e square-v2
-wp iim-e2e checksum /state/checksum-square-v2
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-square-v2
-wp iim-e2e no-mail
-
-echo "== BigCommerce: first full import, beside the Shopify, Etsy and Square mirrors"
-wp iim-e2e bigcommerce-configure
-wp idempotent-import run --full
-wp iim-e2e bigcommerce-v1
-
-echo "== BigCommerce unchanged: full and incremental re-runs must write nothing"
-wp iim-e2e checksum /state/checksum-bigcommerce-v1
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-bigcommerce-v1
-wp idempotent-import run
-wp iim-e2e zero-writes /state/checksum-bigcommerce-v1
-
-bigcommerce_state v2
-echo "== BigCommerce changed: a price, a deleted product, a refund, a new order, customer, post and review"
-wp idempotent-import run --full
-wp iim-e2e bigcommerce-v2
-wp iim-e2e checksum /state/checksum-bigcommerce-v2
-wp idempotent-import run --full
-wp iim-e2e zero-writes /state/checksum-bigcommerce-v2
-wp iim-e2e no-mail
+import_source etsy "a price, a removed listing, a refund, a new receipt and review"
+import_source square_online "a price, a deleted item, a refund, a new order and customer"
+import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review"
 
 echo "== Plugin errors and warnings logged by WordPress"
 podman run --rm -v "$WP_VOLUME:/var/www/html" "$WP_IMAGE" sh -c 'cat /var/www/html/wp-content/debug.log 2>/dev/null || true'

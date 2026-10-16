@@ -87,12 +87,13 @@ composer install          # also enables the pre-commit hook
 composer schema           # cache Shopify's Admin GraphQL schema (needed by validate-graphql)
 composer specs            # cache every REST source's published API spec (needed by validate-fixtures)
 composer check            # lint, format, PHPStan (max), unit tests, GraphQL + REST fixture validation, audit
-composer e2e              # WordPress + WooCommerce + MariaDB in podman, against a fake Shopify, Etsy and Square
+composer e2e              # WordPress + WooCommerce + MariaDB in podman, against a fake store of every built source
 ```
 
 Every Shopify GraphQL operation is validated against Shopify's published schema and every Shopify
-fixture is executed against it; every Etsy fixture is validated strictly against Etsy's published
-OpenAPI spec, and every Square fixture against Square's published OpenAPI spec. The queries and test data are proven against the real APIs without a live store.
+fixture is executed against it; every REST source's fixture is validated against that source's
+published OpenAPI spec (strictly for Etsy, whose API returns every declared property). The queries and
+test data are proven against the real APIs without a live store.
 
 ## Credits
 
