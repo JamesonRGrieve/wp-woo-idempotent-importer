@@ -21,7 +21,8 @@ use IdempotentImporter\Wp\Retirement;
 /**
  * Store settings (opt-in) and the shop's policies as pages, wired to WordPress's privacy page and
  * WooCommerce's terms page. Each policy is its own linked page with its old URL redirected to it; a
- * source's policies that are gone are retired (never another source's).
+ * source's policies that are gone are retired (never another source's). Null policies mean the source
+ * couldn't say (e.g. a missing access scope), so the policy pages are left as they are.
  */
 final class ShopWriter implements Writer
 {
@@ -45,6 +46,16 @@ final class ShopWriter implements Writer
         if ($this->targets->settings->storeSettings) {
             $this->settings($f);
         }
+        if ($f->raw('policies') !== null) {
+            $this->policies($f, Identity::prefixOf($desired->gid));
+        }
+
+        return self::NO_OBJECT;
+    }
+
+    /** Each policy as its linked page; this source's policies that are gone are retired. */
+    private function policies(Values $f, string $sourcePrefix): void
+    {
         $kept = [];
         foreach ($f->records('policies') as $policy) {
             $gid = $policy->string('gid');
@@ -64,15 +75,13 @@ final class ShopWriter implements Writer
             }
             $kept[] = $gid;
         }
-        foreach ($this->targets->links->withPrefix(Kind::Policy, Identity::prefixOf($desired->gid)) as $policyLink) {
+        foreach ($this->targets->links->withPrefix(Kind::Policy, $sourcePrefix) as $policyLink) {
             if (!in_array($policyLink->gid, $kept, true)) {
                 Retirement::post($policyLink->targetId);
                 $this->targets->links->delete(Kind::Policy, $policyLink->gid);
                 $this->redirects->syncObject(Kind::Policy, $policyLink->gid, []);
             }
         }
-
-        return self::NO_OBJECT;
     }
 
     public function exists(int $targetId): bool

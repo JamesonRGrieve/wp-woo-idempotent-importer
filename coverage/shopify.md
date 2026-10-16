@@ -6,6 +6,31 @@ listed. **Mirrored** means the importer writes it into a native WordPress/WooCom
 WordPress + WooCommerce (+ the WooCommerce Square plugin) have no schema for it; the gap column names what
 would be needed. Gaps are decisions for the operator, tracked on the Deck card.
 
+Access scopes (read-only), each for the entities it unlocks:
+
+| Scope | Read for |
+|---|---|
+| `read_products` | Products, variants, product media, collections |
+| `read_inventory` | Inventory items (cost, weight, origin, HS code), stock quantities, inventory webhooks |
+| `read_files` | Files |
+| `read_customers` | Customers and their addresses |
+| `read_discounts` | Code and automatic discounts |
+| `read_orders` | Orders, refunds, transactions, fulfillments, order timeline (last 60 days) |
+| `read_all_orders` | Orders older than 60 days. Granted by Shopify on request only; the Dev Dashboard doesn't offer it |
+| `read_draft_orders` | Draft orders |
+| `read_content` | Pages, blogs, articles, comments |
+| `read_online_store_navigation` | Menus, URL redirects |
+| `read_shipping` | Delivery profiles |
+| `read_legal_policies` | Shop policies. Read on their own: without the scope the shop settings still mirror and the run warns that policies were skipped, leaving existing policy pages as they are |
+
+Query cost: Shopify refuses before running it any query whose requested cost is over 1,000 points. Every
+page size the importer asks for (the page itself and each nested connection it pages through) is a query
+variable; a refused query is resent at once with every size scaled down by how far over it was (never below
+1), the sizes that fit are kept for the rest of the run, and they grow back toward the defaults (50 per
+page, 250 per nested page) while responses report room under the limit. `composer validate-graphql` checks
+that every operation fits at page size 1 and that its cost estimate matches the costs recorded from a live
+store (`tests/fixtures/shopify-query-cost.json`, re-recorded with `tools/calibrate-query-cost.php`).
+
 Rate limits: Shopify's GraphQL Admin API meters a query-cost bucket and reports it on every response. Before
 each query the importer waits until the bucket can take one as costly as the last, so it doesn't run into
 the throttle; a throttled query is retried once the bucket refills (README, "How it stays idempotent", for

@@ -48,10 +48,10 @@ fragment DraftOrderFields on DraftOrder {
   shippingLine {
     ...ShippingLineFields
   }
-  lineItems(first: 250) {
+  lineItems(first: $lineItemsFirst) {
     ...DraftOrderLineItemConnectionFields
   }
-  metafields(first: 250) {
+  metafields(first: $metafieldsFirst) {
     ...MetafieldConnectionFields
   }
 }

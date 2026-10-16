@@ -68,12 +68,18 @@ store's Instant Site redirects.
    from source, run `composer install --no-dev`).
 2. In WooCommerce → Store import, choose the source and save, then connect it:
    - **Shopify:** in Shopify's Dev Dashboard (dev.shopify.com, signed in to the store's organization),
-     create an app with read access to products, inventory, customers, orders, draft orders, discounts,
-     files, content (pages and blogs), navigation, online store, shipping and locales. Release a version,
-     install it on the store, then enter the store's `name.myshopify.com` domain and the app's client ID
-     and client secret. The importer exchanges them for a 24-hour token and renews it itself. The Dev
-     Dashboard doesn't offer Shopify's read-all-orders access, so only orders from the last 60 days are
-     mirrored unless the app has it. A legacy custom app (made in the store admin before 2026) can use
+     create an app with these access scopes (paste the line into the version's scopes):
+
+     ```text
+     read_products, read_inventory, read_files, read_customers, read_discounts, read_orders, read_draft_orders, read_content, read_online_store_navigation, read_shipping, read_legal_policies
+     ```
+
+     Release a version, install it on the store, then
+     enter the store's `name.myshopify.com` domain and the app's client ID and client secret. The importer
+     exchanges them for a 24-hour token and renews it itself. Orders older than 60 days need
+     `read_all_orders`, which Shopify grants only on request and the Dev Dashboard doesn't offer, so without
+     it only the last 60 days of orders are mirrored. Without `read_legal_policies` everything else still
+     mirrors and the run warns that the shop's policies were skipped. A legacy custom app (made in the store admin before 2026) can use
      its Admin API access token instead. For live updates, run `wp idempotent-import register-webhooks`;
      Shopify signs them with the client secret.
    - **Etsy:** register an app at etsy.com/developers with the callback URL shown on the settings page,

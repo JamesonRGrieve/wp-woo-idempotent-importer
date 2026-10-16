@@ -43,8 +43,31 @@ final class QueryLibraryTest extends TestCase
     {
         $document = QueryLibrary::bundled()->document('OrderShippingLinesPage');
 
-        self::assertStringContainsString('shippingLines(first: 250, after: $after, includeRemovals: false)', $document);
+        self::assertStringContainsString('shippingLines(first: $first, after: $after, includeRemovals: false)', $document);
         self::assertStringContainsString('...ShippingLineConnectionFields', $document);
+    }
+
+    public function testEveryPageSizeIsAVariableWithADefault(): void
+    {
+        $library = QueryLibrary::bundled();
+
+        self::assertSame(
+            ['first' => 50, 'variantsFirst' => 250, 'mediaFirst' => 250, 'collectionsFirst' => 250, 'metafieldsFirst' => 250],
+            $library->pageSizes('ProductList'),
+        );
+        self::assertSame(['variantsFirst' => 250, 'mediaFirst' => 250, 'collectionsFirst' => 250, 'metafieldsFirst' => 250], $library->pageSizes('ProductNode'));
+        self::assertSame(['first' => 250], $library->pageSizes('ProductVariantsPage'));
+        self::assertSame([], $library->pageSizes('Shop'));
+        $list = $library->document('ProductList');
+        self::assertStringContainsString('query ProductList($first: Int!, $after: String, $query: String, $variantsFirst: Int!, $mediaFirst: Int!, $collectionsFirst: Int!, $metafieldsFirst: Int!)', $list);
+        self::assertStringContainsString('variants(first: $variantsFirst)', $list);
+        self::assertStringContainsString('metafields(first: 250)', $list, 'a connection nothing pages through keeps its full page');
+    }
+
+    public function testPageSizesOfAnUnknownOperation(): void
+    {
+        $this->expectException(SourceError::class);
+        QueryLibrary::bundled()->pageSizes('Nope');
     }
 
     public function testIncrementalSources(): void

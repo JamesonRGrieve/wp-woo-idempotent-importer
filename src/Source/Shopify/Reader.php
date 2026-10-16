@@ -20,22 +20,38 @@ use IdempotentImporter\Source\SourceReader;
  */
 final class Reader implements SourceReader
 {
-    public const PAGE_SIZE = 50;
+    /** Set on the shop instead of its policies when the app may not read them; the mapper reports the gap. */
+    public const POLICIES_DENIED = 'shopPoliciesDenied';
+
     private const SHOP_OPERATION = 'Shop';
+    private const SHOP_POLICIES_OPERATION = 'ShopPolicies';
+    private const POLICIES_FIELD = 'shopPolicies';
     private const INVENTORY_ITEM_OPERATION = 'InventoryItemProduct';
     private const INVENTORY_ITEM_GID = '/InventoryItem/';
 
     public function __construct(private readonly GraphQlClient $client) {}
 
+    /**
+     * The shop with its policies. Policies need a scope of their own (read_legal_policies), so they are read
+     * apart: without it the shop still mirrors, with POLICIES_DENIED (Shopify's reason) instead of policies.
+     */
     public function shop(): Node
     {
-        return $this->client->query(self::SHOP_OPERATION)->requiredChild('shop');
+        $shop = $this->client->query(self::SHOP_OPERATION)->requiredChild('shop');
+        try {
+            $policies = [self::POLICIES_FIELD => $this->client->query(self::SHOP_POLICIES_OPERATION)
+                ->requiredChild('shop')->raw()[self::POLICIES_FIELD] ?? null];
+        } catch (AccessDenied $e) {
+            $policies = [self::POLICIES_DENIED => $e->getMessage()];
+        }
+
+        return new Node([...$shop->raw(), ...$policies], 'shop');
     }
 
     public function page(Kind $kind, ?string $cursor, ?DateTimeImmutable $since, string $filter): Page
     {
         $source = EntityQueries::for($kind);
-        $variables = ['first' => self::PAGE_SIZE, 'after' => $cursor];
+        $variables = ['after' => $cursor];
         if ($source->searchable) {
             $variables['query'] = SearchQuery::build($since, $filter);
         }
@@ -97,7 +113,7 @@ final class Reader implements SourceReader
         }
         $truncated = self::firstTruncatedPath($data, $node->id());
         if ($truncated !== null) {
-            throw new SourceError("{$truncated} has more than " . QueryLibrary::NESTED_PAGE_SIZE . ' entries, which the importer cannot page through.');
+            throw new SourceError("{$truncated} has more entries than one query returns, and the importer does not page through it.");
         }
 
         return new Node($data, $node->id());

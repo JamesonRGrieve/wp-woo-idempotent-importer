@@ -27,23 +27,7 @@
         "countryCodeV2": "CA",
         "zip": "T5J 0A1",
         "phone": "+17805550100"
-      },
-      "shopPolicies": [
-        {
-          "id": "gid://shopify/ShopPolicy/11",
-          "type": "REFUND_POLICY",
-          "title": "Refund policy",
-          "body": "<p>Returns within 30 days.</p>",
-          "updatedAt": "2026-09-01T12:00:00Z"
-        },
-        {
-          "id": "gid://shopify/ShopPolicy/12",
-          "type": "PRIVACY_POLICY",
-          "title": "Privacy policy",
-          "body": "<p>We keep your data private.</p>",
-          "updatedAt": "2026-09-01T12:00:00Z"
-        }
-      ]
+      }
     }
   }
 }

@@ -26,12 +26,5 @@ query Shop {
       zip
       phone
     }
-    shopPolicies {
-      id
-      type
-      title
-      body
-      updatedAt
-    }
   }
 }
