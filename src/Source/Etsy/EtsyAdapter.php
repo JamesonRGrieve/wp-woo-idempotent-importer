@@ -71,7 +71,7 @@ final class EtsyAdapter implements Adapter, ConnectsByOAuth
     {
         $connection = $this->connection();
 
-        return new EtsyReader(new EtsyClient($connection, $this->oauth($connection, $transport), $transport, new SystemSleeper()));
+        return EtsyReader::connect($connection, $this->oauth($connection, $transport), $transport, new SystemSleeper());
     }
 
     public function supportsWebhooks(): bool

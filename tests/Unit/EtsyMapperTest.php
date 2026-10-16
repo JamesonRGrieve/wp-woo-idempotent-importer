@@ -9,7 +9,6 @@ namespace IdempotentImporter\Tests\Unit;
 use IdempotentImporter\Mapping\Mapper;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Source\Etsy\EtsyClient;
 use IdempotentImporter\Source\Etsy\EtsyConnection;
 use IdempotentImporter\Source\Etsy\EtsyReader;
 use IdempotentImporter\Source\Etsy\Mapping\BuyerMapper;
@@ -199,6 +198,6 @@ final class EtsyMapperTest extends TestCase
         $transport = new ScriptedTransport(new EtsyResponder($state));
         $connection = new EtsyConnection('https://openapi.etsy.test', 'keystring', 'shared-secret');
 
-        return new EtsyReader(new EtsyClient($connection, new OAuth($connection, $transport, new InMemoryRefreshTokens('refresh')), $transport, new RecordingSleeper()));
+        return EtsyReader::connect($connection, new OAuth($connection, $transport, new InMemoryRefreshTokens('refresh')), $transport, new RecordingSleeper());
     }
 }

@@ -15,7 +15,7 @@ jobs:
           tools: composer:v2
       - run: composer install --no-interaction --no-progress
       - run: composer schema
-      - run: composer etsy-spec
+      - run: composer specs
       - run: composer check
   e2e:
     runs-on: ubuntu-24.04

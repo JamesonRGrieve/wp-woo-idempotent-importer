@@ -64,6 +64,36 @@ final class OpenApiValidatorTest extends TestCase
         ], $this->errors($listing));
     }
 
+    public function testWithoutCompleteObjectsOnlyRequiredPropertiesMustBePresent(): void
+    {
+        $schema = ['type' => 'object', 'required' => ['id'], 'properties' => [
+            'id' => ['type' => 'integer'],
+            'name' => ['type' => 'string'],
+        ]];
+        $validator = new OpenApiValidator([], '#/definitions/', false);
+
+        self::assertSame([], $validator->validate(['id' => 1], $schema));
+        self::assertSame([], $validator->validate(['id' => 1, 'name' => null], $schema), 'an optional property may be null');
+        self::assertSame(['$.id is missing'], $validator->validate(['name' => 'Mug'], $schema));
+        self::assertSame(['$.sku is not in the spec'], $validator->validate(['id' => 1, 'sku' => 'A'], $schema));
+    }
+
+    public function testAllOfMembersAreMergedAndMapsTakeAnyKey(): void
+    {
+        $schemas = [
+            'Base' => ['type' => 'object', 'required' => ['id'], 'properties' => ['id' => ['type' => 'integer']]],
+            'Product' => ['allOf' => [
+                ['$ref' => '#/components/schemas/Base'],
+                ['type' => 'object', 'properties' => ['meta' => ['type' => 'object', 'additionalProperties' => ['type' => 'string']]]],
+            ]],
+        ];
+        $validator = new OpenApiValidator($schemas, '#/components/schemas/', false);
+        $product = ['$ref' => '#/components/schemas/Product'];
+
+        self::assertSame([], $validator->validate(['id' => 1, 'meta' => ['care' => 'wash', 'origin' => 'CA']], $product));
+        self::assertSame(['$.id is missing', '$.meta.size should be string, got int'], $validator->validate(['meta' => ['size' => 3]], $product));
+    }
+
     /** @return array<string, mixed> */
     private static function listing(): array
     {
@@ -80,6 +110,6 @@ final class OpenApiValidatorTest extends TestCase
     /** @return list<string> */
     private function errors(mixed $value): array
     {
-        return (new OpenApiValidator(self::SCHEMAS))->validate($value, ['$ref' => '#/components/schemas/Listing']);
+        return (new OpenApiValidator(self::SCHEMAS, '#/components/schemas/', true))->validate($value, ['$ref' => '#/components/schemas/Listing']);
     }
 }

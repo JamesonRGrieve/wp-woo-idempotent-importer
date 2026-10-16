@@ -1,6 +1,6 @@
 {
     "name": "jamesonrgrieve/wp-woo-idempotent-importer",
-    "description": "One-way, idempotent, continuously re-runnable Shopify to WooCommerce importer for WordPress.",
+    "description": "One-way, idempotent, continuously re-runnable store (Shopify, Etsy, BigCommerce, Wix, Squarespace, Square, Ecwid, Magento) to WooCommerce importer for WordPress.",
     "type": "wordpress-plugin",
     "license": "AGPL-3.0-or-later",
     "authors": [
@@ -17,6 +17,7 @@
         "php-stubs/wp-cli-stubs": "^2.11",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^12.0",
+        "symfony/yaml": "^7.3",
         "szepeviktor/phpstan-wordpress": "^2.0",
         "webonyx/graphql-php": "^15.20"
     },
@@ -44,8 +45,8 @@
         "test": "phpunit --testsuite unit",
         "schema": "php tools/fetch-schema.php",
         "validate-graphql": "php tools/validate-graphql.php",
-        "etsy-spec": "php tools/fetch-etsy-spec.php",
-        "validate-etsy": "php tools/validate-etsy-fixtures.php",
+        "specs": "php tools/fetch-specs.php",
+        "validate-fixtures": "php tools/validate-fixtures.php",
         "e2e": [
             "Composer\\Config::disableProcessTimeout",
             "tests/e2e/run.sh"
@@ -56,7 +57,7 @@
             "@analyse",
             "@test",
             "@validate-graphql",
-            "@validate-etsy",
+            "@validate-fixtures",
             "@composer audit",
             "@composer validate --strict"
         ]

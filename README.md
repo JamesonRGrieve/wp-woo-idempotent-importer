@@ -74,8 +74,8 @@ wp idempotent-import register-webhooks                # Shopify only
 ```sh
 composer install          # also enables the pre-commit hook
 composer schema           # cache Shopify's Admin GraphQL schema (needed by validate-graphql)
-composer etsy-spec        # cache Etsy's OpenAPI document (needed by validate-etsy)
-composer check            # lint, format, PHPStan (max), unit tests, GraphQL + Etsy fixture validation, audit
+composer specs            # cache every REST source's published API spec (needed by validate-fixtures)
+composer check            # lint, format, PHPStan (max), unit tests, GraphQL + REST fixture validation, audit
 composer e2e              # WordPress + WooCommerce + MariaDB in podman, against a fake Shopify and Etsy
 ```
 

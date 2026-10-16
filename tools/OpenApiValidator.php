@@ -7,34 +7,38 @@ declare(strict_types=1);
 namespace IdempotentImporter\Tools;
 
 /**
- * Checks a JSON value against an OpenAPI 3.0 schema, strictly: every declared property must be present
- * (the source returns complete objects) and no undeclared one may appear (a fixture can't invent a field).
- * Supports the keywords Etsy's spec uses: type, nullable, enum, minimum, maximum, items, properties,
- * $ref and single-member oneOf.
+ * Checks a JSON value against an OpenAPI 3 / Swagger 2 schema. No undeclared property may appear (a
+ * fixture can't invent a field) unless the schema allows extra keys (`additionalProperties`). With
+ * `completeObjects` every declared property must be present (sources that return complete objects);
+ * otherwise only the schema's `required` ones, and an optional property may be null (Swagger 2 has no
+ * `nullable`). Supports type, nullable / x-nullable, enum, minimum, maximum, items, properties, required,
+ * additionalProperties, allOf, $ref and single-member oneOf/anyOf.
  */
 final class OpenApiValidator
 {
-    private const REF_PREFIX = '#/components/schemas/';
-
-    /** @param array<string, mixed> $schemas the document's components.schemas */
-    public function __construct(private readonly array $schemas) {}
+    /** @param array<string, array<string, mixed>> $schemas the document's schemas, by name */
+    public function __construct(
+        private readonly array $schemas,
+        private readonly string $refPrefix,
+        private readonly bool $completeObjects,
+    ) {}
 
     /**
      * @param array<string, mixed> $schema
      *
      * @return list<string> every violation, each with its JSON path
      */
-    public function validate(mixed $value, array $schema, string $path = '$'): array
+    public function validate(mixed $value, array $schema, string $path = '$', bool $optional = false): array
     {
         $schema = $this->resolve($schema);
         if ($value === null) {
-            return ($schema['nullable'] ?? false) === true ? [] : ["{$path} is null but not nullable"];
+            return self::isNullable($schema) || $optional && !$this->completeObjects ? [] : ["{$path} is null but not nullable"];
         }
-        $errors = [];
         $type = $schema['type'] ?? null;
         if (is_string($type) && !self::hasType($value, $type)) {
             return ["{$path} should be {$type}, got " . get_debug_type($value)];
         }
+        $errors = [];
         if (is_array($schema['enum'] ?? null) && !in_array($value, $schema['enum'], true)) {
             $errors[] = "{$path} is not one of " . implode(', ', array_map(
                 static fn(mixed $allowed): string => is_scalar($allowed) ? (string) $allowed : (string) json_encode($allowed),
@@ -53,8 +57,8 @@ final class OpenApiValidator
                 $errors = [...$errors, ...$this->validate($item, $items, "{$path}[{$index}]")];
             }
         }
-        if (is_array($schema['properties'] ?? null) && is_array($value)) {
-            $errors = [...$errors, ...$this->properties($value, $schema['properties'], $path)];
+        if (is_array($value) && (isset($schema['properties']) || isset($schema['additionalProperties']))) {
+            $errors = [...$errors, ...$this->object($value, $schema, $path)];
         }
 
         return $errors;
@@ -62,22 +66,33 @@ final class OpenApiValidator
 
     /**
      * @param array<array-key, mixed> $object
-     * @param array<array-key, mixed> $properties
+     * @param array<string, mixed> $schema
      *
      * @return list<string>
      */
-    private function properties(array $object, array $properties, string $path): array
+    private function object(array $object, array $schema, string $path): array
     {
+        $properties = Json::object($schema['properties'] ?? [], "{$path} properties");
+        $required = is_array($schema['required'] ?? null) ? $schema['required'] : [];
         $errors = [];
         foreach ($properties as $name => $property) {
+            $isRequired = $this->completeObjects || in_array($name, $required, true);
             if (!array_key_exists($name, $object)) {
-                $errors[] = "{$path}.{$name} is missing";
-            } else {
-                $errors = [...$errors, ...$this->validate($object[$name], Json::object($property, "{$path}.{$name} schema"), "{$path}.{$name}")];
+                if ($isRequired) {
+                    $errors[] = "{$path}.{$name} is missing";
+                }
+                continue;
             }
+            $errors = [...$errors, ...$this->validate($object[$name], Json::object($property, "{$path}.{$name} schema"), "{$path}.{$name}", !$isRequired)];
         }
-        foreach (array_keys($object) as $name) {
-            if (!array_key_exists($name, $properties)) {
+        $extra = $schema['additionalProperties'] ?? false;
+        foreach ($object as $name => $value) {
+            if (array_key_exists($name, $properties)) {
+                continue;
+            }
+            if (is_array($extra)) {
+                $errors = [...$errors, ...$this->validate($value, Json::object($extra, "{$path} additionalProperties"), "{$path}.{$name}")];
+            } elseif ($extra !== true) {
                 $errors[] = "{$path}.{$name} is not in the spec";
             }
         }
@@ -86,7 +101,8 @@ final class OpenApiValidator
     }
 
     /**
-     * Follows $ref and single-member oneOf to the schema they name, keeping the wrapper's nullable.
+     * Follows $ref and single-member oneOf/anyOf to the schema they name and merges allOf members, keeping
+     * the wrapper's nullable.
      *
      * @param array<string, mixed> $schema
      *
@@ -94,17 +110,54 @@ final class OpenApiValidator
      */
     private function resolve(array $schema): array
     {
-        $nullable = ($schema['nullable'] ?? false) === true;
+        $nullable = self::isNullable($schema);
         while (true) {
-            if (is_string($schema['$ref'] ?? null) && str_starts_with($schema['$ref'], self::REF_PREFIX)) {
-                $schema = Json::object($this->schemas[substr($schema['$ref'], strlen(self::REF_PREFIX))] ?? null, "schema {$schema['$ref']}");
-            } elseif (is_array($schema['oneOf'] ?? null) && count($schema['oneOf']) === 1) {
-                $schema = Json::object($schema['oneOf'][0] ?? null, 'oneOf member');
+            $one = is_array($schema['oneOf'] ?? null) ? $schema['oneOf'] : (is_array($schema['anyOf'] ?? null) ? $schema['anyOf'] : null);
+            if (is_string($schema['$ref'] ?? null) && str_starts_with($schema['$ref'], $this->refPrefix)) {
+                $name = substr($schema['$ref'], strlen($this->refPrefix));
+                $schema = $this->schemas[$name] ?? throw new \RuntimeException("Unknown schema {$schema['$ref']}");
+            } elseif ($one !== null && count($one) === 1) {
+                $schema = Json::object($one[0] ?? null, 'oneOf member');
+            } elseif (is_array($schema['allOf'] ?? null)) {
+                $schema = $this->merge($schema);
             } else {
                 return $nullable ? [...$schema, 'nullable' => true] : $schema;
             }
-            $nullable = $nullable || ($schema['nullable'] ?? false) === true;
+            $nullable = $nullable || self::isNullable($schema);
         }
+    }
+
+    /**
+     * One schema from an allOf: the members' properties and required lists combined (the wrapper's own
+     * keywords kept).
+     *
+     * @param array<string, mixed> $schema
+     *
+     * @return array<string, mixed>
+     */
+    private function merge(array $schema): array
+    {
+        $members = is_array($schema['allOf']) ? $schema['allOf'] : [];
+        unset($schema['allOf']);
+        $properties = Json::object($schema['properties'] ?? [], 'properties');
+        $required = is_array($schema['required'] ?? null) ? $schema['required'] : [];
+        foreach ($members as $member) {
+            $resolved = $this->resolve(Json::object($member, 'allOf member'));
+            $properties = [...$properties, ...Json::object($resolved['properties'] ?? [], 'allOf member properties')];
+            $required = [...$required, ...(is_array($resolved['required'] ?? null) ? $resolved['required'] : [])];
+            $schema['type'] ??= $resolved['type'] ?? null;
+            if (isset($resolved['additionalProperties']) && !isset($schema['additionalProperties'])) {
+                $schema['additionalProperties'] = $resolved['additionalProperties'];
+            }
+        }
+
+        return [...$schema, 'properties' => $properties, 'required' => array_values(array_unique($required, SORT_REGULAR))];
+    }
+
+    /** @param array<string, mixed> $schema */
+    private static function isNullable(array $schema): bool
+    {
+        return ($schema['nullable'] ?? false) === true || ($schema['x-nullable'] ?? false) === true;
     }
 
     private static function hasType(mixed $value, string $type): bool

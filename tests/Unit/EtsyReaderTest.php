@@ -9,7 +9,6 @@ namespace IdempotentImporter\Tests\Unit;
 use DateTimeImmutable;
 use IdempotentImporter\Http\HttpResponse;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Source\Etsy\EtsyClient;
 use IdempotentImporter\Source\Etsy\EtsyConnection;
 use IdempotentImporter\Source\Etsy\EtsyReader;
 use IdempotentImporter\Source\Etsy\OAuth;
@@ -161,6 +160,6 @@ final class EtsyReaderTest extends TestCase
 
     private function reader(ScriptedTransport $transport): EtsyReader
     {
-        return new EtsyReader(new EtsyClient(new EtsyConnection(self::API_BASE, 'keystring', 'shared-secret'), $this->oauth($transport), $transport, $this->sleeper));
+        return EtsyReader::connect(new EtsyConnection(self::API_BASE, 'keystring', 'shared-secret'), $this->oauth($transport), $transport, $this->sleeper);
     }
 }

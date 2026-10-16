@@ -7,10 +7,13 @@ declare(strict_types=1);
 namespace IdempotentImporter\Source\Etsy;
 
 use DateTimeImmutable;
+use IdempotentImporter\Http\HttpTransport;
+use IdempotentImporter\Http\Sleeper;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\Page;
+use IdempotentImporter\Source\Rest\RestClient;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SourceReader;
 
@@ -32,7 +35,14 @@ final class EtsyReader implements SourceReader
 
     private ?Node $ownerShop = null;
 
-    public function __construct(private readonly EtsyClient $client) {}
+    public function __construct(private readonly RestClient $client, private readonly EtsyAuthorizer $owner) {}
+
+    public static function connect(EtsyConnection $connection, OAuth $oauth, HttpTransport $transport, Sleeper $sleeper): self
+    {
+        $owner = new EtsyAuthorizer($connection, $oauth);
+
+        return new self(new RestClient('Etsy', $connection->apiBase, $owner, $transport, $sleeper), $owner);
+    }
 
     public function shop(): Node
     {
@@ -145,7 +155,7 @@ final class EtsyReader implements SourceReader
 
     private function ownerShop(): Node
     {
-        return $this->ownerShop ??= $this->required("/users/{$this->client->userId()}/shops", [], false);
+        return $this->ownerShop ??= $this->required("/users/{$this->owner->userId()}/shops", [], false);
     }
 
     private function shopId(): int
