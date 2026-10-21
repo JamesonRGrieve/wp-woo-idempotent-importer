@@ -18,14 +18,27 @@ use IdempotentImporter\Support\Decimal;
  * (see Fields::variationId) with their own taxes; shipping and delivery service charges become shipping
  * lines, other service charges, tips and cash rounding become fees; Square's discounts (catalog or ad hoc,
  * never codes) are in the discount total and mirrored as meta. Approved and pending refunds become
- * WooCommerce refunds, and each fulfillment state an order note. Return and exchange orders (Square's
- * itemized returns) and orders mixing inclusive and additive taxes have no WooCommerce equivalent.
+ * WooCommerce refunds, and each fulfillment state an order note. An exchange's new items are its order (the
+ * credit from the returned goods is meta); what it returned, like a return order's, is a refund on the sale
+ * it came from (ReturnMapper). An order WooCommerce Square pushed to Square from a WooCommerce order names
+ * that original (`original_meta`), so it is never mirrored back as a second copy. Orders mixing inclusive
+ * and additive taxes have no WooCommerce equivalent.
  */
 final class OrderMapper implements Mapper
 {
     public const SOURCE = 'square';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
+    /**
+     * Where WooCommerce Square keeps the Square order it pushed for a WooCommerce order: each of its payment
+     * gateways stores it as `_wc_<gateway id>_square_order_id` (woocommerce/woocommerce-square at a4ca019,
+     * includes/Plugin.php gateway ids, Payment_Gateway::get_order_meta_prefix and Gateway.php).
+     */
+    public const WOOCOMMERCE_SQUARE_ORDER_META = [
+        '_wc_square_credit_card_square_order_id',
+        '_wc_square_cash_app_pay_square_order_id',
+        '_wc_gift_cards_pay_square_order_id',
+    ];
     private const STATUS = ['OPEN' => 'processing', 'COMPLETED' => 'completed', 'CANCELED' => 'cancelled'];
     private const MIRRORED_REFUND_STATUSES = ['APPROVED', 'PENDING'];
     private const INCLUSIVE = 'INCLUSIVE';
@@ -57,9 +70,6 @@ final class OrderMapper implements Mapper
     public function map(Node $node): Desired
     {
         $orderId = Fields::squareId($node);
-        if ($node->list('returns') !== []) {
-            throw new Unsupported("Order {$orderId} is a Square return or exchange; WooCommerce keeps returns as refunds on the sale order.");
-        }
         $taxes = self::taxes($node);
         $recipient = self::recipient($node);
         $address = Fields::address(
@@ -122,7 +132,20 @@ final class OrderMapper implements Mapper
                 'lines' => [],
             ], $refunds),
             'notes' => self::notes($node),
+            'exchange_credit' => self::exchangeCredit($node),
+            'original_meta' => array_map(static fn(string $key): array => ['key' => $key, 'value' => $orderId], self::WOOCOMMERCE_SQUARE_ORDER_META),
         ]);
+    }
+
+    /** What the goods an exchange took back were worth (null for an order that returns nothing). */
+    private static function exchangeCredit(Node $order): ?string
+    {
+        if ($order->list('returns') === []) {
+            return null;
+        }
+        $amounts = $order->child('return_amounts');
+
+        return $amounts === null ? '0' : Fields::moneyOrZero($amounts, 'total_money');
     }
 
     /** Square's order state (and whether it is paid or fully refunded) → a WooCommerce order status. */

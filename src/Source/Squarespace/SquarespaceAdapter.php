@@ -20,6 +20,7 @@ use IdempotentImporter\Source\Squarespace\Mapping\ProductMapper;
 use IdempotentImporter\Source\Squarespace\Mapping\ProfileMapper;
 use IdempotentImporter\Source\Squarespace\Mapping\StorePageMapper;
 use IdempotentImporter\Source\Squarespace\Mapping\WebsiteMapper;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Squarespace, through its Commerce APIs: the website's store settings, store pages, products with their
@@ -75,9 +76,9 @@ final class SquarespaceAdapter implements Adapter
         );
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

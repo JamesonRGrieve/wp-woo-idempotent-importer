@@ -10,9 +10,21 @@ declare(strict_types=1);
 
 use IdempotentImporter\Mapping\LegacyPaths;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\SquareOnline\Mapping\OrderMapper;
+use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
+use IdempotentImporter\Wp\OrdersByMeta;
 use IdempotentImporter\Wp\Storefront;
+use IdempotentImporter\Wp\Writer\OrderWriter;
 
 return [
+    // Besides selecting Square: a checkout WooCommerce itself took and WooCommerce Square pushed to Square.
+    'configure' => static function (): void {
+        selectSource(SquareOnlineAdapter::ID);
+        $original = new WC_Order();
+        $original->set_total('47.25');
+        $original->update_meta_data(OrderMapper::WOOCOMMERCE_SQUARE_ORDER_META[0], 'ORDER_6');
+        $original->save();
+    },
     'v1' => static function (): void {
         $mug = product('gid://square_online/Item/ITEM_MUG');
         expect($mug instanceof WC_Product_Simple && $mug->get_name() === 'Ocean mug', 'the mug is a simple product');
@@ -56,12 +68,27 @@ return [
         expect(services()->links()->targetId(Kind::Product, 'gid://square_online/Item/ITEM_SAMPLE') === null, 'deleted item unlinked');
         expect(trashedProducts() === 3, 'deleted item trashed beside the earlier Shopify and Etsy deletions');
         $refunded = order(Kind::Order, 'gid://square_online/Order/ORDER_1');
-        expect(count($refunded->get_refunds()) === 1 && money($refunded->get_total_refunded()) === '10.00', 'partial refund mirrored');
+        $own = array_values(array_filter($refunded->get_refunds(), static fn(WC_Order_Refund $refund): bool => $refund->get_meta(OrderWriter::RETURN_META) === ''));
+        expect(count($own) === 1 && money($own[0]->get_amount()) === '10.00', 'partial refund mirrored');
         $new = order(Kind::Order, 'gid://square_online/Order/ORDER_3');
         expect($new->get_status() === 'processing' && $new->get_customer_id() === user('gid://square_online/Customer/CUST_GRACE')->ID, 'new paid order → processing, linked to the new customer');
+
+        $returns = array_values(array_filter($refunded->get_refunds(), static fn(WC_Order_Refund $refund): bool => $refund->get_meta(OrderWriter::RETURN_META) !== ''));
+        expect(count($refunded->get_refunds()) === 3 && money($refunded->get_total_refunded()) === '88.96', "the return and the exchange's return are refunds on the sale, beside its own refund");
+        expect($refunded->get_status() === 'completed', 'the sale keeps its own status');
+        $mugLine = array_values($refunded->get_items())[0];
+        expect($refunded->get_qty_refunded_for_item($mugLine->get_id()) === -1, 'the returned mug is a refunded line of the sale');
+        expect(count($returns) === 2 && services()->links()->targetId(Kind::Order, 'gid://square_online/Order/ORDER_4') === null, 'the return-only order is no order of its own');
+        expect(product('gid://square_online/Item/ITEM_MUG')->get_stock_quantity() === 4, 'returns restocked nothing (Square keeps stock)');
+        $exchange = order(Kind::Order, 'gid://square_online/Order/ORDER_5');
+        expect(money($exchange->get_total()) === '33.60' && $exchange->get_meta('_mirror_exchange_credit') === '45.36', "the exchange sells its new mug, the returned apron's credit kept as meta");
+        expect(services()->links()->targetId(Kind::Order, 'gid://square_online/Order/ORDER_6') === null, 'the order WooCommerce Square pushed is not mirrored back');
+        $originals = OrdersByMeta::find(OrdersByMeta::ORDER, OrderMapper::WOOCOMMERCE_SQUARE_ORDER_META[0], 'ORDER_6');
+        expect(count($originals) === 1 && money($originals[0]->get_total()) === '47.25', 'and its WooCommerce original is untouched');
     },
     'intact' => static function (): void {
         expect(product('gid://square_online/Item/ITEM_MUG')->get_status() === 'publish', 'the Square mug is still published');
         expect(order(Kind::Order, 'gid://square_online/Order/ORDER_1')->get_status() === 'completed', 'the Square order is untouched');
+        expect(count(order(Kind::Order, 'gid://square_online/Order/ORDER_1')->get_refunds()) === 3, 'with its refunds and returns');
     },
 ];

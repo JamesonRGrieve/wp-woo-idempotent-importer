@@ -6,25 +6,26 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
-use IdempotentImporter\Source\Shopify\ShopifyAdapter;
-use IdempotentImporter\Source\Shopify\WebhookTopics;
-use IdempotentImporter\Source\Shopify\WebhookVerifier;
+use IdempotentImporter\Source\WebhookReceiver;
 use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * POST /wp-json/idempotent-import/v1/webhook. Authenticated by Shopify's HMAC of the raw body (constant
- * time); it only queues the object it names, so Shopify gets its 200 at once. Registered only while the
- * active source pushes webhooks (Shopify is the only one that does today).
+ * POST /wp-json/idempotent-import/v1/webhook. Authenticated by the active source's signature over the raw
+ * body (constant time); it only queues the objects the webhook names, so the source gets its 200 at once.
+ * Registered only while the active source pushes webhooks (Shopify and Square do).
  */
 final class WebhookController
 {
     public const NAMESPACE = 'idempotent-import/v1';
     public const ROUTE = '/webhook';
-    private const HMAC_HEADER = 'x-shopify-hmac-sha256';
-    private const TOPIC_HEADER = 'x-shopify-topic';
+    /**
+     * The URL exactly as registered with the source, when it differs from WordPress's own (a proxy in
+     * front of the site): Square signs the notification URL together with the body.
+     */
+    public const URL_OVERRIDE = 'IIM_WEBHOOK_URL';
 
-    public function __construct(private readonly Scheduler $scheduler) {}
+    public function __construct(private readonly WebhookReceiver $receiver, private readonly Scheduler $scheduler) {}
 
     public function register(): void
     {
@@ -37,23 +38,29 @@ final class WebhookController
 
     public static function url(): string
     {
-        return rest_url(self::NAMESPACE . self::ROUTE);
+        $override = defined(self::URL_OVERRIDE) ? constant(self::URL_OVERRIDE) : null;
+
+        return is_string($override) && $override !== '' ? $override : rest_url(self::NAMESPACE . self::ROUTE);
     }
 
     public function isAuthentic(WP_REST_Request $request): bool
     {
-        return (new WebhookVerifier(ShopifyAdapter::webhookSecret()))
-            ->isAuthentic($request->get_body(), (string) $request->get_header(self::HMAC_HEADER));
+        return $this->receiver->isAuthentic($request->get_body(), self::headers($request), self::url());
     }
 
     public function receive(WP_REST_Request $request): WP_REST_Response
     {
         $payload = json_decode($request->get_body(), true);
-        $event = is_array($payload) ? WebhookTopics::resolve((string) $request->get_header(self::TOPIC_HEADER), $payload) : null;
-        if ($event !== null) {
+        foreach (is_array($payload) ? $this->receiver->events(self::headers($request), $payload) : [] as $event) {
             $this->scheduler->enqueueObject($event->kind, $event->gid, $event->deletion);
         }
 
         return new WP_REST_Response(null, 200);
+    }
+
+    /** @return \Closure(string): string */
+    private static function headers(WP_REST_Request $request): \Closure
+    {
+        return static fn(string $name): string => (string) $request->get_header($name);
     }
 }

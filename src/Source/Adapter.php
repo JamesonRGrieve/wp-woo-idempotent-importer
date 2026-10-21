@@ -35,8 +35,8 @@ interface Adapter
     /** @throws SourceError when the source's credentials aren't configured */
     public function reader(Settings $settings, HttpTransport $transport): SourceReader;
 
-    /** Whether the source pushes change notifications (then the webhook endpoint is registered). */
-    public function supportsWebhooks(): bool;
+    /** How the source's change notifications are received, or null when it pushes none (then no webhook endpoint is registered). */
+    public function webhooks(): ?WebhookReceiver;
 
     /** An example of the per-kind filter syntax runs pass to the reader, or null when filters aren't supported. */
     public function filterHint(): ?string;

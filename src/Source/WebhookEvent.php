@@ -4,10 +4,11 @@
 
 declare(strict_types=1);
 
-namespace IdempotentImporter\Source\Shopify;
+namespace IdempotentImporter\Source;
 
 use IdempotentImporter\Model\Kind;
 
+/** One object a source's webhook says changed (or was deleted): it is re-read through the same sync as a run. */
 final readonly class WebhookEvent
 {
     public function __construct(

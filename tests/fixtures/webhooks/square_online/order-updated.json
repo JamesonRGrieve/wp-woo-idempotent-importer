@@ -1,0 +1,23 @@
+{
+  "schema": "OrderUpdatedEvent",
+  "body": {
+    "merchant_id": "MERCHANT1",
+    "type": "order.updated",
+    "event_id": "EVT-1",
+    "created_at": "2026-09-07T16:00:01Z",
+    "data": {
+      "type": "order_updated",
+      "id": "ORDER_4",
+      "object": {
+        "order_updated": {
+          "order_id": "ORDER_4",
+          "version": 1,
+          "location_id": "LOCMAIN1",
+          "state": "COMPLETED",
+          "created_at": "2026-09-07T16:00:00Z",
+          "updated_at": "2026-09-07T16:00:00Z"
+        }
+      }
+    }
+  }
+}

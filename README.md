@@ -12,7 +12,7 @@ Each source platform is an adapter over the same engine:
 |---|---|---|
 | Shopify | Built | Products and variants, collections, customers, discount codes, orders with refunds and fulfillments, draft orders, files, pages, blogs, articles, comments, menus, URL redirects, shop policies, store settings, shipping zones, and reviews from a review app's CSV export — [coverage/shopify.md](coverage/shopify.md) |
 | Etsy | Built | The shop and its policies, sections, listings in every state with variations, buyers, receipts with refunds and shipments, and reviews — [coverage/etsy.md](coverage/etsy.md) |
-| Square Online | Built | The seller's store settings and return policy, catalog categories, items with variations, options, images and main-location stock, customers, and orders with refunds and fulfillments — [coverage/square_online.md](coverage/square_online.md) |
+| Square Online | Built | The seller's store settings and return policy, catalog categories, items with variations, options, images and main-location stock, customers, and orders (online and at the counter) with refunds, returns, exchanges and fulfillments — [coverage/square_online.md](coverage/square_online.md) |
 | BigCommerce | Built | Store settings, categories, products with variants, images, brands and custom fields, customers, coupons and coupon promotions, orders with taxes, shipping, refunds and shipments, content pages, the blog and its posts, storefront redirects, and product reviews — [coverage/bigcommerce.md](coverage/bigcommerce.md) |
 | Squarespace | Built | Store settings, store pages, products with variants, images and stock, customers, promo-code discounts, and orders with payments, taxes, refunds and fulfillments — [coverage/squarespace.md](coverage/squarespace.md) |
 | Wix | Built | Site settings, the Stores catalog (V3 or V1) with categories or collections, products with variants, images and inventory, contacts, coupons, orders with payments, taxes, refunds and fulfillments, the blog with its categories and posts, URL redirects, and product reviews — [coverage/wix.md](coverage/wix.md) |
@@ -39,7 +39,8 @@ written, so anything else edited in WordPress is kept. Fields with no native Wor
   coupons, orders and reviews).
 - **Full runs** (daily by default) read everything and trash the copies of objects the source no longer
   has. A source's runs only ever retire that source's copies.
-- **Webhooks** (Shopify) re-read one object as soon as it changes, signed with your app's client secret.
+- **Webhooks** (Shopify, Square) re-read one object as soon as it changes: Shopify's signed with your
+  app's client secret, Square's with the subscription's signature key over the webhook URL and body.
 
 The first import of a large store can take hours, so it is careful not to get your API key locked out:
 
@@ -87,7 +88,12 @@ store's Instant Site redirects.
      as the shop owner.
    - **Square Online:** in the Square Developer Console, create an application and copy its production
      personal access token (or issue an OAuth access token with the read scopes listed in
-     [coverage/square_online.md](coverage/square_online.md)), then enter it.
+     [coverage/square_online.md](coverage/square_online.md)), then enter it. For near real-time counter
+     sales, add a webhook subscription in the same application pointing at the webhook URL shown on the
+     settings page (events `order.created`, `order.updated`, `order.fulfillment.updated`,
+     `payment.created`, `payment.updated`, `refund.created`, `refund.updated`, `customer.created`,
+     `customer.updated`, `customer.deleted`) and enter its signature key. Square signs the URL exactly as
+     registered; behind a proxy that rewrites it, set `IIM_WEBHOOK_URL` to the registered URL.
    - **BigCommerce:** under Settings → API, create a store-level API account with the read-only scopes
      listed in [coverage/bigcommerce.md](coverage/bigcommerce.md), then enter the store hash (the code
      after `/stores/` in its API path) and the access token.
@@ -114,7 +120,7 @@ store's Instant Site redirects.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
    `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
-   `IIM_ETSY_SHARED_SECRET`, `IIM_SQUARE_ONLINE_ACCESS_TOKEN`, `IIM_BIGCOMMERCE_STORE_HASH`,
+   `IIM_ETSY_SHARED_SECRET`, `IIM_SQUARE_ONLINE_ACCESS_TOKEN`, `IIM_SQUARE_ONLINE_WEBHOOK_SIGNATURE_KEY`, `IIM_BIGCOMMERCE_STORE_HASH`,
    `IIM_BIGCOMMERCE_ACCESS_TOKEN`, `IIM_SQUARESPACE_API_KEY`, `IIM_WIX_API_KEY`, `IIM_WIX_SITE_ID`, `IIM_MAGENTO_STORE_URL`,
    `IIM_MAGENTO_STORE_CODE`, `IIM_MAGENTO_ACCESS_TOKEN`, `IIM_LIGHTSPEED_CLUSTER`, `IIM_LIGHTSPEED_LANGUAGE`,
    `IIM_LIGHTSPEED_API_KEY`, `IIM_LIGHTSPEED_API_SECRET`, `IIM_ECWID_STORE_ID`, `IIM_ECWID_SECRET_TOKEN`); Etsy's refresh token is kept by the connect flow, since Etsy replaces it
@@ -123,6 +129,15 @@ store's Instant Site redirects.
 
 If you use WooCommerce Square, keep its system of record on WooCommerce while importing. The importer
 warns about products Square can't sync (a variant without a SKU, or more than 250 variants).
+
+Keeping Square counter sales in WooCommerce (Square stays the store's system of record, as WooCommerce
+Square's catalog and stock master): select Square Online, mirror orders, and add the webhook subscription
+above. Counter sales become WooCommerce orders, returns and exchanges become refunds on the sales they
+return from, and nothing is restocked (WooCommerce Square keeps stock). Orders WooCommerce Square itself
+pushed to Square from WooCommerce checkouts are recognised by the Square order id it stores on the
+WooCommerce order and never mirrored back. **None of this has run against the Square sandbox yet**: every
+Square request, response and webhook the tests use is recorded and validated against Square's published
+API specification.
 
 ## Commands
 
@@ -134,7 +149,7 @@ wp idempotent-import reset-cursors
 wp idempotent-import send-password-resets [--yes]    # at cutover: no source exports passwords
 wp idempotent-import clear --kinds=<kinds> [--yes]
 wp idempotent-import reviews <export.csv> [--dry-run] # Shopify only
-wp idempotent-import register-webhooks                # Shopify only
+wp idempotent-import register-webhooks                # Shopify (Square's subscription is made in its Developer Console)
 ```
 
 ## Development

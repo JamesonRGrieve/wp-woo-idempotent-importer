@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace IdempotentImporter\Source\Shopify;
 
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\WebhookEvent;
 
 /**
  * Which object a webhook is about. Every topic resolves to one object to re-read (or retire); the

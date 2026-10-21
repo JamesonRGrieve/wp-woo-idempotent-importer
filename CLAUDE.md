@@ -45,6 +45,11 @@ is the single source of truth for what each source mirrors and what is a gap. PH
   `CredentialsRejected` (the run stops, `CredentialHold` blocks scheduled work). Never retry either in a
   loop of your own.
 - Credentials come from constants/env first; they are never rendered, logged or put in errors.
+- Webhooks: a source that pushes them returns a `Source\WebhookReceiver` from `Adapter::webhooks()`
+  (its signature check, in constant time, and the objects each event names). The endpoint only queues
+  those objects; they are re-read through `ObjectSync` like a run.
+- An object the source copied from WooCommerce itself (an order WooCommerce Square pushed to Square) names
+  its original (`original_meta`); the writer refuses it (`OriginalInWooCommerce`), so it is never mirrored back.
 - New Shopify GraphQL: add the fragment/operation, run `composer validate-graphql`, add or extend
   fixtures in `tests/fixtures/shopify/<state>/` (they must execute against the real schema). Etsy
   fixtures in `tests/fixtures/etsy/<state>/` must validate against Etsy's OpenAPI spec.

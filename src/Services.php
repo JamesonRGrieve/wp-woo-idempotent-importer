@@ -37,6 +37,7 @@ use IdempotentImporter\Wp\Writer\MenuWriter;
 use IdempotentImporter\Wp\Writer\OrderWriter;
 use IdempotentImporter\Wp\Writer\PageWriter;
 use IdempotentImporter\Wp\Writer\ProductWriter;
+use IdempotentImporter\Wp\Writer\ReturnWriter;
 use IdempotentImporter\Wp\Writer\ReviewWriter;
 use IdempotentImporter\Wp\Writer\ShopWriter;
 use IdempotentImporter\Wp\Writer\Targets;
@@ -192,6 +193,7 @@ final class Services
             new CustomerWriter(),
             new DiscountWriter($targets),
             new OrderWriter(Kind::Order, $targets),
+            new ReturnWriter($targets),
             new OrderWriter(Kind::DraftOrder, $targets),
             new PageWriter($targets),
             new TermWriter(Kind::Blog, 'category', $targets),

@@ -25,7 +25,8 @@ use IdempotentImporter\Source\SourceReader;
  * location Square Online sells from), injected as `image_objects`, `category_objects`, `option_objects`
  * and `inventory_counts`. Orders are searched location by location (Square takes at most ten per search)
  * and carry `variation_items` (each line's variation id → its item id), since a line names only the
- * variation. Every kind is incremental: catalog objects by `begin_time` (deleted ones included, so they are
+ * variation. Return orders (itemized returns, and the return half of exchanges) are read from the same
+ * searches as `Return` nodes. Every kind is incremental: catalog objects by `begin_time` (deleted ones included, so they are
  * retired, never re-created), stock by `updated_after` (the items whose counts changed are re-read),
  * customers and orders by `updated_at`.
  */
@@ -81,7 +82,8 @@ final class SquareOnlineReader implements SourceReader
             Kind::Collection => $this->categories($cursor, $since),
             Kind::Product => $this->items($cursor, $since),
             Kind::Customer => $this->customers($cursor, $since),
-            Kind::Order => $this->orders($cursor, $since),
+            Kind::Order => $this->orders($cursor, $since, false),
+            Kind::Return => $this->orders($cursor, $since, true),
             default => throw new SourceError("Square Online has no {$kind->value}."),
         };
     }
@@ -94,14 +96,15 @@ final class SquareOnlineReader implements SourceReader
             Kind::Product => $this->catalogObject($id, 'ITEM'),
             Kind::Collection => $this->catalogObject($id, 'CATEGORY'),
             Kind::Customer => $this->one("/v2/customers/{$id}", 'customer', 'Customer'),
-            Kind::Order => $this->orderById($id),
+            Kind::Order => $this->orderById($id, false),
+            Kind::Return => $this->orderById($id, true),
             default => throw new SourceError("Square Online can't read a single {$kind->value}."),
         };
     }
 
     public function isIncremental(Kind $kind): bool
     {
-        return in_array($kind, [Kind::Collection, Kind::Product, Kind::Customer, Kind::Order], true);
+        return in_array($kind, [Kind::Collection, Kind::Product, Kind::Customer, Kind::Order, Kind::Return], true);
     }
 
     /** The location Square Online sells from: the seller's main location, else its first active one. */
@@ -293,8 +296,12 @@ final class SquareOnlineReader implements SourceReader
         return new Page($nodes, $next !== null, $next);
     }
 
-    /** Orders, ten locations at a time; the cursor is "<location group>:<Square cursor>". */
-    private function orders(?string $cursor, ?DateTimeImmutable $since): Page
+    /**
+     * Orders (sales, and the sale half of exchanges) or, with $returns, return orders (itemized returns and
+     * the return half of exchanges), ten locations at a time; the cursor is "<location group>:<Square cursor>".
+     * Both read the same searches: a return order with no sale lines is only a return.
+     */
+    private function orders(?string $cursor, ?DateTimeImmutable $since, bool $returns): Page
     {
         $groups = array_chunk(self::unique(array_map(static fn(Node $location): string => $location->string('id'), $this->locations())), self::LOCATIONS_PER_ORDER_SEARCH);
         [$group, $squareCursor] = $cursor === null ? ['0', ''] : array_pad(explode(self::CURSOR_SEPARATOR, $cursor, 2), 2, '');
@@ -312,7 +319,8 @@ final class SquareOnlineReader implements SourceReader
             'query' => ['filter' => $filter, 'sort' => ['sort_field' => $since === null ? 'CREATED_AT' : 'UPDATED_AT', 'sort_order' => 'ASC']],
             ...self::cursor($squareCursor === '' ? null : $squareCursor),
         ]);
-        $nodes = $this->withVariationItems($search->list('orders'));
+        $found = array_values(array_filter($search->list('orders'), static fn(Node $order): bool => $returns ? self::isReturn($order) : self::isSale($order)));
+        $nodes = $returns ? array_map(self::returned(...), $found) : $this->withVariationItems($found);
         $next = $search->optionalString('cursor');
         if ($next !== null) {
             return new Page($nodes, true, $group . self::CURSOR_SEPARATOR . $next);
@@ -322,11 +330,34 @@ final class SquareOnlineReader implements SourceReader
         return new Page($nodes, isset($groups[$following]), isset($groups[$following]) ? $following . self::CURSOR_SEPARATOR : null);
     }
 
-    private function orderById(string $id): ?Node
+    /** One order as a sale or, with $returns, as a return (null when it isn't one). */
+    private function orderById(string $id, bool $returns): ?Node
     {
         $order = $this->client->get("/v2/orders/{$id}")?->child('order');
+        if ($order === null) {
+            return null;
+        }
+        if ($returns) {
+            return self::isReturn($order) ? self::returned($order) : null;
+        }
 
-        return $order === null ? null : $this->withVariationItems([$order])[0];
+        return self::isSale($order) ? $this->withVariationItems([$order])[0] : null;
+    }
+
+    /** A sale: it sells something, or returns nothing (an empty or amount-only order is still an order). */
+    private static function isSale(Node $order): bool
+    {
+        return $order->list('line_items') !== [] || $order->list('returns') === [];
+    }
+
+    private static function isReturn(Node $order): bool
+    {
+        return $order->list('returns') !== [];
+    }
+
+    private static function returned(Node $order): Node
+    {
+        return self::identified('Return', $order->string('id'), $order->raw());
     }
 
     /**

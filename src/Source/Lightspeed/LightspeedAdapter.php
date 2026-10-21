@@ -25,6 +25,7 @@ use IdempotentImporter\Source\Lightspeed\Mapping\ShopMapper;
 use IdempotentImporter\Source\Lightspeed\Mapping\UrlRedirectMapper;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Lightspeed eCom (C-Series, formerly SEOshop / WebshopApp), through its REST API: the shop and its website
@@ -98,9 +99,9 @@ final class LightspeedAdapter implements Adapter
         );
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

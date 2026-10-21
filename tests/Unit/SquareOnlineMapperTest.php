@@ -17,6 +17,7 @@ use IdempotentImporter\Source\SquareOnline\Mapping\CustomerMapper;
 use IdempotentImporter\Source\SquareOnline\Mapping\Fields;
 use IdempotentImporter\Source\SquareOnline\Mapping\ItemMapper;
 use IdempotentImporter\Source\SquareOnline\Mapping\OrderMapper;
+use IdempotentImporter\Source\SquareOnline\Mapping\ReturnMapper;
 use IdempotentImporter\Source\SquareOnline\Mapping\ShopMapper;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineReader;
 use IdempotentImporter\Tests\Support\FixtureResponder;
@@ -220,12 +221,65 @@ final class SquareOnlineMapperTest extends TestCase
         self::assertSame('pending', OrderMapper::status('SOMETHING_NEW', true, false));
     }
 
-    public function testReturnOrdersAreUnsupported(): void
+    public function testReturnsAreRefundsOnTheSaleTheyReturnFrom(): void
     {
-        $order = $this->nodes('v1', Kind::Order)[0];
+        self::assertSame(
+            ['gid://square_online/Return/ORDER_4', 'gid://square_online/Return/ORDER_5'],
+            array_map(static fn(Node $node): string => $node->id(), $this->nodes('v2', Kind::Return)),
+            'return orders and exchanges are returns; sales are not',
+        );
+        [$return, $exchange] = $this->mapAll('v2', Kind::Return, new ReturnMapper());
+
+        self::assertSame(['gid://square_online/Order/ORDER_1'], $return->strings('order_gids'));
+        [$refund] = $return->records('refunds');
+        self::assertSame('gid://square_online/Refund/ORDER_4:RET_4', $refund->string('gid'));
+        self::assertSame('gid://square_online/Order/ORDER_1', $refund->string('order_gid'));
+        self::assertSame('33.6', $refund->string('amount'));
+        self::assertSame('Wrong colour', $refund->nullableString('note'));
+        self::assertSame(['gid://square_online/Refund/REF_4'], $refund->strings('refund_gids'), 'the money Square refunded, so it is never counted twice');
+        [$line] = $refund->records('lines');
+        self::assertSame('gid://square_online/OrderLineItem/ORDER_1-LINE_1', $line->nullableString('line_item_gid'), "the sale's own line");
+        self::assertSame([1, '32', '1.6'], [$line->int('quantity'), $line->string('subtotal'), $line->string('tax')]);
+        self::assertSame([['title' => 'GST', 'amount' => '1.6']], $line->raw('taxes'));
+
+        $credit = $exchange->records('refunds')[0];
+        self::assertSame('45.36', $credit->string('amount'), 'the returned apron, after its discount, with its tax');
+        self::assertSame('43.2', $credit->records('lines')[0]->string('subtotal'));
+    }
+
+    public function testAnExchangeSellsItsNewItemsWithTheReturnCreditAsMeta(): void
+    {
+        $orders = $this->mapAll('v2', Kind::Order, new OrderMapper());
+        self::assertSame(['#ORDER_1', '#ORDER_2', '#ORDER_3', '#ORDER_5', '#ORDER_6'], array_map(static fn(Values $order): string => $order->string('name'), $orders), 'the return-only order is not a sale');
+        $exchange = $orders[3];
+
+        self::assertSame('33.6', $exchange->string('total'));
+        self::assertSame('45.36', $exchange->nullableString('exchange_credit'));
+        self::assertCount(1, $exchange->records('line_items'));
+        self::assertNull($orders[0]->nullableString('exchange_credit'));
+    }
+
+    public function testAnOrderNamesTheWooCommerceOrderItMayBeACopyOf(): void
+    {
+        $echo = $this->mapAll('v2', Kind::Order, new OrderMapper())[4];
+
+        self::assertSame(
+            array_map(static fn(string $key): array => ['key' => $key, 'value' => 'ORDER_6'], OrderMapper::WOOCOMMERCE_SQUARE_ORDER_META),
+            $echo->raw('original_meta'),
+        );
+        self::assertContains('_wc_square_credit_card_square_order_id', OrderMapper::WOOCOMMERCE_SQUARE_ORDER_META);
+    }
+
+    public function testAFailedReturnReturnsNothingAndANoReceiptReturnHasNoHome(): void
+    {
+        $return = $this->nodes('v2', Kind::Return)[0];
+        $raw = $return->raw();
+        $failed = Values::of((new ReturnMapper())->map(new Node([...$raw, 'refunds' => [['id' => 'REF_X', 'status' => 'REJECTED']]], $return->id())));
+        self::assertSame([], $failed->records('refunds'));
+        self::assertSame(['gid://square_online/Order/ORDER_1'], $failed->strings('order_gids'), 'still pointing at its sale, so earlier refunds are removed');
 
         $this->expectException(Unsupported::class);
-        (new OrderMapper())->map(new Node([...$order->raw(), 'returns' => [['uid' => 'RET_1', 'source_order_id' => 'ORDER_0']]]));
+        (new ReturnMapper())->map(new Node([...$raw, 'returns' => [['uid' => 'RET_X']]], $return->id()));
     }
 
     public function testMixedInclusiveAndAdditiveTaxesAreUnsupported(): void

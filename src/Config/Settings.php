@@ -79,6 +79,10 @@ final readonly class Settings
                 $kinds[] = $parsed;
             }
         }
+        // Returns are refunds on mirrored orders: they follow the orders setting.
+        if (in_array(Kind::Order, $kinds, true)) {
+            $kinds[] = Kind::Return;
+        }
         if ((bool) $value('shipping_zones')) {
             $kinds[] = Kind::DeliveryProfile;
         }

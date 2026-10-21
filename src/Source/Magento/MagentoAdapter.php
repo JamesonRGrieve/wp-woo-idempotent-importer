@@ -20,6 +20,7 @@ use IdempotentImporter\Source\Magento\Mapping\PageMapper;
 use IdempotentImporter\Source\Magento\Mapping\ProductMapper;
 use IdempotentImporter\Source\Magento\Mapping\ShopMapper;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Magento Open Source / Adobe Commerce 2.4, through its REST API for one store view: the store's settings,
@@ -78,9 +79,9 @@ final class MagentoAdapter implements Adapter
         );
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

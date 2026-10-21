@@ -1,0 +1,31 @@
+{
+  "schema": "RefundCreatedEvent",
+  "body": {
+    "merchant_id": "MERCHANT1",
+    "type": "refund.created",
+    "event_id": "EVT-2",
+    "created_at": "2026-09-07T16:00:02Z",
+    "data": {
+      "type": "refund",
+      "id": "PRF_4",
+      "object": {
+        "refund": {
+          "id": "PRF_4",
+          "status": "PENDING",
+          "location_id": "LOCMAIN1",
+          "unlinked": false,
+          "destination_type": "CARD",
+          "amount_money": {
+            "amount": 3360,
+            "currency": "CAD"
+          },
+          "payment_id": "PAY_1",
+          "order_id": "ORDER_4",
+          "reason": "Wrong colour",
+          "created_at": "2026-09-07T16:00:00Z",
+          "updated_at": "2026-09-07T16:00:00Z"
+        }
+      }
+    }
+  }
+}

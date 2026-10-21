@@ -30,6 +30,7 @@ use IdempotentImporter\Source\Shopify\Mapping\ReviewMapper;
 use IdempotentImporter\Source\Shopify\Mapping\ShopMapper;
 use IdempotentImporter\Source\Shopify\Mapping\UrlRedirectMapper;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Shopify, through the Admin GraphQL API. Reviews have no Admin API; they come from the Product Reviews
@@ -122,9 +123,9 @@ final class ShopifyAdapter implements Adapter
         return new ClientCredentialsAuthorizer($connection->tokenUrl(), Credentials::get(self::CLIENT_ID), Credentials::get(self::CLIENT_SECRET), $transport);
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): WebhookReceiver
     {
-        return true;
+        return new ShopifyWebhooks(self::webhookSecret(...));
     }
 
     public function filterHint(): string

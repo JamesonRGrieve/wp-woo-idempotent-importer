@@ -16,6 +16,7 @@ use IdempotentImporter\Wp\Comments;
 use IdempotentImporter\Wp\Dates;
 use IdempotentImporter\Wp\Meta\MetaSync;
 use IdempotentImporter\Wp\Meta\WcDataMeta;
+use IdempotentImporter\Wp\OrdersByMeta;
 use IdempotentImporter\Wp\Retirement;
 use WC_Order;
 use WC_Order_Item_Coupon;
@@ -34,7 +35,11 @@ final class OrderWriter implements Writer
     public const ORDER_NUMBER_META = '_mirror_name';
     public const CREATED_VIA = 'idempotent-import';
     private const NOTE_IDS_META = '_mirror_note_ids';
-    private const LINE_GID_META = '_mirror_line_item_gid';
+    public const LINE_GID_META = '_mirror_line_item_gid';
+    /** On a refund ReturnWriter wrote (a Square return): kept when its order is rebuilt. */
+    public const RETURN_META = '_mirror_return_gid';
+    /** WooCommerce's own link from a refund's item to the order item it refunds. */
+    public const REFUNDED_ITEM_META = '_refunded_item_id';
     private const SHIPPING_METHOD_FALLBACK = self::CREATED_VIA;
     private const PAID_STATUSES = ['processing', 'completed', 'refunded'];
     private const PERCENT_PLACES = 2;
@@ -42,7 +47,7 @@ final class OrderWriter implements Writer
         'name', 'created_at', 'currency', 'prices_include_tax', 'customer_gid', 'email', 'phone', 'billing',
         'shipping', 'coupons', 'line_items', 'shipping_lines', 'tax_lines', 'discount_total', 'shipping_total',
         'tax_total', 'total', 'status', 'processed_at', 'closed_at', 'customer_note', 'payment_method_title',
-        'transaction_id', 'fees', 'refunds', 'notes',
+        'transaction_id', 'fees', 'refunds', 'notes', 'original_meta',
     ];
 
     public function __construct(private readonly Kind $kind, private readonly Targets $targets) {}
@@ -55,6 +60,9 @@ final class OrderWriter implements Writer
     public function write(Desired $desired, ?Link $existing): int
     {
         $f = Values::of($desired);
+        if ($existing === null) {
+            $this->refuseCopyOfOriginal($desired->gid, $f->records('original_meta'));
+        }
         $order = $existing !== null ? wc_get_order($existing->targetId) : null;
         $order = $order instanceof WC_Order ? $order : new WC_Order();
         $taxKeys = self::taxKeys($f);
@@ -82,6 +90,7 @@ final class OrderWriter implements Writer
         MetaSync::mirror(new WcDataMeta($order), $desired->gid, $f, self::CONSUMED);
         $order->update_meta_data(self::ORDER_NUMBER_META, $f->string('name'));
         $id = $order->save();
+        self::repointReturns($order);
         $this->refunds($order, $f->records('refunds'), self::lineItemIds($order), $taxKeys);
         $order = wc_get_order($id);
         if (!$order instanceof WC_Order) {
@@ -132,16 +141,54 @@ final class OrderWriter implements Writer
         return $keys;
     }
 
-    /** Removes every item and our refunds, so a changed order is rebuilt exactly. */
+    /**
+     * Removes every item and the order's own refunds, so a changed order is rebuilt exactly. Refunds written
+     * for return orders (ReturnWriter) are another object's, and stay.
+     */
     private function clear(WC_Order $order): void
     {
         if ($order->get_id() === 0) {
             return;
         }
         foreach ($order->get_refunds() as $refund) {
-            $refund->delete(true);
+            if ($refund->get_meta(self::RETURN_META) === '') {
+                $refund->delete(true);
+            }
         }
         $order->remove_order_items();
+    }
+
+    /**
+     * A source order that is a copy of a WooCommerce order (one of its meta values names it) is not mirrored.
+     *
+     * @param list<Values> $originalMeta
+     */
+    private function refuseCopyOfOriginal(string $gid, array $originalMeta): void
+    {
+        foreach ($originalMeta as $meta) {
+            $original = OrdersByMeta::find(OrdersByMeta::ORDER, $meta->string('key'), $meta->string('value'), 1)[0] ?? null;
+            if ($original !== null) {
+                throw new OriginalInWooCommerce("{$gid} is WooCommerce order {$original->get_id()}, pushed to the source by WooCommerce Square");
+            }
+        }
+    }
+
+    /** Points the items of the order's return refunds at its rebuilt line items (by their source line). */
+    private static function repointReturns(WC_Order $order): void
+    {
+        $lineItemIds = self::lineItemIds($order);
+        foreach ($order->get_refunds() as $refund) {
+            if ($refund->get_meta(self::RETURN_META) === '') {
+                continue;
+            }
+            foreach ($refund->get_items() as $item) {
+                $gid = $item->get_meta(self::LINE_GID_META);
+                if (is_string($gid) && isset($lineItemIds[$gid])) {
+                    $item->update_meta_data(self::REFUNDED_ITEM_META, (string) $lineItemIds[$gid]);
+                    $item->save();
+                }
+            }
+        }
     }
 
     /** @param array<string, int> $taxKeys */
@@ -307,7 +354,7 @@ final class OrderWriter implements Writer
      *
      * @return array<string, int> line item GID → order item id
      */
-    private static function lineItemIds(WC_Order $order): array
+    public static function lineItemIds(WC_Order $order): array
     {
         $ids = [];
         foreach ($order->get_items() as $item) {

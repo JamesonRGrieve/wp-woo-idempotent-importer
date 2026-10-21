@@ -17,6 +17,8 @@ use IdempotentImporter\Plugin;
 use IdempotentImporter\Services;
 use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
+use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
+use IdempotentImporter\Source\SquareOnline\SquareWebhooks;
 use IdempotentImporter\Store\RunRecord;
 use IdempotentImporter\Sync\Mode;
 use IdempotentImporter\Sync\Runner;
@@ -36,6 +38,8 @@ const CONTENT_TABLES = [
 const WEBHOOK_SECRET = 'e2e-webhook-secret';
 /** The Shopify app's client secret, as wp-config-extra.php defines it (Dev Dashboard apps sign webhooks with it). */
 const SHOPIFY_CLIENT_SECRET = 'e2e-client-secret';
+/** The signature key of the e2e Square webhook subscription. */
+const SQUARE_SIGNATURE_KEY = 'e2e-square-signature-key';
 /** The fake store's trouble switch (see fake-store.php): every API request rate limited or refused. */
 const TROUBLE_FILE = '/state/trouble';
 const TROUBLE_THROTTLE = 'throttle';
@@ -213,6 +217,32 @@ function webhook(): void
     expect(rest_do_request($request)->get_status() === 401, 'and one signed with the old secret is not');
 }
 
+/**
+ * Square's webhooks against real WordPress, with Square the active source: a notification signed with the
+ * subscription's key over the endpoint URL and body is accepted and queues the order and its returns; a
+ * forged one, or one signed for another URL, is refused.
+ */
+function squareWebhook(): void
+{
+    Credentials::save(SquareOnlineAdapter::WEBHOOK_SIGNATURE_KEY, SQUARE_SIGNATURE_KEY);
+    $body = (string) json_encode(['merchant_id' => 'MERCHANT1', 'type' => 'refund.created', 'event_id' => 'EVT-E2E', 'data' => ['type' => 'refund', 'id' => 'PRF_4', 'object' => ['refund' => ['id' => 'PRF_4', 'order_id' => 'ORDER_4']]]]);
+    $sign = static fn(string $url): string => base64_encode(hash_hmac('sha256', $url . $body, SQUARE_SIGNATURE_KEY, true));
+    $request = new WP_REST_Request('POST', '/' . WebhookController::NAMESPACE . WebhookController::ROUTE);
+    $request->set_body($body);
+    $request->set_header(SquareWebhooks::SIGNATURE_HEADER, $sign(WebhookController::url()));
+    expect(rest_do_request($request)->get_status() === 200, 'signed Square webhook accepted');
+    foreach ([['order', 'Order'], ['return', 'Return']] as [$kind, $type]) {
+        expect(as_has_scheduled_action(Scheduler::OBJECT_HOOK, [$kind, "gid://square_online/{$type}/ORDER_4", false], Scheduler::GROUP), "the refund's {$kind} is queued");
+    }
+    $otherUrl = clone $request;
+    $otherUrl->set_header(SquareWebhooks::SIGNATURE_HEADER, $sign('https://elsewhere.example/webhook'));
+    expect(rest_do_request($otherUrl)->get_status() === 401, 'a webhook signed for another URL is rejected');
+    $forged = clone $request;
+    $forged->set_header(SquareWebhooks::SIGNATURE_HEADER, base64_encode('forged'));
+    expect(rest_do_request($forged)->get_status() === 401, 'forged Square webhook rejected');
+    Credentials::save(SquareOnlineAdapter::WEBHOOK_SIGNATURE_KEY, '');
+}
+
 /** Runs the current run to its end, a step at a time. */
 function finishRun(Runner $runner): void
 {
@@ -282,6 +312,7 @@ function scenario(array $arguments): void
         'checksum' => file_put_contents(argument($arguments, 1), checksum()),
         'zero-writes' => zeroWrites((string) file_get_contents(argument($arguments, 1))),
         'webhook' => webhook(),
+        'square-webhook' => squareWebhook(),
         'no-mail' => noMail(),
         'lockout' => lockout(),
         default => throw new RuntimeException("Unknown scenario {$scenario}"),

@@ -36,8 +36,8 @@ final class AdminPage
         'preserve_order_numbers' => 'Show the source store\'s order numbers on mirrored orders',
         'generate_missing_skus' => 'Give variants without a SKU a stable one (needed by WooCommerce Square)',
     ];
-    /** Kinds switched by their own setting rather than the kinds list. */
-    private const SEPARATELY_SWITCHED_KINDS = [Kind::DeliveryProfile];
+    /** Kinds switched by their own setting (or with orders) rather than the kinds list. */
+    private const SEPARATELY_SWITCHED_KINDS = [Kind::DeliveryProfile, Kind::Return];
 
     private readonly OAuthConnect $oauth;
 
@@ -101,7 +101,7 @@ final class AdminPage
         submit_button(__('Save settings', 'wp-woo-idempotent-importer'));
         echo '</form>';
         $this->recentRuns();
-        if ($adapter->supportsWebhooks()) {
+        if ($adapter->webhooks() !== null) {
             echo '<p>' . esc_html__('Webhook URL:', 'wp-woo-idempotent-importer') . ' <code>' . esc_html(WebhookController::url()) . '</code></p>';
         }
         echo '</div>';

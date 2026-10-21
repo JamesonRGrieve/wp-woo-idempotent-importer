@@ -1,0 +1,20 @@
+{
+  "schema": "CustomerDeletedEvent",
+  "body": {
+    "merchant_id": "MERCHANT1",
+    "type": "customer.deleted",
+    "event_id": "EVT-4",
+    "created_at": "2026-09-08T10:00:00Z",
+    "data": {
+      "type": "customer",
+      "id": "CUST_GRACE",
+      "object": {
+        "customer": {
+          "id": "CUST_GRACE",
+          "created_at": "2026-09-01T10:00:00Z",
+          "updated_at": "2026-09-08T10:00:00Z"
+        }
+      }
+    }
+  }
+}

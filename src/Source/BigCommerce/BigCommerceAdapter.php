@@ -24,6 +24,7 @@ use IdempotentImporter\Source\BigCommerce\Mapping\ReviewMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\ShopMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\UrlRedirectMapper;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * BigCommerce, through the REST Management API (v3, and v2 where BigCommerce has no v3 yet): the store's
@@ -87,9 +88,9 @@ final class BigCommerceAdapter implements Adapter
         );
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

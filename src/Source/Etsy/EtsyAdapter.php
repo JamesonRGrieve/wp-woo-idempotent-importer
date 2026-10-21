@@ -20,6 +20,7 @@ use IdempotentImporter\Source\Etsy\Mapping\ReviewMapper;
 use IdempotentImporter\Source\Etsy\Mapping\SectionMapper;
 use IdempotentImporter\Source\Etsy\Mapping\ShopMapper;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Etsy, through Open API v3: the shop and its policies, sections (as categories), listings in every
@@ -69,9 +70,9 @@ final class EtsyAdapter implements Adapter, ConnectsByOAuth
         return EtsyReader::connect($connection, $this->oauth($connection, $transport), $transport, new SystemSleeper());
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

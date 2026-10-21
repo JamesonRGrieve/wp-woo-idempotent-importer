@@ -21,6 +21,7 @@ use IdempotentImporter\Source\Ecwid\Mapping\ReviewMapper;
 use IdempotentImporter\Source\Ecwid\Mapping\ShopMapper;
 use IdempotentImporter\Source\Ecwid\Mapping\UrlRedirectMapper;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Ecwid by Lightspeed (also sold as Lightspeed eCom E-Series), through its REST API v3: the store profile
@@ -78,9 +79,9 @@ final class EcwidAdapter implements Adapter
         );
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

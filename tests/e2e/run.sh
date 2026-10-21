@@ -5,7 +5,7 @@
 # built source (SOURCES, in import order; the same list as SOURCES in assert.php) that serve the recorded
 # fixtures. For each source it proves the import, that an unchanged re-run writes nothing (content tables
 # byte-identical), that changes and deletions land; that one source's runs never touch another's mirror;
-# and Shopify webhook authentication. Everything it creates is removed on exit.
+# and Shopify and Square webhook authentication. Everything it creates is removed on exit.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -130,7 +130,9 @@ import_source shopify "updates, a new order, a deletion and a completed draft"
 echo "== Shopify webhooks"
 wp iim-e2e webhook
 import_source etsy "a price, a removed listing, a refund, a new receipt and review"
-import_source square_online "a price, a deleted item, a refund, a new order and customer"
+import_source square_online "a price, a deleted item, a refund, a return, an exchange, a new order and customer, and an order WooCommerce Square pushed"
+echo "== Square webhooks"
+wp iim-e2e square-webhook
 import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review"
 import_source squarespace "a price, a deleted product, a refund, a new order and customer"
 import_source wix "a price, a deleted product, a refund, a new order, contact and post"

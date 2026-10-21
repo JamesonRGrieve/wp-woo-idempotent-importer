@@ -24,6 +24,8 @@ enum Kind: string
     case DiscountCode = 'discount_code';
     case Order = 'order';
     case Refund = 'refund';
+    /** A return order (an itemized return, or the return half of an exchange): refunds on the sales it returns. */
+    case Return = 'return';
     case DraftOrder = 'draft_order';
     case Page = 'page';
     case Blog = 'blog';
@@ -44,6 +46,7 @@ enum Kind: string
         self::Customer,
         self::Discount,
         self::Order,
+        self::Return,
         self::DraftOrder,
         self::Page,
         self::Blog,

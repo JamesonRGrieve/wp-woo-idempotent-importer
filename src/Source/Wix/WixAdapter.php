@@ -13,6 +13,7 @@ use IdempotentImporter\Http\SystemSleeper;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Adapter;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Source\WebhookReceiver;
 use IdempotentImporter\Source\Wix\Mapping\ArticleMapper;
 use IdempotentImporter\Source\Wix\Mapping\BlogMapper;
 use IdempotentImporter\Source\Wix\Mapping\CategoryMapper;
@@ -86,9 +87,9 @@ final class WixAdapter implements Adapter
         );
     }
 
-    public function supportsWebhooks(): bool
+    public function webhooks(): ?WebhookReceiver
     {
-        return false;
+        return null;
     }
 
     public function filterHint(): ?string

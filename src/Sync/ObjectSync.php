@@ -14,6 +14,7 @@ use IdempotentImporter\Store\LinkStore;
 use IdempotentImporter\Store\RedirectStore;
 use IdempotentImporter\Wp\Log;
 use IdempotentImporter\Wp\Quiet;
+use IdempotentImporter\Wp\Writer\OriginalInWooCommerce;
 use IdempotentImporter\Wp\Writer\UnresolvedDependency;
 use Throwable;
 
@@ -67,6 +68,10 @@ final class ObjectSync
             $this->log->info("{$gid} deferred: {$e->getMessage()}");
 
             return Outcome::Deferred;
+        } catch (OriginalInWooCommerce $e) {
+            $this->log->info("{$gid} not mirrored: {$e->getMessage()}");
+
+            return Outcome::Skipped;
         } catch (Throwable $e) {
             // Deliberate catch-all: one object's failure is recorded and the run carries on.
             $this->log->error("{$gid} failed: {$e->getMessage()}", ['exception' => $e::class]);
