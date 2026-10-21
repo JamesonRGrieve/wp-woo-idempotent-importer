@@ -1,0 +1,249 @@
+{
+  "request": {
+    "path": "/crm/v3/properties/calls"
+  },
+  "response": {
+    "results": [
+      {
+        "name": "hs_timestamp",
+        "label": "Activity date",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_title",
+        "label": "Call title",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_body",
+        "label": "Call notes",
+        "type": "string",
+        "fieldType": "html",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_direction",
+        "label": "Call direction",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_duration",
+        "label": "Call duration",
+        "type": "number",
+        "fieldType": "number",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_status",
+        "label": "Call status",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_from_number",
+        "label": "From number",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_to_number",
+        "label": "To number",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_call_recording_url",
+        "label": "Recording URL",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hubspot_owner_id",
+        "label": "Owner",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

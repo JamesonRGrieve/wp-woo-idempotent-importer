@@ -1,0 +1,33 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/line_items/batch/read",
+    "method": "POST",
+    "body": {
+      "inputs": [
+        {
+          "id": "6103"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": "COMPLETE",
+    "results": [
+      {
+        "id": "6103",
+        "properties": {
+          "name": "Monthly wheel class",
+          "quantity": "1",
+          "price": "160",
+          "hs_product_id": "7002",
+          "amount": "160.00"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ],
+    "startedAt": "2026-09-01T16:00:00.000Z",
+    "completedAt": "2026-09-01T16:00:00.000Z"
+  }
+}

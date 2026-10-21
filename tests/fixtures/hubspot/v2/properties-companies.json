@@ -1,0 +1,262 @@
+{
+  "request": {
+    "path": "/crm/v3/properties/companies"
+  },
+  "response": {
+    "results": [
+      {
+        "name": "name",
+        "label": "Name",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "domain",
+        "label": "Company Domain Name",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "phone",
+        "label": "Phone Number",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "industry",
+        "label": "Industry",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "city",
+        "label": "City",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "state",
+        "label": "State/Region",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "numberofemployees",
+        "label": "Number of Employees",
+        "type": "number",
+        "fieldType": "number",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "createdate",
+        "label": "Create Date",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_object_id",
+        "label": "Record ID",
+        "type": "number",
+        "fieldType": "number",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": true
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "wholesale_tier",
+        "label": "Wholesale tier",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [
+          {
+            "label": "Gold",
+            "value": "gold",
+            "hidden": false,
+            "displayOrder": 0
+          },
+          {
+            "label": "Silver",
+            "value": "silver",
+            "hidden": false,
+            "displayOrder": 1
+          }
+        ],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": false,
+        "modificationMetadata": {
+          "archivable": true,
+          "readOnlyDefinition": false,
+          "readOnlyValue": false
+        },
+        "formField": true,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

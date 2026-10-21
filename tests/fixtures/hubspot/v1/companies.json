@@ -1,0 +1,41 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/companies"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "9001",
+        "properties": {
+          "name": "Fernhill Ceramics",
+          "domain": "fernhill.example",
+          "phone": "+1 250 555 0101",
+          "industry": "ARTS_AND_CRAFTS",
+          "city": "Victoria",
+          "state": "BC",
+          "numberofemployees": "4",
+          "createdate": "2026-08-01T16:00:00.000Z",
+          "hs_object_id": "9001",
+          "wholesale_tier": "gold"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "id": "9002",
+        "properties": {
+          "name": "Kilnworks Supply",
+          "domain": "kilnworks.example",
+          "city": "Nanaimo",
+          "state": "BC",
+          "createdate": "2026-08-01T16:00:00.000Z",
+          "hs_object_id": "9002"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

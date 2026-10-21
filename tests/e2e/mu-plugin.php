@@ -23,6 +23,16 @@ add_action('phpmailer_init', static function (): void {
     update_option(IIM_E2E_MAIL_COUNT, (is_numeric($sent) ? (int) $sent : 0) + 1, false);
 });
 
+// Counts every FluentCRM contact, list and tag event (they start automations and email sequences, which a mirror
+// must never do).
+const IIM_E2E_FLUENT_EVENTS = 'iim_e2e_fluent_events';
+foreach (['fluent_crm/contact_created', 'fluent_crm/contact_updated', 'fluent_crm/contact_added_to_lists', 'fluent_crm/contact_added_to_tags', 'fluent_crm/contact_removed_from_lists', 'fluent_crm/contact_custom_data_updated', 'fluent_crm/company_created'] as $iimE2eEvent) {
+    add_action($iimE2eEvent, static function (): void {
+        $count = get_option(IIM_E2E_FLUENT_EVENTS, 0);
+        update_option(IIM_E2E_FLUENT_EVENTS, (is_numeric($count) ? (int) $count : 0) + 1, false);
+    });
+}
+
 if (defined('WP_CLI') && constant('WP_CLI') === true) {
     add_action('plugins_loaded', static function (): void {
         require IIM_E2E_CHECKS;

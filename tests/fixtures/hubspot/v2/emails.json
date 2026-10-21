@@ -1,0 +1,38 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/emails"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "8301",
+        "properties": {
+          "hs_timestamp": "2026-08-17T17:00:00.000Z",
+          "hs_email_subject": "Your quote",
+          "hs_email_text": "Quote attached.",
+          "hs_email_html": "<p>Quote attached.</p>",
+          "hs_email_direction": "EMAIL",
+          "hs_email_status": "SENT",
+          "hubspot_owner_id": "77"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "501",
+                "type": "contacts_assoc"
+              },
+              {
+                "id": "502",
+                "type": "contacts_assoc"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

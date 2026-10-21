@@ -9,10 +9,12 @@ declare(strict_types=1);
  * API token and names its Journal collection as the blog (wp-config-extra.php).
  */
 
+use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Mapping\LegacyPaths;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Webflow\Mapping\Fields;
 use IdempotentImporter\Wp\ContentTypes;
+use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Storefront;
 
 $mugGid = 'gid://webflow/Product/64f1a2b3c4d5e6f708194d01';
@@ -21,6 +23,11 @@ $orderGid = 'gid://webflow/Order/a3f9c1';
 $teamGid = 'gid://webflow/Collection/64f1a2b3c4d5e6f708192b05';
 
 return [
+    // Webflow, with store settings mirrored (Shopify's checks switch them on too; this keeps a Webflow-only run whole).
+    'configure' => static function (): void {
+        selectSource('webflow');
+        update_option(Settings::OPTION, [...Options::array(Settings::OPTION), 'store_settings' => true], false);
+    },
     'v1' => static function () use ($mugGid, $bowlGid, $orderGid, $teamGid): void {
         expect(get_option('woocommerce_currency') === 'CAD' && get_option('timezone_string') === 'America/Vancouver', "the site's currency and timezone");
         $asset = target(Kind::File, 'gid://webflow/Asset/64f1a2b3c4d5e6f708196f01');
@@ -46,17 +53,17 @@ return [
         expect(order(Kind::Order, 'gid://webflow/Order/b71d04')->get_status() === 'processing', 'paid and unfulfilled → processing');
         expect(product($mugGid)->get_stock_quantity() === 12, 'mirroring orders did not reduce stock');
 
-        $about = post(Kind::Page, 'gid://webflow/Page/64f1a2b3c4d5e6f708197a01');
+        $about = mirroredPost(Kind::Page, 'gid://webflow/Page/64f1a2b3c4d5e6f708197a01');
         expect($about->post_type === 'page' && str_contains($about->post_content, 'We throw every piece by hand') && str_contains($about->post_content, '<img'), "a page's DOM text and images become its content");
         expect(services()->links()->targetId(Kind::Page, 'gid://webflow/Page/64f1a2b3c4d5e6f708197a02') === null, 'a collection template page is not a page');
 
         $journal = term(Kind::Blog, 'gid://webflow/Collection/64f1a2b3c4d5e6f708192b04', 'category');
         expect($journal->name === 'Journal', 'the blog collection is a post category');
-        $kiln = post(Kind::Article, 'gid://webflow/Item/64f1a2b3c4d5e6f708198b01');
+        $kiln = mirroredPost(Kind::Article, 'gid://webflow/Item/64f1a2b3c4d5e6f708198b01');
         expect($kiln->post_status === 'publish' && has_post_thumbnail($kiln) && in_category($journal->term_id, $kiln), 'a post, in the blog, with its main image');
         expect(get_post_status(target(Kind::Article, 'gid://webflow/Item/64f1a2b3c4d5e6f708198b02')) === 'draft', 'a draft post stays a draft');
 
-        $isla = post(Kind::ContentItem, 'gid://webflow/Item/64f1a2b3c4d5e6f708199c01');
+        $isla = mirroredPost(Kind::ContentItem, 'gid://webflow/Item/64f1a2b3c4d5e6f708199c01');
         expect($isla->post_type === ContentTypes::key($teamGid) && $isla->post_title === 'Isla Fenn', "another collection's item is a post of the collection's own post type");
         $fields = get_post_meta($isla->ID, '_mirror_fields', true);
         expect(is_array($fields) && ($fields['role'] ?? null) === 'Potter', 'its other fields are meta');

@@ -1,0 +1,273 @@
+{
+  "request": {
+    "path": "/crm/v3/properties/orders"
+  },
+  "response": {
+    "results": [
+      {
+        "name": "hs_order_name",
+        "label": "Name",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_currency_code",
+        "label": "Currency",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_createdate",
+        "label": "Create date",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_shipping_address_street",
+        "label": "Shipping street",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_shipping_address_city",
+        "label": "Shipping city",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_shipping_address_state",
+        "label": "Shipping state",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_shipping_address_postal_code",
+        "label": "Shipping postal code",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_shipping_tracking_number",
+        "label": "Tracking number",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_fulfillment_status",
+        "label": "Fulfillment status",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_pipeline_stage",
+        "label": "Stage",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_source_store",
+        "label": "Source store",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

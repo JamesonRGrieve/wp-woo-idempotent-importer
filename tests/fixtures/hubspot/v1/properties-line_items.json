@@ -1,0 +1,129 @@
+{
+  "request": {
+    "path": "/crm/v3/properties/line_items"
+  },
+  "response": {
+    "results": [
+      {
+        "name": "name",
+        "label": "Name",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "quantity",
+        "label": "Quantity",
+        "type": "number",
+        "fieldType": "number",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "price",
+        "label": "Unit price",
+        "type": "number",
+        "fieldType": "number",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_product_id",
+        "label": "Product ID",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "amount",
+        "label": "Net price",
+        "type": "number",
+        "fieldType": "number",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": true,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": true
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

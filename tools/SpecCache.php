@@ -43,6 +43,26 @@ final class SpecCache
         'admin-management-redirects' => 'c06587f9727a44d2a8e4192fc304f90dfd8f42abf8a71d27eaaad08c9f6e5df0',
     ];
 
+    /**
+     * The HubSpot CRM API documents the adapter reads (HubSpot/HubSpot-public-api-spec-collection, one OpenAPI 3
+     * document per API, at the commit of 2026-10-21): name → path in the repository. Their paths carry the whole
+     * `/crm/v3/…` path and their server is the bare API host, so no prefix is stripped.
+     */
+    private const HUBSPOT_COMMIT = 'dd4246cd4b82fefd93b374547fec352f443fc4ae';
+    private const HUBSPOT_DOCUMENTS = [
+        'contacts' => 'PublicApiSpecs/CRM/Contacts/Rollouts/424/v3/contacts.json',
+        'companies' => 'PublicApiSpecs/CRM/Companies/Rollouts/424/v3/companies.json',
+        'notes' => 'PublicApiSpecs/CRM/Notes/Rollouts/424/v3/notes.json',
+        'calls' => 'PublicApiSpecs/CRM/Calls/Rollouts/424/v3/calls.json',
+        'emails' => 'PublicApiSpecs/CRM/Emails/Rollouts/424/v3/emails.json',
+        'meetings' => 'PublicApiSpecs/CRM/Meetings/Rollouts/424/v3/meetings.json',
+        'products' => 'PublicApiSpecs/CRM/Products/Rollouts/424/v3/products.json',
+        'line-items' => 'PublicApiSpecs/CRM/Line Items/Rollouts/424/v3/lineItems.json',
+        'orders' => 'PublicApiSpecs/CRM/Orders/Rollouts/424/v3/orders.json',
+        'lists' => 'PublicApiSpecs/CRM/Lists/Rollouts/144891/v3/lists.json',
+        'properties' => 'PublicApiSpecs/CRM/Properties/Rollouts/145899/v3/properties.json',
+    ];
+
     /** @return list<SpecDocument> */
     public static function catalog(): array
     {
@@ -110,7 +130,20 @@ final class SpecCache
                 false,
                 SpecDocument::FORMAT_YAML,
             ),
+            ...self::hubSpot(),
         ];
+    }
+
+    /** @return list<SpecDocument> */
+    private static function hubSpot(): array
+    {
+        $documents = [];
+        foreach (self::HUBSPOT_DOCUMENTS as $name => $path) {
+            $url = 'https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/' . self::HUBSPOT_COMMIT . '/' . str_replace(' ', '%20', $path);
+            $documents[] = new SpecDocument('hubspot', $name, $url, '', false);
+        }
+
+        return $documents;
     }
 
     /** @return list<SpecDocument> */

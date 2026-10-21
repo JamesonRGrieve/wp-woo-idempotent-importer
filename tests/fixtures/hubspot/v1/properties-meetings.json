@@ -1,0 +1,201 @@
+{
+  "request": {
+    "path": "/crm/v3/properties/meetings"
+  },
+  "response": {
+    "results": [
+      {
+        "name": "hs_timestamp",
+        "label": "Activity date",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_meeting_title",
+        "label": "Meeting name",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_meeting_body",
+        "label": "Meeting description",
+        "type": "string",
+        "fieldType": "html",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_meeting_start_time",
+        "label": "Start time",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_meeting_end_time",
+        "label": "End time",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_meeting_location",
+        "label": "Location",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_meeting_outcome",
+        "label": "Outcome",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hubspot_owner_id",
+        "label": "Owner",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "contactinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

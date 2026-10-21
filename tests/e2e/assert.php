@@ -10,6 +10,10 @@ declare(strict_types=1);
  * it verified. A source's own checks live in checks/<source>.php.
  */
 
+use FluentCrm\App\Models\Company;
+use FluentCrm\App\Models\Subscriber;
+use FluentCrm\App\Models\SubscriberMeta;
+use FluentCrm\App\Models\SubscriberNote;
 use IdempotentImporter\Config\Credentials;
 use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Model\Kind;
@@ -23,6 +27,7 @@ use IdempotentImporter\Store\RunRecord;
 use IdempotentImporter\Sync\Mode;
 use IdempotentImporter\Sync\Runner;
 use IdempotentImporter\Sync\RunState;
+use IdempotentImporter\Wp\Fluent\FluentCrm;
 use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Scheduler;
 use IdempotentImporter\Wp\WebhookController;
@@ -50,8 +55,11 @@ const TROUBLE_REJECT = 'reject';
 const THROTTLE_RETRY_AFTER_SECONDS = 120;
 const CLOCK_SLACK_SECONDS = 5;
 const STEP_BUDGET_SECONDS = 60.0;
-/** The sources in the order run.sh imports them, each beside the mirrors of the ones before it. */
-const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce', 'squarespace', 'wix', 'magento', 'lightspeed', 'ecwid', 'webflow'];
+/**
+ * The sources run.sh imports this run, in its order, each beside the mirrors of the ones before it (all of them
+ * unless E2E_SOURCES picked some).
+ */
+const SOURCES_FILE = '/state/sources';
 const FIRST_STATE = 'v1';
 
 function expect(bool $condition, string $what): void
@@ -96,7 +104,7 @@ function user(string $gid): WP_User
     return $user instanceof WP_User ? $user : throw new RuntimeException("FAILED: {$gid} is not a user");
 }
 
-function post(Kind $kind, string $gid): WP_Post
+function mirroredPost(Kind $kind, string $gid): WP_Post
 {
     $post = get_post(target($kind, $gid));
 
@@ -115,6 +123,60 @@ function variation(string $gid): WC_Product_Variation
     $variation = wc_get_product(target(Kind::Variant, $gid));
 
     return $variation instanceof WC_Product_Variation ? $variation : throw new RuntimeException("FAILED: {$gid} is not a variation");
+}
+
+/** A mirrored FluentCRM contact. */
+function fluentContact(string $gid): Subscriber
+{
+    return FluentCrm::contact(target(Kind::Contact, $gid)) ?? throw new RuntimeException("FAILED: {$gid} is not a FluentCRM contact");
+}
+
+function fluentCompany(string $gid): Company
+{
+    return FluentCrm::company(target(Kind::CrmCompany, $gid)) ?? throw new RuntimeException("FAILED: {$gid} is not a FluentCRM company");
+}
+
+/** @return list<string> the titles of a contact's lists, sorted */
+function fluentLists(Subscriber $contact): array
+{
+    $titles = array_map(static fn(int $id): string => ($list = FluentCrm::list($id)) === null ? '' : FluentCrm::string($list, 'title'), FluentCrm::memberIds($contact, FluentCrm::LIST_TYPE));
+    sort($titles);
+
+    return $titles;
+}
+
+/** @return list<string> the titles of a contact's tags, sorted */
+function fluentTags(Subscriber $contact): array
+{
+    $titles = array_map(static fn(int $id): string => ($tag = FluentCrm::tag($id)) === null ? '' : FluentCrm::string($tag, 'title'), FluentCrm::memberIds($contact, FluentCrm::TAG_TYPE));
+    sort($titles);
+
+    return $titles;
+}
+
+/** A contact's custom field value, as FluentCRM stores it. */
+function fluentField(Subscriber $contact, string $slug): mixed
+{
+    $row = (new SubscriberMeta())->newQuery()->where('subscriber_id', FluentCrm::id($contact))->where('object_type', 'custom_field')->where('key', $slug)->first();
+
+    return $row instanceof SubscriberMeta ? $row->getAttribute('value') : null;
+}
+
+/** A company's custom field value, as FluentCRM stores it. */
+function fluentCompanyField(Company $company, string $slug): mixed
+{
+    $meta = $company->getAttribute('meta');
+
+    return is_array($meta) && is_array($meta['custom_values'] ?? null) ? $meta['custom_values'][$slug] ?? null : null;
+}
+
+/** @return list<string> the types of a contact's notes, sorted */
+function fluentNoteTypes(Subscriber $contact): array
+{
+    $types = array_values(array_map(static fn(mixed $type): string => is_string($type) ? $type : '', (new SubscriberNote())->newQuery()->where('subscriber_id', FluentCrm::id($contact))->pluck('type')->all()));
+    sort($types);
+
+    return $types;
 }
 
 function money(float|string $amount): string
@@ -191,9 +253,10 @@ function configure(string $source): void
  */
 function state(string $source, string $state): void
 {
-    $position = array_search($source, SOURCES, true);
+    $sources = array_values(array_filter(explode(' ', trim((string) file_get_contents(SOURCES_FILE)))));
+    $position = array_search($source, $sources, true);
     if ($position === false) {
-        throw new RuntimeException("{$source} is not in SOURCES");
+        throw new RuntimeException("{$source} is not among this run's sources");
     }
     $label = Adapters::for($source)->label();
     $run = latestRun();
@@ -202,7 +265,7 @@ function state(string $source, string $state): void
         expect($run->counts->writes() > 0, "the {$label} {$state} run wrote the changes");
     }
     requiredCheck($source, $state)();
-    foreach (array_slice(SOURCES, 0, $position) as $earlier) {
+    foreach (array_slice($sources, 0, $position) as $earlier) {
         requiredCheck($earlier, 'intact')();
     }
 }
@@ -210,6 +273,7 @@ function state(string $source, string $state): void
 function noMail(): void
 {
     expect(Options::int('iim_e2e_mail_sent') === 0, 'no email reached the mailer during the imports');
+    expect(Options::int('iim_e2e_fluent_events') === 0, 'no FluentCRM contact, list or tag event (which start automations) fired during the imports');
 }
 
 function zeroWrites(string $before): void

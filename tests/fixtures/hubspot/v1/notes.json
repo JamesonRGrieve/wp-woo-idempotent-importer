@@ -1,0 +1,38 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/notes"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "8101",
+        "properties": {
+          "hs_timestamp": "2026-08-15T17:00:00.000Z",
+          "hs_note_body": "<p>Asked about a wholesale order of mugs.</p>",
+          "hubspot_owner_id": "77"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "501",
+                "type": "contacts_assoc"
+              }
+            ]
+          },
+          "companies": {
+            "results": [
+              {
+                "id": "9001",
+                "type": "companies_assoc"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

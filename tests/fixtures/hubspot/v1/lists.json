@@ -1,0 +1,40 @@
+{
+  "request": {
+    "path": "/crm/v3/lists/search",
+    "method": "POST",
+    "body": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "hasMore": false,
+    "lists": [
+      {
+        "listId": "41",
+        "listVersion": 3,
+        "name": "Studio members",
+        "objectTypeId": "0-1",
+        "processingStatus": "COMPLETE",
+        "processingType": "MANUAL",
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "additionalProperties": {
+          "hs_list_size": "1"
+        }
+      },
+      {
+        "listId": "42",
+        "listVersion": 5,
+        "name": "Glaze lovers",
+        "objectTypeId": "0-1",
+        "processingStatus": "COMPLETE",
+        "processingType": "DYNAMIC",
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "additionalProperties": {
+          "hs_list_size": "2"
+        }
+      }
+    ],
+    "offset": 2,
+    "total": 2
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/contacts"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "501",
+        "properties": {
+          "email": "Ada.Thorne@example.com",
+          "firstname": "Ada",
+          "lastname": "Thorne",
+          "phone": "+1 250 555 0111",
+          "address": "12 Cedar Lane",
+          "city": "Victoria",
+          "state": "BC",
+          "zip": "V8V 1A1",
+          "country": "Canada",
+          "company": "Fernhill Ceramics",
+          "jobtitle": "Potter",
+          "lifecyclestage": "customer",
+          "createdate": "2026-07-01T16:00:00.000Z",
+          "hs_object_id": "501",
+          "lastmodifieddate": "2026-09-01T16:00:00.000Z",
+          "hs_analytics_num_visits": "17",
+          "favorite_glaze": "celadon",
+          "kiln_sizes": "small;large",
+          "member_since": "2025-03-01",
+          "last_class_at": "2026-08-20T18:30:00.000Z",
+          "studio_notes": "Prefers morning firings.",
+          "legacy_field": "x"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "companies": {
+            "results": [
+              {
+                "id": "9001",
+                "type": "companies_assoc"
+              },
+              {
+                "id": "9002",
+                "type": "companies_assoc"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "502",
+        "properties": {
+          "email": "bo.lindqvist@example.com",
+          "firstname": "Bo",
+          "lastname": "Lindqvist",
+          "mobilephone": "+1 250 555 0122",
+          "city": "Nanaimo",
+          "state": "BC",
+          "country": "Canada",
+          "lifecyclestage": "lead",
+          "createdate": "2026-07-05T16:00:00.000Z",
+          "hs_object_id": "502",
+          "lastmodifieddate": "2026-09-01T16:00:00.000Z",
+          "hs_analytics_num_visits": "2"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "companies": {
+            "results": [
+              {
+                "id": "9002",
+                "type": "companies_assoc"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "504",
+        "properties": {
+          "firstname": "Walk",
+          "lastname": "In",
+          "phone": "+1 250 555 0199",
+          "lifecyclestage": "lead",
+          "createdate": "2026-07-06T16:00:00.000Z",
+          "hs_object_id": "504",
+          "lastmodifieddate": "2026-09-01T16:00:00.000Z",
+          "hs_analytics_num_visits": "0"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

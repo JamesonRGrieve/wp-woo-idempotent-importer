@@ -1,0 +1,38 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/products"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "7001",
+        "properties": {
+          "name": "Stoneware clay, 10 kg",
+          "description": "Mid-fire stoneware.\nWedged and ready.",
+          "price": "44.00",
+          "hs_sku": "HS-CLAY-10",
+          "hs_cost_of_goods_sold": "18.25",
+          "createdate": "2026-08-01T16:00:00.000Z",
+          "hs_object_id": "7001"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "id": "7002",
+        "properties": {
+          "name": "Monthly wheel class",
+          "description": "Four evening classes.",
+          "price": "160",
+          "hs_recurring_billing_period": "P12M",
+          "createdate": "2026-08-01T16:00:00.000Z",
+          "hs_object_id": "7002"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

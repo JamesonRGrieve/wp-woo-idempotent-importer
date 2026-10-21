@@ -39,7 +39,7 @@ final class CrmCompanyWriter implements Writer
 
     public function write(Desired $desired, ?Link $existing): int
     {
-        FluentCrm::require();
+        FluentCrm::requireCompanies();
         $f = Values::of($desired);
         $company = ($existing === null ? null : FluentCrm::company($existing->targetId)) ?? new Company();
         $attributes = [];

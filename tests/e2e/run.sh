@@ -23,7 +23,29 @@ PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
-SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid webflow)
+ALL_SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid webflow hubspot)
+# What changes between each source's two fake store states.
+declare -A CHANGES=(
+    [shopify]="updates, a new order, a deletion and a completed draft"
+    [etsy]="a price, a removed listing, a refund, a new receipt and review"
+    [square_online]="a price, a deleted item, a refund, a return, an exchange, a new order and customer, and an order WooCommerce Square pushed"
+    [bigcommerce]="a price, a deleted product, a refund, a new order, customer, post and review, and a gift certificate spent"
+    [squarespace]="a price, a deleted product, a refund, a new order and customer"
+    [wix]="a price, a deleted product, a refund, a new order, contact and post"
+    [magento]="a price, a deleted product, a refund, a new order, customer and page"
+    [lightspeed]="a price, a deleted product, a credit note, a new order, customer, article and review"
+    [ecwid]="a price, a deleted product, a refund, a new order, customer and review"
+    [webflow]="a price, a refunded order, a new order and customer, a new post and a removed redirect"
+    [hubspot]="a custom property and a company field, a contact leaving and one joining a segment, a new contact with a note, a price and a new order"
+)
+# E2E_SOURCES (space-separated) runs only those sources, in the order above, for a quicker check while developing
+# one; the full suite (the default, and CI) runs them all, each beside the mirrors of the ones before it.
+SOURCES=()
+for source in "${ALL_SOURCES[@]}"; do
+    if [ -z "${E2E_SOURCES:-}" ] || [[ " ${E2E_SOURCES} " == *" ${source} "* ]]; then
+        SOURCES+=("$source")
+    fi
+done
 # FluentCRM (free, GPL), the WordPress home of CRM data, at the version the importer is analysed against.
 FLUENTCRM_VERSION=3.2.6
 
@@ -105,6 +127,7 @@ import_source() {
 podman network create "$NETWORK" >/dev/null
 podman volume create "$WP_VOLUME" >/dev/null
 chmod 0777 "$STATE_DIR"
+echo "${SOURCES[*]}" > "$STATE_DIR/sources"
 podman run -d --name "$DB" --network "$NETWORK" --network-alias db \
     -e MARIADB_DATABASE=wp -e MARIADB_USER=wp -e MARIADB_PASSWORD=wp -e MARIADB_RANDOM_ROOT_PASSWORD=1 \
     "$DB_IMAGE" >/dev/null
@@ -130,20 +153,13 @@ podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$
     sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/iim-e2e.php'
 wp plugin activate "$PLUGIN_SLUG"
 
-import_source shopify "updates, a new order, a deletion and a completed draft"
-echo "== Shopify webhooks"
-wp iim-e2e webhook
-import_source etsy "a price, a removed listing, a refund, a new receipt and review"
-import_source square_online "a price, a deleted item, a refund, a return, an exchange, a new order and customer, and an order WooCommerce Square pushed"
-echo "== Square webhooks"
-wp iim-e2e square-webhook
-import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review, and a gift certificate spent"
-import_source squarespace "a price, a deleted product, a refund, a new order and customer"
-import_source wix "a price, a deleted product, a refund, a new order, contact and post"
-import_source magento "a price, a deleted product, a refund, a new order, customer and page"
-import_source lightspeed "a price, a deleted product, a credit note, a new order, customer, article and review"
-import_source ecwid "a price, a deleted product, a refund, a new order, customer and review"
-import_source webflow "a price, a refunded order, a new order and customer, a new post and a removed redirect"
+for source in "${SOURCES[@]}"; do
+    import_source "$source" "${CHANGES[$source]}"
+    case "$source" in
+        shopify) echo "== Shopify webhooks"; wp iim-e2e webhook ;;
+        square_online) echo "== Square webhooks"; wp iim-e2e square-webhook ;;
+    esac
+done
 
 echo "== Lockout safety: a rate-limited source pauses the run; rejected credentials stop it and hold scheduled runs"
 wp iim-e2e lockout

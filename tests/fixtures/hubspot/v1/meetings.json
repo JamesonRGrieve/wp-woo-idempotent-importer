@@ -1,0 +1,35 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/meetings"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "8401",
+        "properties": {
+          "hs_timestamp": "2026-08-18T17:00:00.000Z",
+          "hs_meeting_title": "Studio visit",
+          "hs_meeting_body": "<p>Tour of the kiln room.</p>",
+          "hs_meeting_start_time": "2026-08-18T17:00:00.000Z",
+          "hs_meeting_end_time": "2026-08-18T18:00:00.000Z",
+          "hs_meeting_location": "Fernhill studio",
+          "hs_meeting_outcome": "COMPLETED",
+          "hubspot_owner_id": "77"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "companies": {
+            "results": [
+              {
+                "id": "9002",
+                "type": "companies_assoc"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

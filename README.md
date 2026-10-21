@@ -2,9 +2,9 @@
 # wp-woo-idempotent-importer
 
 A WordPress plugin that keeps a WooCommerce store an exact, one-way copy of another store until you cut
-over. Run it as often as you like: what's new at the source is created, what changed is updated, what
-was deleted is moved to the trash, and what didn't change isn't touched. A re-run against an unchanged
-store writes nothing at all.
+over, and does the same for a CRM (into FluentCRM) or an accounting system. Run it as often as you like:
+what's new at the source is created, what changed is updated, what was deleted is moved to the trash, and
+what didn't change isn't touched. A re-run against an unchanged source writes nothing at all.
 
 Each source platform is an adapter over the same engine:
 
@@ -20,6 +20,7 @@ Each source platform is an adapter over the same engine:
 | Lightspeed eCom (C-Series) | Built | Shop settings, categories, products with variants, images, stock and brands, customers, discount codes, orders with taxes, credit notes and shipments, text pages, blogs and their articles, redirects, and product reviews — [coverage/lightspeed.md](coverage/lightspeed.md) |
 | Ecwid (Lightspeed) | Built | Store settings and legal pages, categories, products with variations, images, stock and brands, customers, discount coupons, orders with taxes, refunds and tracking, Instant Site redirects, and product reviews — [coverage/ecwid.md](coverage/ecwid.md) |
 | Webflow | Built | Site settings, assets, e-commerce categories, products with their SKUs and inventory, buyers, orders with refunds, static pages, the blog collection and its posts, every other CMS collection as a custom post type with its items, and 301 redirects — [coverage/webflow.md](coverage/webflow.md) |
+| HubSpot | Built | Into FluentCRM: companies, contact lists and segments, contacts with their companies, lists and custom properties, and their notes, calls, emails and meetings. Into WooCommerce: the product library, buyers and commerce orders. Deals, pipelines and tasks are planned — [coverage/hubspot.md](coverage/hubspot.md) |
 
 Each coverage page lists everything the source has, and what WordPress can't hold.
 
@@ -68,7 +69,9 @@ site's 301 redirects.
 ## Setup
 
 1. Install and activate WooCommerce (9.6 or later), then this plugin (a release zip includes `vendor/`;
-   from source, run `composer install --no-dev`).
+   from source, run `composer install --no-dev`). To mirror a CRM, or an accounting system's clients, also
+   install and activate FluentCRM (free, wordpress.org/plugins/fluent-crm); its writes never start a FluentCRM
+   automation or email.
 2. In WooCommerce → Store import, choose the source and save, then connect it:
    - **Shopify:** in Shopify's Dev Dashboard (dev.shopify.com, signed in to the store's organization),
      create an app with these access scopes (paste the line into the version's scopes):
@@ -125,6 +128,10 @@ site's 301 redirects.
      site ID and, if the site has a blog, the ID of its CMS collection. Every other CMS collection becomes a
      custom post type. Webflow allows 60 requests a minute on smaller plans, so requests are paced at one a
      second.
+   - **HubSpot:** create a private app with the read scopes listed in [coverage/hubspot.md](coverage/hubspot.md)
+     and enter its access token, or register an OAuth app with the callback URL shown on the settings page,
+     enter its client ID and secret and click **Connect to HubSpot**. HubSpot allows 100 requests every 10
+     seconds, so requests are paced at ten a second.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
    `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
@@ -132,7 +139,8 @@ site's 301 redirects.
    `IIM_BIGCOMMERCE_ACCESS_TOKEN`, `IIM_SQUARESPACE_API_KEY`, `IIM_WIX_API_KEY`, `IIM_WIX_SITE_ID`, `IIM_MAGENTO_STORE_URL`,
    `IIM_MAGENTO_STORE_CODE`, `IIM_MAGENTO_ACCESS_TOKEN`, `IIM_LIGHTSPEED_CLUSTER`, `IIM_LIGHTSPEED_LANGUAGE`,
    `IIM_LIGHTSPEED_API_KEY`, `IIM_LIGHTSPEED_API_SECRET`, `IIM_ECWID_STORE_ID`, `IIM_ECWID_SECRET_TOKEN`, `IIM_WEBFLOW_SITE_ID`, `IIM_WEBFLOW_BLOG_COLLECTION_ID`,
-   `IIM_WEBFLOW_API_TOKEN`, `IIM_WEBFLOW_CLIENT_ID`, `IIM_WEBFLOW_CLIENT_SECRET`); tokens from a connect flow (Etsy's refresh
+   `IIM_WEBFLOW_API_TOKEN`, `IIM_WEBFLOW_CLIENT_ID`, `IIM_WEBFLOW_CLIENT_SECRET`, `IIM_HUBSPOT_ACCESS_TOKEN`,
+   `IIM_HUBSPOT_CLIENT_ID`, `IIM_HUBSPOT_CLIENT_SECRET`); tokens from a connect flow (Etsy's refresh
    token, which Etsy replaces on every use, and every OAuth source's tokens) are kept by the plugin.
 4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
 

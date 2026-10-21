@@ -1,0 +1,36 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/calls"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "8201",
+        "properties": {
+          "hs_timestamp": "2026-08-16T17:00:00.000Z",
+          "hs_call_title": "Wholesale follow-up",
+          "hs_call_body": "Discussed pricing tiers.\n\nWill send a quote.",
+          "hs_call_direction": "OUTBOUND",
+          "hs_call_duration": "754000",
+          "hs_call_status": "COMPLETED",
+          "hs_call_from_number": "+1 250 555 0001",
+          "hs_call_to_number": "+1 250 555 0111",
+          "hubspot_owner_id": "77"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "501",
+                "type": "contacts_assoc"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

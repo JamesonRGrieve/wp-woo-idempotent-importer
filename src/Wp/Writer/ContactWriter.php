@@ -22,7 +22,8 @@ use IdempotentImporter\Wp\Retirement;
  * CRM contacts (and accounting clients) → FluentCRM contacts: name, email, phone, address, timezone, birthday,
  * status, contact type and source; their companies (the first is the primary company), lists and tags among
  * those this source mirrors; and the source's custom fields as FluentCRM custom fields. A FluentCRM contact
- * with the same email is adopted rather than duplicated (FluentCRM keeps one contact per email). Written
+ * with the same email is adopted rather than duplicated (FluentCRM keeps one contact per email; the last record
+ * written owns it). Written
  * through FluentCRM's models, so no FluentCRM event, automation or email is started. FluentCRM has no trash: a
  * retired contact is marked.
  */
@@ -80,9 +81,17 @@ final class ContactWriter implements Writer
         return defined('FLUENTCRM') && FluentCrm::contact($targetId) !== null;
     }
 
+    /**
+     * Marks the contact, unless another mirrored record has since adopted it (a converted lead's contact, the same
+     * person in another source): the contact is that record's now, and alive.
+     */
     public function retire(Link $link): void
     {
-        Retirement::mark(new FluentMeta(Kind::Contact, $link->targetId));
+        $meta = new FluentMeta(Kind::Contact, $link->targetId);
+        $owner = $meta->get(MetaSync::GID);
+        if ($owner === null || $owner === '' || $owner === $link->gid) {
+            Retirement::mark($meta);
+        }
     }
 
     /**

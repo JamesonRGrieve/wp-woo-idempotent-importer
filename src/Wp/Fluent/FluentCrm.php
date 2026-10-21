@@ -14,7 +14,9 @@ use FluentCrm\App\Models\Subscriber;
 use FluentCrm\App\Models\SubscriberNote;
 use FluentCrm\App\Models\Tag;
 use FluentCrm\Framework\Database\Orm\Relations\BelongsToMany;
+use FluentCrmMigrations\CompaniesMigrator;
 use IdempotentImporter\Wp\Dates;
+use wpdb;
 
 /**
  * The importer's typed gateway to FluentCRM (free, GPL; fluentcrm.com), the WordPress home of CRM data: its
@@ -29,6 +31,8 @@ final class FluentCrm
     public const LIST_TYPE = Lists::class;
     public const TAG_TYPE = Tag::class;
     public const COMPANY_TYPE = Company::class;
+    private const COMPANIES_TABLE = 'fc_companies';
+    private const COMPANIES_MIGRATION = 'database/migrations/CompaniesMigrator.php';
 
     /** FluentCRM's timestamps are site-local `Y-m-d H:i:s` (fluentCrmTimestamp). */
     public static function localTime(string $iso): string
@@ -42,6 +46,31 @@ final class FluentCrm
         if (!defined('FLUENTCRM') || !class_exists(Subscriber::class)) {
             throw new FluentCrmMissing('FluentCRM is not active: install and activate FluentCRM (free, wordpress.org/plugins/fluent-crm) to mirror CRM data.');
         }
+    }
+
+    /**
+     * Makes sure FluentCRM's companies table exists. FluentCRM creates it only when its Companies module is
+     * switched on (Settings → Experimental Features), with its own migration; the same migration is run here, so
+     * companies are kept whether or not the module shows them yet.
+     */
+    public static function requireCompanies(): void
+    {
+        self::require();
+        global $wpdb;
+        if (!$wpdb instanceof wpdb) {
+            throw new FluentCrmMissing('WordPress has no database connection.');
+        }
+        $table = $wpdb->prefix . self::COMPANIES_TABLE;
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) === $table) {
+            return;
+        }
+        $path = defined('FLUENTCRM_PLUGIN_PATH') ? constant('FLUENTCRM_PLUGIN_PATH') : null;
+        if (!is_string($path)) {
+            throw new FluentCrmMissing('FluentCRM does not say where it is installed.');
+        }
+        // FluentCRM's migrations aren't autoloaded; FluentCRM loads this one the same way when the module is switched on.
+        require_once $path . self::COMPANIES_MIGRATION;
+        CompaniesMigrator::migrate();
     }
 
     public static function contact(int $id): ?Subscriber
@@ -151,15 +180,8 @@ final class FluentCrm
      */
     public static function syncMemberships(Subscriber $contact, string $objectType, array $desired, array $managed): void
     {
-        $relation = match ($objectType) {
-            self::LIST_TYPE => $contact->lists(),
-            self::TAG_TYPE => $contact->tags(),
-            default => $contact->companies(),
-        };
-        if (!$relation instanceof BelongsToMany) {
-            throw new FluentCrmMissing("FluentCRM contacts have no {$objectType} relation.");
-        }
-        $current = array_map(static fn(mixed $id): int => is_numeric($id) ? (int) $id : 0, $relation->allRelatedIds()->all());
+        $relation = self::memberships($contact, $objectType);
+        $current = self::memberIds($contact, $objectType);
         $add = array_values(array_diff($desired, $current));
         $remove = array_values(array_intersect(array_diff($current, $desired), $managed));
         foreach ($add as $id) {
@@ -168,5 +190,33 @@ final class FluentCrm
         if ($remove !== []) {
             $relation->detach($remove);
         }
+    }
+
+    /**
+     * The ids of what a contact belongs to of one kind (its lists, tags or companies).
+     *
+     * @param class-string<Lists|Tag|Company> $objectType
+     *
+     * @return list<int>
+     */
+    public static function memberIds(Subscriber $contact, string $objectType): array
+    {
+        return array_values(array_map(static fn(mixed $id): int => is_numeric($id) ? (int) $id : 0, self::memberships($contact, $objectType)->allRelatedIds()->all()));
+    }
+
+    /**
+     * @param class-string<Lists|Tag|Company> $objectType
+     *
+     * @return BelongsToMany<Lists|Tag|Company, Subscriber>
+     */
+    private static function memberships(Subscriber $contact, string $objectType): BelongsToMany
+    {
+        $relation = match ($objectType) {
+            self::LIST_TYPE => $contact->lists(),
+            self::TAG_TYPE => $contact->tags(),
+            default => $contact->companies(),
+        };
+
+        return $relation instanceof BelongsToMany ? $relation : throw new FluentCrmMissing("FluentCRM contacts have no {$objectType} relation.");
     }
 }

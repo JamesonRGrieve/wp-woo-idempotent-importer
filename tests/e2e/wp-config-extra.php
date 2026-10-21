@@ -30,6 +30,8 @@ define('IIM_WEBFLOW_ENDPOINT', 'http://webflow-fake:8080/v2');
 define('IIM_WEBFLOW_SITE_ID', '64f1a2b3c4d5e6f708192a3b');
 define('IIM_WEBFLOW_BLOG_COLLECTION_ID', '64f1a2b3c4d5e6f708192b04');
 define('IIM_WEBFLOW_API_TOKEN', 'e2e-webflow-token');
+define('IIM_HUBSPOT_ENDPOINT', 'http://hubspot-fake:8080');
+define('IIM_HUBSPOT_ACCESS_TOKEN', 'e2e-hubspot-token');
 define('IIM_SQUARE_STORED_VALUE_ENDPOINT', 'http://square_stored_value-fake:8080');
 define('IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN', 'e2e-square-token');
 define('IIM_SQUARE_STORED_VALUE_LOCATION_ID', 'LOCMAIN1');
