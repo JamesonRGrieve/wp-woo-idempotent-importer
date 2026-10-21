@@ -35,7 +35,8 @@ final class SpecCache
         'admin-management-customers-v3' => '5576697361ae159a2e6e18c10feca7ec8420912652c97456414cdbf40da1518f',
         'admin-content-marketing' => 'c2469589c1752db9ca39e7eab7191312fa9c36889b1447f6b33cb4c5a49ddf34',
         'admin-management-promotions' => '8c4c0e7e2ca7f4bb226a21563c77ac71e8313d6f6a57c422b804d76ce0999d1b',
-        'admin-management-orders' => 'b1022156b66d9a0dd89f3f418f0e51dec626686c87906a8f42c417cdcc56c5c2',
+        // Re-pinned 2026-10-21: only two descriptions of write operations changed.
+        'admin-management-orders' => 'd0506f86d6414d9a08691ff313e9a6f8c9747af67e9ea9748b5096df6bf9c9ba',
         'admin-management-order-operations' => '85058cb818f3da2d56022ded545b6c8ea7730747bf62bfeeabce602164c4bb34',
         'admin-content-pages' => '97008b6fc2af709f8b49477e6a49eb6e33f6e1d0108b22ffcaf229cc1d57ddfd',
         'admin-content-store-content' => '29859d12a29def2e2881faee7dd5d312af3dd9936d8842da40453dc68e756dbc',
