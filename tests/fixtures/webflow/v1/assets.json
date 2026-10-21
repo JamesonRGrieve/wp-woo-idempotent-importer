@@ -1,0 +1,45 @@
+{
+  "request": {
+    "path": "/v2/sites/64f1a2b3c4d5e6f708192a3b/assets",
+    "query": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "assets": [
+      {
+        "id": "64f1a2b3c4d5e6f708196f01",
+        "contentType": "image/png",
+        "size": 182044,
+        "siteId": "64f1a2b3c4d5e6f708192a3b",
+        "hostedUrl": "http://webflow-fake:8080/images/wf-studio.png",
+        "originalFileName": "studio.png",
+        "displayName": "studio.png",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "variants": [],
+        "altText": "The studio's kiln room",
+        "folderId": null
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708196f02",
+        "contentType": "image/png",
+        "size": 9120,
+        "siteId": "64f1a2b3c4d5e6f708192a3b",
+        "hostedUrl": "http://webflow-fake:8080/images/wf-logo.png",
+        "originalFileName": "logo.png",
+        "displayName": "logo.png",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "variants": [],
+        "altText": "Fernhill logo",
+        "folderId": null
+      }
+    ],
+    "pagination": {
+      "limit": 100,
+      "offset": 0,
+      "total": 2
+    }
+  }
+}

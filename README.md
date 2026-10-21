@@ -19,6 +19,7 @@ Each source platform is an adapter over the same engine:
 | Magento / Adobe Commerce | Built | Store settings, categories, simple, virtual, downloadable and configurable products with their child products, images and stock, customers, cart price rules with coupons, orders with taxes, credit memos and shipments, and CMS pages — [coverage/magento.md](coverage/magento.md) |
 | Lightspeed eCom (C-Series) | Built | Shop settings, categories, products with variants, images, stock and brands, customers, discount codes, orders with taxes, credit notes and shipments, text pages, blogs and their articles, redirects, and product reviews — [coverage/lightspeed.md](coverage/lightspeed.md) |
 | Ecwid (Lightspeed) | Built | Store settings and legal pages, categories, products with variations, images, stock and brands, customers, discount coupons, orders with taxes, refunds and tracking, Instant Site redirects, and product reviews — [coverage/ecwid.md](coverage/ecwid.md) |
+| Webflow | Built | Site settings, assets, e-commerce categories, products with their SKUs and inventory, buyers, orders with refunds, static pages, the blog collection and its posts, every other CMS collection as a custom post type with its items, and 301 redirects — [coverage/webflow.md](coverage/webflow.md) |
 
 Each coverage page lists everything the source has, and what WordPress can't hold.
 
@@ -61,7 +62,8 @@ categories, pages, blog posts and the store's 301 redirects), old Squarespace pr
 and old Wix product pages, blog posts and blog categories, and the site's URL redirects, and old Magento
 product, category (`.html`) and CMS page URLs, and old Lightspeed eCom product (`.html`), category, text
 page, blog and article URLs and the shop's redirects, and old Ecwid product and category URLs and the
-store's Instant Site redirects.
+store's Instant Site redirects, and old Webflow product, category, page, blog post and CMS item URLs and the
+site's 301 redirects.
 
 ## Setup
 
@@ -117,14 +119,21 @@ store's Instant Site redirects.
      [coverage/ecwid.md](coverage/ecwid.md), then enter the store ID and the app's secret access token.
      Ecwid allows 600 requests a minute, so requests are paced at one every 0.1 seconds. Instant Site pages
      have no content API; bring them over by hand.
+   - **Webflow:** generate a site API token with the read access listed in
+     [coverage/webflow.md](coverage/webflow.md), or register a Webflow OAuth app with the callback URL shown
+     on the settings page, enter its client ID and secret, save and click **Connect to Webflow**. Enter the
+     site ID and, if the site has a blog, the ID of its CMS collection. Every other CMS collection becomes a
+     custom post type. Webflow allows 60 requests a minute on smaller plans, so requests are paced at one a
+     second.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
    `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
    `IIM_ETSY_SHARED_SECRET`, `IIM_SQUARE_ONLINE_ACCESS_TOKEN`, `IIM_SQUARE_ONLINE_WEBHOOK_SIGNATURE_KEY`, `IIM_BIGCOMMERCE_STORE_HASH`,
    `IIM_BIGCOMMERCE_ACCESS_TOKEN`, `IIM_SQUARESPACE_API_KEY`, `IIM_WIX_API_KEY`, `IIM_WIX_SITE_ID`, `IIM_MAGENTO_STORE_URL`,
    `IIM_MAGENTO_STORE_CODE`, `IIM_MAGENTO_ACCESS_TOKEN`, `IIM_LIGHTSPEED_CLUSTER`, `IIM_LIGHTSPEED_LANGUAGE`,
-   `IIM_LIGHTSPEED_API_KEY`, `IIM_LIGHTSPEED_API_SECRET`, `IIM_ECWID_STORE_ID`, `IIM_ECWID_SECRET_TOKEN`); Etsy's refresh token is kept by the connect flow, since Etsy replaces it
-   on every use.
+   `IIM_LIGHTSPEED_API_KEY`, `IIM_LIGHTSPEED_API_SECRET`, `IIM_ECWID_STORE_ID`, `IIM_ECWID_SECRET_TOKEN`, `IIM_WEBFLOW_SITE_ID`, `IIM_WEBFLOW_BLOG_COLLECTION_ID`,
+   `IIM_WEBFLOW_API_TOKEN`, `IIM_WEBFLOW_CLIENT_ID`, `IIM_WEBFLOW_CLIENT_SECRET`); tokens from a connect flow (Etsy's refresh
+   token, which Etsy replaces on every use, and every OAuth source's tokens) are kept by the plugin.
 4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
 
 If you use WooCommerce Square, keep its system of record on WooCommerce while importing. The importer

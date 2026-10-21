@@ -34,6 +34,9 @@ const CONTENT_TABLES = [
     'woocommerce_order_items', 'woocommerce_order_itemmeta', 'wc_product_meta_lookup', 'wc_product_attributes_lookup',
     'woocommerce_shipping_zones', 'woocommerce_shipping_zone_locations', 'woocommerce_shipping_zone_methods',
     'woocommerce_attribute_taxonomies',
+    // FluentCRM, the home of CRM data.
+    'fc_subscribers', 'fc_subscriber_meta', 'fc_subscriber_pivot', 'fc_subscriber_notes', 'fc_lists', 'fc_tags', 'fc_companies',
+    'fc_meta',
 ];
 const WEBHOOK_SECRET = 'e2e-webhook-secret';
 /** The Shopify app's client secret, as wp-config-extra.php defines it (Dev Dashboard apps sign webhooks with it). */
@@ -48,7 +51,7 @@ const THROTTLE_RETRY_AFTER_SECONDS = 120;
 const CLOCK_SLACK_SECONDS = 5;
 const STEP_BUDGET_SECONDS = 60.0;
 /** The sources in the order run.sh imports them, each beside the mirrors of the ones before it. */
-const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce', 'squarespace', 'wix', 'magento', 'lightspeed', 'ecwid'];
+const SOURCES = ['shopify', 'etsy', 'square_online', 'bigcommerce', 'squarespace', 'wix', 'magento', 'lightspeed', 'ecwid', 'webflow'];
 const FIRST_STATE = 'v1';
 
 function expect(bool $condition, string $what): void
@@ -91,6 +94,27 @@ function user(string $gid): WP_User
     $user = get_user_by('id', target(Kind::Customer, $gid));
 
     return $user instanceof WP_User ? $user : throw new RuntimeException("FAILED: {$gid} is not a user");
+}
+
+function post(Kind $kind, string $gid): WP_Post
+{
+    $post = get_post(target($kind, $gid));
+
+    return $post instanceof WP_Post ? $post : throw new RuntimeException("FAILED: {$gid} is not a post");
+}
+
+function term(Kind $kind, string $gid, string $taxonomy): WP_Term
+{
+    $term = get_term(target($kind, $gid), $taxonomy);
+
+    return $term instanceof WP_Term ? $term : throw new RuntimeException("FAILED: {$gid} is not a {$taxonomy} term");
+}
+
+function variation(string $gid): WC_Product_Variation
+{
+    $variation = wc_get_product(target(Kind::Variant, $gid));
+
+    return $variation instanceof WC_Product_Variation ? $variation : throw new RuntimeException("FAILED: {$gid} is not a variation");
 }
 
 function money(float|string $amount): string

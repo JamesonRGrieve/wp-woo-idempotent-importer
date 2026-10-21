@@ -2,7 +2,7 @@
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent store → WooCommerce mirror kept current until
 cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce, Squarespace, Wix,
-Magento, Lightspeed eCom and Ecwid). README.md is the user-facing contract; `coverage/<source>.md`
+Magento, Lightspeed eCom, Ecwid and Webflow). README.md is the user-facing contract; `coverage/<source>.md`
 is the single source of truth for what each source mirrors and what is a gap. PHP rules:
 `/home/jameson/Source/ai-prompts/php.md`.
 
@@ -10,7 +10,9 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 
 - `src/Source/` — the source boundary (pure): `Adapter` (one per platform, listed in `Adapters`),
   `SourceReader` (complete objects, paged), `Node` (validated reads), `Identity` (`gid://<source>/…`),
-  `RetryLater` / `CredentialsRejected` (lockout safety, below), `Rest/` (the shared REST client).
+  `RetryLater` / `CredentialsRejected` (lockout safety, below), `Rest/` (the shared REST client),
+  `OAuth2/` (the shared authorization-code grant: `OAuthApp` per vendor, `OAuth2Client`, `BearerAuthorizer`,
+  tokens kept by `CredentialTokens`; an adapter that connects by OAuth delegates to an `OAuthConnection`).
 - `src/Http/` — the outbound boundary: transport, `RateLimit` + `RequestPacer`, `RetryPolicy`.
 - `src/Source/<Platform>/` — one adapter: its API client, reader and `Mapping/` (pure source → desired
   state, one mapper per kind). Shopify's GraphQL lives in `graphql/`; list, by-id and nested-page
@@ -20,7 +22,8 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 - `src/Store/` — the plugin's own tables (links, redirects, seen, runs) through `Sql` (`%i` identifiers).
 - `src/Wp/` — WordPress side, shared by every source: one `Writer` per kind, shared helpers
   (`MetaSync`, `MediaLibrary`, `Posts`, `Comments`, `Terms`, `Quiet`, `Retirement`), scheduler,
-  webhooks, storefront, admin, CLI.
+  webhooks, storefront, admin, CLI. `ContentTypes` registers the custom post type of each mirrored CMS
+  collection (kept as an `iim_content_type` post).
 - `src/StoredValue/` — the Square account gift cards and store credit are written to (`SquareStoredValue`),
   their numbers (`GiftCardNumber`) and how a balance change is applied (`GiftCardPlan`, pure); the
   ledger lives in `Store/GiftCardStore`, the writer in `Wp/Writer/GiftCardWriter`, the customer's page in

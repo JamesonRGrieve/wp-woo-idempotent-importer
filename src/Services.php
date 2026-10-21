@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace IdempotentImporter;
 
+use FluentCrm\App\Models\Lists;
+use FluentCrm\App\Models\Tag;
 use IdempotentImporter\Config\Credentials;
 use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Http\HttpTransport;
@@ -31,6 +33,12 @@ use IdempotentImporter\Wp\MediaLibrary;
 use IdempotentImporter\Wp\WpHttpTransport;
 use IdempotentImporter\Wp\Writer\ArticleWriter;
 use IdempotentImporter\Wp\Writer\CommentWriter;
+use IdempotentImporter\Wp\Writer\ContactWriter;
+use IdempotentImporter\Wp\Writer\ContentItemWriter;
+use IdempotentImporter\Wp\Writer\ContentTypeWriter;
+use IdempotentImporter\Wp\Writer\CrmCompanyWriter;
+use IdempotentImporter\Wp\Writer\CrmGroupWriter;
+use IdempotentImporter\Wp\Writer\CrmNoteWriter;
 use IdempotentImporter\Wp\Writer\CustomerWriter;
 use IdempotentImporter\Wp\Writer\DeliveryProfileWriter;
 use IdempotentImporter\Wp\Writer\DiscountWriter;
@@ -216,6 +224,11 @@ final class Services
             new TermWriter(Kind::Collection, 'product_cat', $targets),
             new ProductWriter($targets),
             new CustomerWriter(),
+            new CrmCompanyWriter(),
+            new CrmGroupWriter(Kind::CrmList, Lists::class),
+            new CrmGroupWriter(Kind::CrmTag, Tag::class),
+            new ContactWriter($targets),
+            new CrmNoteWriter($targets),
             new DiscountWriter($targets),
             new OrderWriter(Kind::Order, $targets),
             new ReturnWriter($targets),
@@ -225,6 +238,8 @@ final class Services
             new PageWriter($targets),
             new TermWriter(Kind::Blog, 'category', $targets),
             new ArticleWriter($targets),
+            new ContentTypeWriter(),
+            new ContentItemWriter($targets),
             new CommentWriter($targets),
             new MenuWriter($targets),
             new UrlRedirectWriter(),

@@ -107,7 +107,7 @@ final class ShopWriter implements Writer
         $options = [
             'blogname' => $f->string('name'),
             'woocommerce_email_from_address' => $f->nullableString('email'),
-            'woocommerce_currency' => $f->string('currency'),
+            'woocommerce_currency' => $f->nullableString('currency'),
             'woocommerce_weight_unit' => $f->nullableString('weight_unit'),
             'timezone_string' => $f->nullableString('timezone'),
             'woocommerce_prices_include_tax' => is_bool($includesTax) ? ($includesTax ? 'yes' : 'no') : null,

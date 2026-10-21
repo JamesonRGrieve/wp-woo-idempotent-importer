@@ -23,7 +23,9 @@ PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
-SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid)
+SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid webflow)
+# FluentCRM (free, GPL), the WordPress home of CRM data, at the version the importer is analysed against.
+FLUENTCRM_VERSION=3.2.6
 
 # Optional: keep the image/container store somewhere else (e.g. local disk when $HOME is on NFS).
 if [ -n "${E2E_PODMAN_ROOT:-}" ]; then
@@ -123,6 +125,7 @@ wp config create --dbname=wp --dbuser=wp --dbpass=wp --dbhost=db --skip-check --
 wait_for_db
 wp core install --url=http://localhost --title=E2E --admin_user=e2e --admin_email=e2e@example.com --skip-email --quiet
 wp plugin install woocommerce --activate --quiet
+wp plugin install fluent-crm --version="$FLUENTCRM_VERSION" --activate --quiet
 podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$WP_IMAGE" \
     sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/iim-e2e.php'
 wp plugin activate "$PLUGIN_SLUG"
@@ -140,6 +143,7 @@ import_source wix "a price, a deleted product, a refund, a new order, contact an
 import_source magento "a price, a deleted product, a refund, a new order, customer and page"
 import_source lightspeed "a price, a deleted product, a credit note, a new order, customer, article and review"
 import_source ecwid "a price, a deleted product, a refund, a new order, customer and review"
+import_source webflow "a price, a refunded order, a new order and customer, a new post and a removed redirect"
 
 echo "== Lockout safety: a rate-limited source pauses the run; rejected credentials stop it and hold scheduled runs"
 wp iim-e2e lockout

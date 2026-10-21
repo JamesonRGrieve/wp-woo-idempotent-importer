@@ -1,0 +1,66 @@
+{
+  "request": {
+    "path": "/v2/sites/64f1a2b3c4d5e6f708192a3b/pages",
+    "query": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "pages": [
+      {
+        "id": "64f1a2b3c4d5e6f708197a01",
+        "siteId": "64f1a2b3c4d5e6f708192a3b",
+        "title": "About the studio",
+        "slug": "about",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "draft": false,
+        "canBranch": true,
+        "isBranch": false,
+        "seo": {
+          "title": "About Fernhill Ceramics",
+          "description": "A small pottery studio on Vancouver Island."
+        },
+        "openGraph": {
+          "title": "About Fernhill",
+          "titleCopied": false,
+          "description": "A small pottery studio.",
+          "descriptionCopied": false
+        },
+        "localeId": "653ad57de882f528b32e8100",
+        "publishedPath": "/about"
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708197a02",
+        "siteId": "64f1a2b3c4d5e6f708192a3b",
+        "title": "Journal Template",
+        "slug": "detail_journal",
+        "collectionId": "64f1a2b3c4d5e6f708192b04",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "draft": false,
+        "canBranch": false,
+        "isBranch": false,
+        "seo": {
+          "title": "",
+          "description": ""
+        },
+        "openGraph": {
+          "title": "",
+          "titleCopied": true,
+          "description": "",
+          "descriptionCopied": true
+        },
+        "localeId": "653ad57de882f528b32e8100",
+        "publishedPath": "/journal/[slug]"
+      }
+    ],
+    "pagination": {
+      "limit": 100,
+      "offset": 0,
+      "total": 2
+    }
+  }
+}

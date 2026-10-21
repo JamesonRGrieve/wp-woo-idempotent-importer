@@ -1,0 +1,50 @@
+{
+  "request": {
+    "path": "/v2/collections/64f1a2b3c4d5e6f708192b03/items",
+    "query": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "items": [
+      {
+        "id": "64f1a2b3c4d5e6f708193c01",
+        "cmsLocaleId": "653ad57de882f528b32e810e",
+        "lastPublished": "2026-09-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "isArchived": false,
+        "isDraft": false,
+        "fieldData": {
+          "name": "Mugs",
+          "slug": "mugs",
+          "description": "<p>Wheel-thrown mugs.</p>",
+          "image": {
+            "fileId": "64f1a2b3c4d5e6f708196f01",
+            "url": "http://webflow-fake:8080/images/wf-cat-mugs.png",
+            "alt": "A row of mugs"
+          }
+        }
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708193c02",
+        "cmsLocaleId": "653ad57de882f528b32e810e",
+        "lastPublished": "2026-09-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "isArchived": false,
+        "isDraft": false,
+        "fieldData": {
+          "name": "Bowls",
+          "slug": "bowls",
+          "description": "<p>Bowls for every table.</p>"
+        }
+      }
+    ],
+    "pagination": {
+      "limit": 100,
+      "offset": 0,
+      "total": 2
+    }
+  }
+}

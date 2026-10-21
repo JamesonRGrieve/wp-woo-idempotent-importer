@@ -14,6 +14,7 @@ use IdempotentImporter\Source\Magento\MagentoAdapter;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
 use IdempotentImporter\Source\Squarespace\SquarespaceAdapter;
+use IdempotentImporter\Source\Webflow\WebflowAdapter;
 use IdempotentImporter\Source\Wix\WixAdapter;
 
 /** Every source platform the importer knows, built or deferred. The single list of adapters. */
@@ -35,6 +36,7 @@ final class Adapters
             new EcwidAdapter(),
             new MagentoAdapter(),
             new LightspeedAdapter(),
+            new WebflowAdapter(),
         ] as $adapter) {
             $byId[$adapter->id()] = $adapter;
         }

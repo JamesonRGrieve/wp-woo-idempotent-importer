@@ -19,7 +19,8 @@
         "phpunit/phpunit": "^12.0",
         "symfony/yaml": "^7.3",
         "szepeviktor/phpstan-wordpress": "^2.0",
-        "webonyx/graphql-php": "^15.20"
+        "webonyx/graphql-php": "^15.20",
+        "wpackagist-plugin/fluent-crm": "3.2.6"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +35,10 @@
     },
     "config": {
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "composer/installers": false
+        }
     },
     "scripts": {
         "post-install-cmd": "git config core.hooksPath .githooks",
@@ -61,5 +65,11 @@
             "@composer audit",
             "@composer validate --strict"
         ]
+    },
+    "repositories": {
+        "wpackagist": {
+            "type": "composer",
+            "url": "https://wpackagist.org"
+        }
     }
 }

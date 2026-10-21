@@ -48,6 +48,7 @@ const REST_SOURCES = [
     // HTTP Basic with e2e-lightspeed-key:e2e-lightspeed-secret, under the shop language's path.
     'lightspeed' => ['#^/[a-z]{2}/#', [LightspeedAuthorizer::HEADER => 'Basic ZTJlLWxpZ2h0c3BlZWQta2V5OmUyZS1saWdodHNwZWVkLXNlY3JldA==']],
     'ecwid' => ['#^/api/v3/\d+/#', [EcwidAuthorizer::HEADER => EcwidAuthorizer::BEARER . 'e2e-ecwid-token']],
+    'webflow' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-webflow-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 /** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */

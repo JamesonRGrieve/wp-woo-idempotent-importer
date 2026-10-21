@@ -95,7 +95,12 @@ final class EtsyAdapter implements Adapter, ConnectsByOAuth
         return $this->oauth($connection, $transport)->authorizationUrl($redirectUri, $state, $verifier);
     }
 
-    public function complete(HttpTransport $transport, string $code, string $verifier, string $redirectUri): void
+    public function callbackParameters(): array
+    {
+        return [];
+    }
+
+    public function complete(HttpTransport $transport, string $code, string $verifier, string $redirectUri, array $callback): void
     {
         $connection = $this->connection();
         $this->oauth($connection, $transport)->exchange($code, $verifier, $redirectUri);

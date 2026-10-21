@@ -1,0 +1,51 @@
+{
+  "request": {
+    "path": "/v2/collections/64f1a2b3c4d5e6f708192b03"
+  },
+  "response": {
+    "id": "64f1a2b3c4d5e6f708192b03",
+    "displayName": "Categories",
+    "singularName": "Category",
+    "slug": "category",
+    "createdOn": "2026-08-01T16:00:00.000Z",
+    "lastUpdated": "2026-09-01T16:00:00.000Z",
+    "fields": [
+      {
+        "id": "6a0000000000000000000001",
+        "isRequired": true,
+        "isEditable": true,
+        "type": "PlainText",
+        "slug": "name",
+        "displayName": "Name",
+        "helpText": ""
+      },
+      {
+        "id": "6a0000000000000000000002",
+        "isRequired": true,
+        "isEditable": true,
+        "type": "PlainText",
+        "slug": "slug",
+        "displayName": "Slug",
+        "helpText": ""
+      },
+      {
+        "id": "6a0000000000000000000003",
+        "isRequired": false,
+        "isEditable": true,
+        "type": "RichText",
+        "slug": "description",
+        "displayName": "Description",
+        "helpText": ""
+      },
+      {
+        "id": "6a0000000000000000000004",
+        "isRequired": false,
+        "isEditable": true,
+        "type": "Image",
+        "slug": "image",
+        "displayName": "Image",
+        "helpText": ""
+      }
+    ]
+  }
+}

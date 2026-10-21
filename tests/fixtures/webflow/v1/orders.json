@@ -1,0 +1,363 @@
+{
+  "request": {
+    "path": "/v2/sites/64f1a2b3c4d5e6f708192a3b/orders",
+    "query": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "orders": [
+      {
+        "orderId": "a3f9c1",
+        "status": "fulfilled",
+        "comment": "",
+        "orderComment": "Please wrap them separately.",
+        "acceptedOn": "2026-09-02T17:30:00.000Z",
+        "customerPaid": {
+          "unit": "CAD",
+          "value": "11025",
+          "string": "$ 110.25 CAD"
+        },
+        "netAmount": {
+          "unit": "CAD",
+          "value": "10925",
+          "string": "$ 109.25 CAD"
+        },
+        "applicationFee": {
+          "unit": "CAD",
+          "value": "0",
+          "string": "$ 0.00 CAD"
+        },
+        "allAddresses": [
+          {
+            "type": "shipping",
+            "addressee": "Ada Thorne",
+            "line1": "12 Cedar Lane",
+            "line2": "",
+            "city": "Victoria",
+            "state": "BC",
+            "country": "CA",
+            "postalCode": "V8V 1A1"
+          },
+          {
+            "type": "billing",
+            "addressee": "Ada Thorne",
+            "line1": "12 Cedar Lane",
+            "line2": "",
+            "city": "Victoria",
+            "state": "BC",
+            "country": "CA",
+            "postalCode": "V8V 1A1"
+          }
+        ],
+        "shippingAddress": {
+          "type": "shipping",
+          "addressee": "Ada Thorne",
+          "line1": "12 Cedar Lane",
+          "line2": "",
+          "city": "Victoria",
+          "state": "BC",
+          "country": "CA",
+          "postalCode": "V8V 1A1"
+        },
+        "billingAddress": {
+          "type": "billing",
+          "addressee": "Ada Thorne",
+          "line1": "12 Cedar Lane",
+          "line2": "",
+          "city": "Victoria",
+          "state": "BC",
+          "country": "CA",
+          "postalCode": "V8V 1A1"
+        },
+        "customerInfo": {
+          "fullName": "Ada Thorne",
+          "email": "ada.thorne@example.com"
+        },
+        "purchasedItems": [
+          {
+            "count": 2,
+            "rowTotal": {
+              "unit": "CAD",
+              "value": "5600",
+              "string": "$ 56.00 CAD"
+            },
+            "productId": "64f1a2b3c4d5e6f708194d01",
+            "productName": "Speckled mug",
+            "productSlug": "speckled-mug",
+            "variantId": "64f1a2b3c4d5e6f708195e01",
+            "variantName": "Speckled mug",
+            "variantSlug": "speckled-mug",
+            "variantSKU": "FH-MUG-1",
+            "variantImage": {
+              "url": "http://webflow-fake:8080/images/speckled-mug.png"
+            },
+            "variantPrice": {
+              "unit": "CAD",
+              "value": "2800",
+              "string": "$ 28.00 CAD"
+            },
+            "weight": null,
+            "width": null,
+            "height": null,
+            "length": null
+          },
+          {
+            "count": 1,
+            "rowTotal": {
+              "unit": "CAD",
+              "value": "4400",
+              "string": "$ 44.00 CAD"
+            },
+            "productId": "64f1a2b3c4d5e6f708194d02",
+            "productName": "Ramen bowl",
+            "productSlug": "ramen-bowl",
+            "variantId": "64f1a2b3c4d5e6f708195e03",
+            "variantName": "Ramen bowl Celadon",
+            "variantSlug": "ramen-bowl-celadon",
+            "variantSKU": "FH-BOWL-CEL",
+            "variantImage": {
+              "url": "http://webflow-fake:8080/images/ramen-bowl-celadon.png"
+            },
+            "variantPrice": {
+              "unit": "CAD",
+              "value": "4400",
+              "string": "$ 44.00 CAD"
+            },
+            "weight": null,
+            "width": null,
+            "height": null,
+            "length": null
+          }
+        ],
+        "purchasedItemsCount": 3,
+        "stripeDetails": {
+          "paymentMethod": "pm_wf_a3f9c1",
+          "paymentIntentId": "pi_wf_a3f9c1",
+          "customerId": "cus_wf_a3f9c1",
+          "chargeId": "ch_wf_a3f9c1"
+        },
+        "stripeCard": {
+          "last4": "4242",
+          "brand": "Visa",
+          "ownerName": "Ada Thorne",
+          "expires": {
+            "year": 2029,
+            "month": 4
+          }
+        },
+        "customData": [],
+        "isCustomerDeleted": false,
+        "isShippingRequired": true,
+        "hasDownloads": false,
+        "paymentProcessor": "stripe",
+        "totals": {
+          "subtotal": {
+            "unit": "CAD",
+            "value": "10000",
+            "string": "$ 100.00 CAD"
+          },
+          "extras": [
+            {
+              "type": "discount",
+              "name": "Discount (WELCOME10)",
+              "description": "Discount (WELCOME10)",
+              "price": {
+                "unit": "CAD",
+                "value": "-1000",
+                "string": "$ -10.00 CAD"
+              }
+            },
+            {
+              "type": "shipping",
+              "name": "Canada Post Expedited",
+              "description": "Canada Post Expedited",
+              "price": {
+                "unit": "CAD",
+                "value": "1500",
+                "string": "$ 15.00 CAD"
+              }
+            },
+            {
+              "type": "tax",
+              "name": "GST",
+              "description": "GST",
+              "price": {
+                "unit": "CAD",
+                "value": "525",
+                "string": "$ 5.25 CAD"
+              }
+            }
+          ],
+          "total": {
+            "unit": "CAD",
+            "value": "11025",
+            "string": "$ 110.25 CAD"
+          }
+        },
+        "downloadFiles": [],
+        "fulfilledOn": "2026-09-03T18:00:00.000Z",
+        "shippingProvider": "Canada Post",
+        "shippingTracking": "CP123456789CA"
+      },
+      {
+        "orderId": "b71d04",
+        "status": "unfulfilled",
+        "comment": "",
+        "orderComment": "",
+        "acceptedOn": "2026-09-05T20:00:00.000Z",
+        "customerPaid": {
+          "unit": "CAD",
+          "value": "2940",
+          "string": "$ 29.40 CAD"
+        },
+        "netAmount": {
+          "unit": "CAD",
+          "value": "2840",
+          "string": "$ 28.40 CAD"
+        },
+        "applicationFee": {
+          "unit": "CAD",
+          "value": "0",
+          "string": "$ 0.00 CAD"
+        },
+        "allAddresses": [
+          {
+            "type": "shipping",
+            "addressee": "Bo Lindqvist",
+            "line1": "400 Quay St",
+            "line2": "",
+            "city": "Nanaimo",
+            "state": "BC",
+            "country": "CA",
+            "postalCode": "V9R 2B2"
+          },
+          {
+            "type": "billing",
+            "addressee": "Bo Lindqvist",
+            "line1": "400 Quay St",
+            "line2": "",
+            "city": "Nanaimo",
+            "state": "BC",
+            "country": "CA",
+            "postalCode": "V9R 2B2"
+          }
+        ],
+        "shippingAddress": {
+          "type": "shipping",
+          "addressee": "Bo Lindqvist",
+          "line1": "400 Quay St",
+          "line2": "",
+          "city": "Nanaimo",
+          "state": "BC",
+          "country": "CA",
+          "postalCode": "V9R 2B2"
+        },
+        "billingAddress": {
+          "type": "billing",
+          "addressee": "Bo Lindqvist",
+          "line1": "400 Quay St",
+          "line2": "",
+          "city": "Nanaimo",
+          "state": "BC",
+          "country": "CA",
+          "postalCode": "V9R 2B2"
+        },
+        "customerInfo": {
+          "fullName": "Bo Lindqvist",
+          "email": "Bo.Lindqvist@example.com"
+        },
+        "purchasedItems": [
+          {
+            "count": 1,
+            "rowTotal": {
+              "unit": "CAD",
+              "value": "2800",
+              "string": "$ 28.00 CAD"
+            },
+            "productId": "64f1a2b3c4d5e6f708194d01",
+            "productName": "Speckled mug",
+            "productSlug": "speckled-mug",
+            "variantId": "64f1a2b3c4d5e6f708195e01",
+            "variantName": "Speckled mug",
+            "variantSlug": "speckled-mug",
+            "variantSKU": "FH-MUG-1",
+            "variantImage": {
+              "url": "http://webflow-fake:8080/images/speckled-mug.png"
+            },
+            "variantPrice": {
+              "unit": "CAD",
+              "value": "2800",
+              "string": "$ 28.00 CAD"
+            },
+            "weight": null,
+            "width": null,
+            "height": null,
+            "length": null
+          }
+        ],
+        "purchasedItemsCount": 1,
+        "stripeDetails": {
+          "paymentMethod": "pm_wf_b71d04",
+          "paymentIntentId": "pi_wf_b71d04",
+          "customerId": "cus_wf_b71d04",
+          "chargeId": "ch_wf_b71d04"
+        },
+        "stripeCard": {
+          "last4": "4242",
+          "brand": "Visa",
+          "ownerName": "Bo Lindqvist",
+          "expires": {
+            "year": 2029,
+            "month": 4
+          }
+        },
+        "customData": [],
+        "isCustomerDeleted": false,
+        "isShippingRequired": true,
+        "hasDownloads": false,
+        "paymentProcessor": "stripe",
+        "totals": {
+          "subtotal": {
+            "unit": "CAD",
+            "value": "2800",
+            "string": "$ 28.00 CAD"
+          },
+          "extras": [
+            {
+              "type": "shipping",
+              "name": "Local pickup",
+              "description": "Local pickup",
+              "price": {
+                "unit": "CAD",
+                "value": "0",
+                "string": "$ 0.00 CAD"
+              }
+            },
+            {
+              "type": "tax",
+              "name": "GST",
+              "description": "GST",
+              "price": {
+                "unit": "CAD",
+                "value": "140",
+                "string": "$ 1.40 CAD"
+              }
+            }
+          ],
+          "total": {
+            "unit": "CAD",
+            "value": "2940",
+            "string": "$ 29.40 CAD"
+          }
+        },
+        "downloadFiles": []
+      }
+    ],
+    "pagination": {
+      "limit": 100,
+      "offset": 0,
+      "total": 2
+    }
+  }
+}

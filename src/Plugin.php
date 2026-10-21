@@ -8,6 +8,7 @@ namespace IdempotentImporter;
 
 use IdempotentImporter\Wp\AdminPage;
 use IdempotentImporter\Wp\Cli;
+use IdempotentImporter\Wp\ContentTypes;
 use IdempotentImporter\Wp\DynamicCollections;
 use IdempotentImporter\Wp\GiftCardAccount;
 use IdempotentImporter\Wp\Scheduler;
@@ -65,6 +66,7 @@ final class Plugin
         $scheduler->register();
         (new Storefront($services->settings(), $services->redirects(), $services->links()))->register();
         (new DynamicCollections())->register();
+        (new ContentTypes())->register();
         (new GiftCardAccount($services->giftCards()))->register();
         $receiver = $services->adapter()->webhooks();
         if ($receiver !== null) {

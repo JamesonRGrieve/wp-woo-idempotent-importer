@@ -1,0 +1,49 @@
+{
+  "request": {
+    "path": "/v2/sites/64f1a2b3c4d5e6f708192a3b/collections"
+  },
+  "response": {
+    "collections": [
+      {
+        "id": "64f1a2b3c4d5e6f708192b01",
+        "displayName": "Products",
+        "singularName": "Product",
+        "slug": "product",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z"
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708192b02",
+        "displayName": "SKUs",
+        "singularName": "SKU",
+        "slug": "sku",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z"
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708192b03",
+        "displayName": "Categories",
+        "singularName": "Category",
+        "slug": "category",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z"
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708192b04",
+        "displayName": "Journal",
+        "singularName": "Journal Post",
+        "slug": "journal",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z"
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708192b05",
+        "displayName": "Team",
+        "singularName": "Team Member",
+        "slug": "team",
+        "createdOn": "2026-08-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z"
+      }
+    ]
+  }
+}

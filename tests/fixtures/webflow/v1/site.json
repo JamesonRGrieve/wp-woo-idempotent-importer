@@ -1,0 +1,35 @@
+{
+  "request": {
+    "path": "/v2/sites/64f1a2b3c4d5e6f708192a3b"
+  },
+  "response": {
+    "id": "64f1a2b3c4d5e6f708192a3b",
+    "workspaceId": "64f1a2b3c4d5e6f708190001",
+    "createdOn": "2025-02-01T16:00:00.000Z",
+    "displayName": "Fernhill Ceramics",
+    "shortName": "fernhill-ceramics",
+    "lastPublished": "2026-09-01T16:00:00.000Z",
+    "lastUpdated": "2026-09-01T16:00:00.000Z",
+    "timeZone": "America/Vancouver",
+    "customDomains": [
+      {
+        "id": "64f1a2b3c4d5e6f708190002",
+        "url": "fernhill.example"
+      }
+    ],
+    "locales": {
+      "primary": {
+        "id": "653ad57de882f528b32e8100",
+        "cmsLocaleId": "653ad57de882f528b32e810e",
+        "enabled": true,
+        "displayName": "English (Canada)",
+        "redirect": false,
+        "subdirectory": "",
+        "tag": "en-CA"
+      },
+      "secondary": []
+    },
+    "dataCollectionEnabled": true,
+    "dataCollectionType": "optOut"
+  }
+}

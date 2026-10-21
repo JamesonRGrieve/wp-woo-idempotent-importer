@@ -24,6 +24,7 @@ final readonly class Settings
         'kinds' => [
             'shop', 'file', 'collection', 'product', 'customer', 'discount', 'order', 'draft_order',
             'page', 'blog', 'article', 'comment', 'menu', 'url_redirect', 'review',
+            'crm_company', 'crm_list', 'crm_tag', 'crm_contact', 'crm_note', 'content_type', 'content_item',
         ],
         'filters' => [],
         'interval_minutes' => 60,

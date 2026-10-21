@@ -1,0 +1,65 @@
+{
+  "request": {
+    "path": "/v2/pages/64f1a2b3c4d5e6f708197a01/dom",
+    "query": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "pageId": "64f1a2b3c4d5e6f708197a01",
+    "nodes": [
+      {
+        "id": "d0000001-0000-4000-8000-000000000001",
+        "type": "text",
+        "text": {
+          "html": "<h1>About the studio</h1>",
+          "text": "About the studio"
+        }
+      },
+      {
+        "id": "d0000001-0000-4000-8000-000000000002",
+        "type": "text",
+        "text": {
+          "html": "<p>We throw every piece by hand in Fernhill.</p>",
+          "text": "We throw every piece by hand in Fernhill."
+        }
+      },
+      {
+        "id": "d0000001-0000-4000-8000-000000000003",
+        "type": "image",
+        "image": {
+          "alt": "",
+          "assetId": "64f1a2b3c4d5e6f708196f01"
+        }
+      },
+      {
+        "id": "d0000001-0000-4000-8000-000000000004",
+        "type": "component-instance",
+        "componentId": "c0000001-0000-4000-8000-000000000001",
+        "propertyOverrides": [
+          {
+            "propertyId": "p0000001",
+            "type": "Plain Text",
+            "label": "Call to action",
+            "text": {
+              "html": null,
+              "text": "Visit us Saturdays."
+            }
+          }
+        ]
+      },
+      {
+        "id": "d0000001-0000-4000-8000-000000000005",
+        "type": "submit-button",
+        "value": "Join the list",
+        "waitingText": "Please wait..."
+      }
+    ],
+    "pagination": {
+      "limit": 100,
+      "offset": 0,
+      "total": 5
+    },
+    "lastUpdated": "2026-09-01T16:00:00.000Z"
+  }
+}

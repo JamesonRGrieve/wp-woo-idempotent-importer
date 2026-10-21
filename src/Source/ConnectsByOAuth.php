@@ -18,8 +18,20 @@ interface ConnectsByOAuth
     /** @throws SourceError when the app credentials aren't configured */
     public function authorizationUrl(HttpTransport $transport, string $redirectUri, string $state, string $verifier): string;
 
-    /** @throws SourceError when the source refuses the code */
-    public function complete(HttpTransport $transport, string $code, string $verifier, string $redirectUri): void;
+    /**
+     * The query parameters, besides the code and state, that the source's redirect back carries and the
+     * connection needs (QuickBooks names the company as `realmId`, Zoho its data centre as `accounts-server`).
+     *
+     * @return list<string>
+     */
+    public function callbackParameters(): array;
+
+    /**
+     * @param array<string, string> $callback the callbackParameters() the redirect carried
+     *
+     * @throws SourceError when the source refuses the code
+     */
+    public function complete(HttpTransport $transport, string $code, string $verifier, string $redirectUri, array $callback): void;
 
     /** Whether a shop has been connected (a refresh token is held). */
     public function isConnected(): bool;

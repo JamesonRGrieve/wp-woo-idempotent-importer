@@ -40,6 +40,20 @@ enum Kind: string
     case DeliveryProfile = 'delivery_profile';
     case ShippingZone = 'shipping_zone';
     case Review = 'review';
+    /** A CRM company (account, organization): a FluentCRM company. */
+    case CrmCompany = 'crm_company';
+    /** A CRM list or segment: a FluentCRM list, its membership mirrored onto each contact. */
+    case CrmList = 'crm_list';
+    /** A CRM tag or label: a FluentCRM tag. */
+    case CrmTag = 'crm_tag';
+    /** A CRM contact (person, lead, client): a FluentCRM contact with its custom fields. */
+    case Contact = 'crm_contact';
+    /** A note or logged activity (call, email, meeting, task) on a contact: a FluentCRM contact note. */
+    case CrmNote = 'crm_note';
+    /** A CMS collection (a content type): a custom post type the plugin registers. */
+    case ContentType = 'content_type';
+    /** An item of a CMS collection: a post of its collection's post type. */
+    case ContentItem = 'content_item';
 
     /** The kinds a run can read, in dependency order (each adapter provides a subset). */
     public const SYNC_ORDER = [
@@ -48,6 +62,11 @@ enum Kind: string
         self::Collection,
         self::Product,
         self::Customer,
+        self::CrmCompany,
+        self::CrmList,
+        self::CrmTag,
+        self::Contact,
+        self::CrmNote,
         self::Discount,
         self::Order,
         self::Return,
@@ -57,6 +76,8 @@ enum Kind: string
         self::Page,
         self::Blog,
         self::Article,
+        self::ContentType,
+        self::ContentItem,
         self::Comment,
         self::Menu,
         self::UrlRedirect,

@@ -14,9 +14,14 @@ use IdempotentImporter\Wp\Meta\MetaSync;
 use IdempotentImporter\Wp\Meta\WpMeta;
 use IdempotentImporter\Wp\Retirement;
 
-/** Shopify Files → media library attachments (shared with every other use of the same URL). */
+/**
+ * Files and assets → media library attachments (shared with every other use of the same URL). The file's other
+ * mapped details are kept as `_mirror_<field>` meta.
+ */
 final class FileWriter implements Writer
 {
+    private const CONSUMED = ['download_url', 'alt'];
+
     public function __construct(private readonly Targets $targets) {}
 
     public function kind(): Kind
@@ -28,7 +33,7 @@ final class FileWriter implements Writer
     {
         $f = Values::of($desired);
         $id = $this->targets->media->attachment($f->string('download_url'), $f->nullableString('alt'));
-        MetaSync::fields(WpMeta::post($id), [MetaSync::GID => $desired->gid, MetaSync::DELETED => null]);
+        MetaSync::mirror(WpMeta::post($id), $desired->gid, $f, self::CONSUMED);
 
         return $id;
     }

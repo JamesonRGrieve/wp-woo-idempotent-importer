@@ -1,0 +1,53 @@
+{
+  "request": {
+    "path": "/v2/collections/64f1a2b3c4d5e6f708192b04/items",
+    "query": {
+      "offset": 0
+    }
+  },
+  "response": {
+    "items": [
+      {
+        "id": "64f1a2b3c4d5e6f708198b01",
+        "cmsLocaleId": "653ad57de882f528b32e810e",
+        "lastPublished": "2026-09-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "createdOn": "2026-08-10T16:00:00.000Z",
+        "isArchived": false,
+        "isDraft": false,
+        "fieldData": {
+          "name": "Firing the anagama",
+          "slug": "firing-the-anagama",
+          "post-body": "<p>Five days of stoking.</p>",
+          "post-summary": "A week at the wood kiln.",
+          "main-image": {
+            "fileId": "64f1a2b3c4d5e6f708196f01",
+            "url": "http://webflow-fake:8080/images/wf-kiln.png",
+            "alt": "The kiln at night"
+          },
+          "author": "64f1a2b3c4d5e6f708199c01"
+        }
+      },
+      {
+        "id": "64f1a2b3c4d5e6f708198b02",
+        "cmsLocaleId": "653ad57de882f528b32e810e",
+        "lastPublished": "2026-09-01T16:00:00.000Z",
+        "lastUpdated": "2026-09-01T16:00:00.000Z",
+        "createdOn": "2026-08-20T16:00:00.000Z",
+        "isArchived": false,
+        "isDraft": true,
+        "fieldData": {
+          "name": "Glaze tests",
+          "slug": "glaze-tests",
+          "post-body": "<p>Not ready yet.</p>",
+          "post-summary": "Coming soon."
+        }
+      }
+    ],
+    "pagination": {
+      "limit": 100,
+      "offset": 0,
+      "total": 2
+    }
+  }
+}

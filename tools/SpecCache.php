@@ -99,6 +99,16 @@ final class SpecCache
             // REST API reference (docs.ecwid.com/api-reference/rest-api/, each schema cites its page). Requests go
             // to /api/v3/<store id>/…, so that prefix is stripped.
             SpecDocument::committed('ecwid', 'rest-api-reference', 'tests/schemas/ecwid.json', '/api/v3/\d+', false),
+            // Webflow Data API v2 (OpenAPI 3.1, webflow/openapi-spec at the commit of 2026-09-02). Its server is
+            // https://api.webflow.com/v2, so the /v2 prefix is stripped.
+            new SpecDocument(
+                'webflow',
+                'data-api-v2',
+                'https://raw.githubusercontent.com/webflow/openapi-spec/f6db607359a412dd6aa6cd304674731d7f2dbe10/openapi/v2.yml',
+                '/v2',
+                false,
+                SpecDocument::FORMAT_YAML,
+            ),
         ];
     }
 

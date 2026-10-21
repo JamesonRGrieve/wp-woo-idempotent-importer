@@ -1,0 +1,10 @@
+{
+  "request": {
+    "path": "/v2/collections/64f1a2b3c4d5e6f708192b02/items/64f1a2b3c4d5e6f708195e02/inventory"
+  },
+  "response": {
+    "id": "64f1a2b3c4d5e6f708195e02",
+    "quantity": 5,
+    "inventoryType": "finite"
+  }
+}

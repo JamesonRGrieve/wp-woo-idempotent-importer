@@ -86,8 +86,13 @@ final class OAuthConnect
         if ($code === '') {
             $this->page->back('The connection was not approved.');
         }
+        $adapter = $this->adapter();
+        $callback = [];
+        foreach ($adapter->callbackParameters() as $name) {
+            $callback[$name] = $query->text($name);
+        }
         try {
-            $this->adapter()->complete($this->services->transport(), $code, $verifier, self::redirectUri());
+            $adapter->complete($this->services->transport(), $code, $verifier, self::redirectUri(), $callback);
         } catch (SourceError $e) {
             $this->page->back($e->getMessage());
         }
