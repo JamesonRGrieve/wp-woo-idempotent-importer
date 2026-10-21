@@ -19,6 +19,7 @@ use IdempotentImporter\Source\Wix\Mapping\BlogMapper;
 use IdempotentImporter\Source\Wix\Mapping\CategoryMapper;
 use IdempotentImporter\Source\Wix\Mapping\ContactMapper;
 use IdempotentImporter\Source\Wix\Mapping\CouponMapper;
+use IdempotentImporter\Source\Wix\Mapping\LoyaltyAccountMapper;
 use IdempotentImporter\Source\Wix\Mapping\OrderMapper;
 use IdempotentImporter\Source\Wix\Mapping\ProductMapper;
 use IdempotentImporter\Source\Wix\Mapping\RedirectMapper;
@@ -55,8 +56,8 @@ final class WixAdapter implements Adapter
     public function kinds(): array
     {
         return [
-            Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order, Kind::Blog,
-            Kind::Article, Kind::UrlRedirect, Kind::Review,
+            Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order,
+            Kind::LoyaltyAccount, Kind::Blog, Kind::Article, Kind::UrlRedirect, Kind::Review,
         ];
     }
 
@@ -69,6 +70,7 @@ final class WixAdapter implements Adapter
             new ContactMapper(),
             new CouponMapper(),
             new OrderMapper(),
+            new LoyaltyAccountMapper(),
             new BlogMapper(),
             new ArticleMapper(),
             new RedirectMapper(),

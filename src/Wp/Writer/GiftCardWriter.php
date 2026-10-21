@@ -36,7 +36,6 @@ final class GiftCardWriter implements Writer
 {
     /** The key new gift card numbers are derived with (wp-config); WordPress's secure-auth salt when unset. */
     public const NUMBER_KEY = 'IIM_GIFT_CARD_NUMBER_KEY';
-    private const RETIRED = 'retired';
 
     public function __construct(
         private readonly Targets $targets,
@@ -115,7 +114,7 @@ final class GiftCardWriter implements Writer
     {
         $card = $this->cards->byId($link->targetId);
         if ($card !== null) {
-            $this->cards->save(new GiftCardRecord($card->id, $card->gid, $card->kind, $card->gan, $card->squareId, $card->currency, $card->sourceBalance, $card->loadedBalance, self::RETIRED, $card->userId, $card->codeHint, $card->held, $card->details));
+            $this->cards->retire($card);
         }
     }
 

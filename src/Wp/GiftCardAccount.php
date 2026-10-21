@@ -36,6 +36,9 @@ final class GiftCardAccount
         'activate' => 'Brought into Square',
         'adjust_increment' => 'Added in Square',
         'adjust_decrement' => 'Deducted in Square',
+        'earn' => 'Points earned',
+        'earn_attempt' => 'Points not earned (limit reached)',
+        'adjust_points' => 'Points brought into Square',
     ];
 
     public function __construct(private readonly GiftCardStore $cards) {}
@@ -97,15 +100,26 @@ final class GiftCardAccount
 
     private function card(GiftCardRecord $card): void
     {
-        $title = $card->kind === GiftCardRecord::STORE_CREDIT ? __('Store credit', self::TEXT_DOMAIN) : __('Gift card', self::TEXT_DOMAIN);
+        $loyalty = $card->kind === GiftCardStore::LOYALTY;
+        $title = match ($card->kind) {
+            GiftCardRecord::STORE_CREDIT => __('Store credit', self::TEXT_DOMAIN),
+            GiftCardStore::LOYALTY => __('Loyalty points', self::TEXT_DOMAIN),
+            default => __('Gift card', self::TEXT_DOMAIN),
+        };
         $headingId = 'iim-gift-card-' . $card->id;
         echo '<section class="iim-gift-card" aria-labelledby="' . esc_attr($headingId) . '">';
-        echo '<h3 id="' . esc_attr($headingId) . '">' . esc_html($title) . ' ' . esc_html(self::grouped($card->gan)) . '</h3>';
-        echo '<p>' . esc_html(sprintf(
-            /* translators: %s: the card's balance */
-            __('Balance: %s. Spend it online or in store with this number.', self::TEXT_DOMAIN),
-            self::price($card->sourceBalance, $card->currency),
-        )) . '</p>';
+        echo '<h3 id="' . esc_attr($headingId) . '">' . esc_html($title) . ($loyalty ? '' : ' ' . esc_html(self::grouped($card->gan))) . '</h3>';
+        echo '<p>' . esc_html($loyalty
+            ? sprintf(
+                /* translators: %s: the account's points balance */
+                __('Balance: %s points, earned and spent with your phone number online and in store.', self::TEXT_DOMAIN),
+                $card->sourceBalance,
+            )
+            : sprintf(
+                /* translators: %s: the card's balance */
+                __('Balance: %s. Spend it online or in store with this number.', self::TEXT_DOMAIN),
+                self::price($card->sourceBalance, $card->currency),
+            )) . '</p>';
         $ledger = $this->cards->ledger($card->id);
         if ($ledger === []) {
             echo '</section>';
@@ -118,17 +132,19 @@ final class GiftCardAccount
         }
         echo '</tr></thead><tbody>';
         foreach ($ledger as $entry) {
-            $this->entry($entry, $card->currency);
+            $this->entry($entry, $loyalty ? null : $card->currency);
         }
         echo '</tbody></table></section>';
     }
 
-    private function entry(LedgerEntry $entry, string $currency): void
+    /** One ledger line; amounts in $currency, or points when null. */
+    private function entry(LedgerEntry $entry, ?string $currency): void
     {
         $date = $entry->occurredAt === null ? __('Before the move', self::TEXT_DOMAIN) : wp_date(self::DATE_FORMAT, (int) strtotime($entry->occurredAt));
         $label = __(self::KIND_LABELS[$entry->kind] ?? ucfirst(str_replace('_', ' ', $entry->kind)), self::TEXT_DOMAIN);
-        echo '<tr><td>' . esc_html((string) $date) . '</td><td>' . esc_html($label) . '</td><td>' . esc_html(self::price($entry->amount, $currency))
-            . '</td><td>' . esc_html($entry->balanceAfter === null ? '' : self::price($entry->balanceAfter, $currency)) . '</td></tr>';
+        $amount = static fn(string $value): string => $currency === null ? $value : self::price($value, $currency);
+        echo '<tr><td>' . esc_html((string) $date) . '</td><td>' . esc_html($label) . '</td><td>' . esc_html($amount($entry->amount))
+            . '</td><td>' . esc_html($entry->balanceAfter === null ? '' : $amount($entry->balanceAfter)) . '</td></tr>';
     }
 
     private static function grouped(string $gan): string

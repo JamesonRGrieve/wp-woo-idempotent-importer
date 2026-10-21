@@ -36,6 +36,7 @@ use IdempotentImporter\Wp\Writer\DeliveryProfileWriter;
 use IdempotentImporter\Wp\Writer\DiscountWriter;
 use IdempotentImporter\Wp\Writer\FileWriter;
 use IdempotentImporter\Wp\Writer\GiftCardWriter;
+use IdempotentImporter\Wp\Writer\LoyaltyWriter;
 use IdempotentImporter\Wp\Writer\MenuWriter;
 use IdempotentImporter\Wp\Writer\OrderWriter;
 use IdempotentImporter\Wp\Writer\PageWriter;
@@ -81,6 +82,14 @@ final class Services
     public function tables(): Tables
     {
         return $this->tables;
+    }
+
+    /** The store's country (WooCommerce's base location, `CA:AB` → `CA`). */
+    private static function storeCountry(): string
+    {
+        $location = get_option('woocommerce_default_country');
+
+        return is_string($location) ? explode(':', $location)[0] : '';
     }
 
     /** The key new gift card numbers are derived with: GiftCardWriter::NUMBER_KEY, else WordPress's secure-auth salt. */
@@ -211,6 +220,7 @@ final class Services
             new OrderWriter(Kind::Order, $targets),
             new ReturnWriter($targets),
             new GiftCardWriter($targets, $this->giftCards(), $this->transport, $this->giftCardNumberKey()),
+            new LoyaltyWriter($targets, $this->giftCards(), $this->transport, self::storeCountry()),
             new OrderWriter(Kind::DraftOrder, $targets),
             new PageWriter($targets),
             new TermWriter(Kind::Blog, 'category', $targets),

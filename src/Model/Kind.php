@@ -28,6 +28,8 @@ enum Kind: string
     case Return = 'return';
     /** A gift card or store credit account: mirrored into Square Gift Cards (SquareStoredValue), with its ledger. */
     case GiftCard = 'gift_card';
+    /** A loyalty account (points): mirrored into Square Loyalty (SquareStoredValue), with its ledger. */
+    case LoyaltyAccount = 'loyalty_account';
     case DraftOrder = 'draft_order';
     case Page = 'page';
     case Blog = 'blog';
@@ -50,6 +52,7 @@ enum Kind: string
         self::Order,
         self::Return,
         self::GiftCard,
+        self::LoyaltyAccount,
         self::DraftOrder,
         self::Page,
         self::Blog,

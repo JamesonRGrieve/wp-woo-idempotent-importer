@@ -9,17 +9,29 @@ declare(strict_types=1);
  * Stores catalog; the V1 catalog is covered by the unit tests.
  */
 
+use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Mapping\LegacyPaths;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\Wix\WixAdapter;
+use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Storefront;
 
 $mugGid = 'gid://wix/Product/1a7e5c10-0001-4c2e-9b41-6f0d2a1e0001';
 $towelGid = 'gid://wix/Product/1a7e5c10-0002-4c2e-9b41-6f0d2a1e0002';
 $orderGid = 'gid://wix/Order/8f1e2d30-0001-4c5b-a69d-7e8f9a0b0001';
 $mayaGid = 'gid://wix/Contact/2c4e6a80-0001-4b3d-9e1f-5a6b7c8d0001';
+$loyaltyGid = 'gid://wix/LoyaltyAccount/5b0e7c40-0001-4a1b-8c2d-3e4f5a6b0001';
 
 return [
-    'v1' => static function () use ($mugGid, $towelGid, $orderGid, $mayaGid): void {
+    // Wix, with its loyalty accounts mirrored into Square Loyalty (the fake Square in wp-config).
+    'configure' => static function (): void {
+        selectSource(WixAdapter::ID);
+        update_option(Settings::OPTION, [...Options::array(Settings::OPTION), 'kinds' => [...Settings::DEFAULTS['kinds'], Kind::LoyaltyAccount->value]], false);
+    },
+    'v1' => static function () use ($mugGid, $towelGid, $orderGid, $mayaGid, $loyaltyGid): void {
+        $loyalty = services()->giftCards()->find($loyaltyGid) ?? throw new RuntimeException('FAILED: the loyalty account was not mirrored');
+        expect($loyalty->squareId === 'LA_MAYA' && $loyalty->sourceBalance === '120' && $loyalty->loadedBalance === '120', "the Wix loyalty account is a Square Loyalty account, enrolled by the customer's phone, with its points");
+        expect($loyalty->userId === user($mayaGid)->ID, "and it is the customer's");
         $mug = product($mugGid);
         expect($mug instanceof WC_Product_Simple && $mug->get_name() === 'Speckled clay mug', 'the mug is a simple product (its one variant)');
         expect($mug->get_regular_price() === '28' && $mug->get_sku() === 'WIX-MUG-1' && $mug->get_stock_quantity() === 14, 'price, SKU and its inventory item\'s quantity');
@@ -78,7 +90,11 @@ return [
         expect($storefront->target(LegacyPaths::normalise('/shop-sale')) === 'https://sale.prairiepottery.example/', 'redirect to a URL');
         expect($storefront->target(LegacyPaths::normalise('/post/firing-the-anagama')) === get_permalink($post), 'old post URL → post');
     },
-    'v2' => static function () use ($mugGid, $orderGid): void {
+    'v2' => static function () use ($mugGid, $orderGid, $loyaltyGid): void {
+        $loyalty = services()->giftCards()->find($loyaltyGid) ?? throw new RuntimeException('FAILED: the loyalty account was not mirrored');
+        expect($loyalty->sourceBalance === '70' && $loyalty->loadedBalance === '70', 'points redeemed at Wix are taken from the Square account');
+        $kinds = array_map(static fn($entry): string => $entry->kind, services()->giftCards()->ledger($loyalty->id));
+        expect($kinds === ['earn', 'adjust', 'redeem', 'adjust_points', 'adjust_points'], 'the ledger: the Wix history, then what was brought into Square');
         expect(product($mugGid)->get_regular_price() === '30', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://wix/Product/1a7e5c10-0003-4c2e-9b41-6f0d2a1e0003') === null, 'deleted product unlinked');
         expect(trashedProducts() === 6, 'deleted product trashed beside the earlier deletions');

@@ -139,7 +139,7 @@ WooCommerce order and never mirrored back. **None of this has run against the Sq
 Square request, response and webhook the tests use is recorded and validated against Square's published
 API specification.
 
-## Gift cards and store credit
+## Gift cards, store credit and loyalty
 
 Gift cards and store credit live in **Square Gift Cards**: one balance, spendable online (WooCommerce
 Square redeems them) and at the Square counter. With the `gift_card` kind switched on, each source gift card
@@ -157,8 +157,15 @@ becomes a digital Square gift card:
   is kept in the importer's ledger and shown in the customer's My Account.
 - It is linked to the customer's Square profile, found by email or created.
 
+Loyalty lives in **Square Loyalty**. With the `loyalty_account` kind switched on (Wix Loyalty Program), each
+account becomes the Square Loyalty account for the customer's phone number (Square enrols by phone), created
+when missing and linked to their Square customer. Its points are added once; afterwards only what the source
+changes is applied. A customer without a phone number Square can use (E.164, or a 10-digit number in a US or
+Canadian store) is held and retried. The source history and every adjustment are its ledger, shown in My
+Account. The seller needs a Square Loyalty subscription.
+
 Set the Square account in `wp-config.php`: `IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN` (scopes `GIFTCARDS_READ
-GIFTCARDS_WRITE CUSTOMERS_READ CUSTOMERS_WRITE`), `IIM_SQUARE_STORED_VALUE_LOCATION_ID`, and
+GIFTCARDS_WRITE LOYALTY_READ LOYALTY_WRITE CUSTOMERS_READ CUSTOMERS_WRITE`), `IIM_SQUARE_STORED_VALUE_LOCATION_ID`, and
 `IIM_SQUARE_STORED_VALUE_ENVIRONMENT=sandbox` to try it first. Sources: BigCommerce gift certificates
 (Shopify and Wix hide their cards' codes; see their coverage pages).
 

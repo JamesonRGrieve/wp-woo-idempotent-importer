@@ -9,13 +9,16 @@ namespace IdempotentImporter\Store;
 use wpdb;
 
 /**
- * Mirrored gift cards and store credit, and their ledgers. Square holds the one spendable balance; this keeps
+ * Mirrored gift cards, store credit and loyalty accounts, and their ledgers. Square holds the one spendable balance; this keeps
  * what Square can't: each card's source history (Square can't backdate activity) beside every write the
  * importer made in Square, and the source balance last brought into Square, so only what the source
  * changed is ever applied. Empty strings stand for "none".
  */
 final class GiftCardStore
 {
+    /** A loyalty account (points) kept beside the cards: same ledger, its balances in points. */
+    public const LOYALTY = 'loyalty';
+    public const RETIRED = 'retired';
     /** A ledger entry from the card's source history. */
     public const SOURCE_ENTRY = 'source';
     /** A ledger entry for an activity the importer wrote in Square. */
@@ -70,6 +73,12 @@ final class GiftCardStore
         );
 
         return $this->find($card->gid)->id ?? throw new \RuntimeException("Gift card {$card->gid} was not saved.");
+    }
+
+    /** Marks a card or account gone at its source; it stays (and stays in Square) as it was. */
+    public function retire(GiftCardRecord $card): void
+    {
+        $this->save(new GiftCardRecord($card->id, $card->gid, $card->kind, $card->gan, $card->squareId, $card->currency, $card->sourceBalance, $card->loadedBalance, self::RETIRED, $card->userId, $card->codeHint, $card->held, $card->details));
     }
 
     /**

@@ -92,6 +92,7 @@ final class WixReader implements SourceReader
                 Catalog::None => new Page([], false, null),
             },
             Kind::Customer => $this->contacts($cursor, $since),
+            Kind::LoyaltyAccount => $this->loyaltyAccounts($cursor),
             Kind::Discount => $this->coupons($cursor),
             Kind::Order => $this->orders($cursor, $since),
             Kind::Blog => $this->blogs($cursor),
@@ -247,6 +248,25 @@ final class WixReader implements SourceReader
         [$contacts, $next] = $this->cursorPage('/contacts/v5/contacts/query', 'query', self::listQuery('createdDate', $since), [], 'contacts', 'pagingMetadata', $cursor);
 
         return self::paged(array_map(static fn(Node $contact): Node => self::identified('Contact', $contact->string('id'), $contact->raw()), $contacts), $next);
+    }
+
+    /**
+     * Loyalty accounts (the Wix Loyalty Program app), each with its whole transaction history, oldest first,
+     * read for the page's accounts at once.
+     */
+    private function loyaltyAccounts(?string $cursor): Page
+    {
+        $oldestFirst = ['sort' => self::oldestFirst('createdDate')];
+        [$accounts, $next] = $this->cursorPage('/loyalty-accounts/v1/accounts/query', 'query', $oldestFirst, [], 'loyaltyAccounts', 'pagingMetadata', $cursor);
+        $ids = array_map(static fn(Node $account): string => $account->string('id'), $accounts);
+        $history = [];
+        if ($ids !== []) {
+            foreach ($this->allCursor('/loyalty-transactions/v1/loyalty-transactions/query', 'query', ['filter' => ['accountId' => ['$in' => $ids]], ...$oldestFirst], [], 'loyaltyTransactions', 'pagingMetadata') as $transaction) {
+                $history[$transaction->string('accountId')][] = $transaction->raw();
+            }
+        }
+
+        return self::paged(array_map(static fn(Node $account): Node => self::identified('LoyaltyAccount', $account->string('id'), [...$account->raw(), 'transactions' => $history[$account->string('id')] ?? []]), $accounts), $next);
     }
 
     /** Coupons, with the catalog they target products and collections of. */

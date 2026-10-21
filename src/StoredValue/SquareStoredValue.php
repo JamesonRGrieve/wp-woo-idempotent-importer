@@ -17,10 +17,12 @@ use IdempotentImporter\Support\Currency;
 
 /**
  * The Square seller account the store's gift cards (and store credit) live in, whatever the source: Square
- * Gift Cards and Square customers, through the Square API at the version the Square Online adapter speaks.
+ * Gift Cards, Square Loyalty and Square customers, through the Square API at the version the Square Online
+ * adapter speaks.
  * Every write carries an idempotency key derived from what it writes, so a retried run never applies it
  * twice. Configured in wp-config.php or the environment: the access token (GIFTCARDS_READ, GIFTCARDS_WRITE,
- * CUSTOMERS_READ, CUSTOMERS_WRITE), the location activities are recorded at, and the environment.
+ * LOYALTY_READ, LOYALTY_WRITE, CUSTOMERS_READ, CUSTOMERS_WRITE), the location activities are recorded at, and
+ * the environment.
  */
 final class SquareStoredValue
 {
@@ -134,6 +136,52 @@ final class SquareStoredValue
     public function linkCustomer(string $cardId, string $customerId): Node
     {
         return $this->required('/v2/gift-cards/' . rawurlencode($cardId) . '/link-customer', ['customer_id' => $customerId])->requiredChild('gift_card');
+    }
+
+    /**
+     * The seller's loyalty program id (its one program, `main`).
+     *
+     * @throws SourceError when the seller has no Square Loyalty program (no subscription)
+     */
+    public function loyaltyProgramId(): string
+    {
+        return $this->client->get('/v2/loyalty/programs/main')?->child('program')?->string('id')
+            ?? throw new SourceError('The Square seller has no loyalty program (Square Loyalty needs its own subscription).');
+    }
+
+    public function loyaltyAccount(string $id): ?Node
+    {
+        return $this->client->get('/v2/loyalty/accounts/' . rawurlencode($id))?->child('loyalty_account');
+    }
+
+    /** The loyalty account enrolled with this phone number (E.164), or null. */
+    public function loyaltyAccountByPhone(string $phone): ?Node
+    {
+        return $this->client->query('/v2/loyalty/accounts/search', [
+            'query' => ['mappings' => [['phone_number' => $phone]]],
+            'limit' => 1,
+        ])?->list('loyalty_accounts')[0] ?? null;
+    }
+
+    public function createLoyaltyAccount(string $programId, string $phone, ?string $customerId, string $key): Node
+    {
+        return $this->required('/v2/loyalty/accounts', [
+            'loyalty_account' => array_filter([
+                'program_id' => $programId,
+                'mapping' => ['phone_number' => $phone],
+                'customer_id' => $customerId,
+            ], static fn(mixed $value): bool => $value !== null),
+            'idempotency_key' => $key,
+        ])->requiredChild('loyalty_account');
+    }
+
+    /** Adds (or, negative, removes) points outside a purchase; returns the ADJUST_POINTS event. */
+    public function adjustPoints(string $accountId, int $points, string $reason, string $key): Node
+    {
+        return $this->required('/v2/loyalty/accounts/' . rawurlencode($accountId) . '/adjust', [
+            'idempotency_key' => $key,
+            'adjust_points' => ['points' => $points, 'reason' => $reason],
+        ])->requiredChild('event');
     }
 
     /** @param array<string, mixed> $body */

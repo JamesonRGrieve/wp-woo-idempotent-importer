@@ -54,6 +54,7 @@ milliseconds since the epoch.
 | Shipping option | A shipping line (title, code, price before discounts, taxes) and the shipping address | Shipping discounts are in the discount total. |
 | Additional fees | Fees with their taxes | |
 | Coupon codes | Coupon lines; all discounts in the discount total | |
+| Loyalty Program accounts and their transactions | Square Loyalty (the store's one points balance), kept in the importer's ledger and shown in the customer's My Account | Opt-in kind `loyalty_account`, with the Square account set up (README, "Gift cards and store credit"). Square enrols by phone: the account is the one Square has for the contact's phone (E.164, from their mirrored billing phone), created and linked to their Square customer when missing; a contact with no usable phone is held and retried. The balance is added once, then only what Wix changes is applied (never taken below zero). Earned, adjusted, redeemed, refunded and expired points are the ledger; tier, expiring points and totals are kept with the account. |
 | Payments | Paid date (the first payment that took the money), payment method title, transaction id; every payment as meta | Card brand and last digits, gift card and membership payments are meta. |
 | Refunds | WooCommerce refunds (no money moves, nothing restocked) | Only refunds that returned money (a failed or pending refund isn't one); refunded lines with their quantities and refunded amounts; the reason. |
 | Fulfillments | A private order note each, once | Carrier, tracking number and link. The last one dates completion. |
@@ -87,7 +88,7 @@ milliseconds since the epoch.
 | Pending, rejected and initialized orders | Search Orders doesn't return them (abandoned or unfinished checkouts) | — |
 | Contacts that aren't customers | Every contact is mirrored as a customer (Wix keeps one contact list for the whole site) | — |
 | Tax groups | No mapping from Wix tax groups to WooCommerce tax classes; every product is taxable, its tax group is meta | Tax class mapping |
-| Subscriptions, gift card balances, loyalty, abandoned carts, wishlists | No WooCommerce schema | Dedicated WooCommerce extensions |
+| Subscriptions, gift card balances, abandoned carts, wishlists | No WooCommerce schema; Wix's Gift Cards API masks every code but its last 4 characters, so gift cards need new numbers (an operator decision) | Dedicated WooCommerce extensions; Square Gift Cards for gift cards |
 
 ## Unverified against a live site
 

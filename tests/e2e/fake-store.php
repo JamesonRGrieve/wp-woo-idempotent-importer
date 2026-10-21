@@ -41,7 +41,7 @@ const REST_SOURCES = [
     'bigcommerce' => ['#^/stores/#', [BigCommerceAuthorizer::TOKEN_HEADER => 'e2e-bigcommerce-token']],
     'squarespace' => ['#^/(1\.0|v1|v2)/#', ['Authorization' => 'Bearer e2e-squarespace-key', 'User-Agent' => SquarespaceAuthorizer::USER_AGENT]],
     'wix' => [
-        '#^/(stores|stores-reader|categories|site-properties|contacts|ecom|blog|seo-redirects-service|reviews)/#',
+        '#^/(stores|stores-reader|categories|site-properties|contacts|ecom|blog|seo-redirects-service|reviews|loyalty-accounts|loyalty-transactions)/#',
         ['Authorization' => 'e2e-wix-key', WixAuthorizer::SITE_HEADER => 'e2e-wix-site'],
     ],
     'magento' => ['#^/rest/[^/]+/V1/#', ['Authorization' => MagentoAuthorizer::BEARER . 'e2e-magento-token']],
