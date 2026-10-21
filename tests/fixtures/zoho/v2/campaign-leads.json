@@ -1,0 +1,18 @@
+{
+  "request": {
+    "path": "/crm/v8/Campaigns/5725767000011360001/Leads"
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011357001"
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false
+    }
+  }
+}

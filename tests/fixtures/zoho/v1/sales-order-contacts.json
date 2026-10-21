@@ -1,0 +1,30 @@
+{
+  "request": {
+    "path": "/crm/v8/Sales_Orders",
+    "query": {
+      "fields": "id,Contact_Name"
+    }
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011355001",
+        "Contact_Name": {
+          "name": "Ada Thorne",
+          "id": "5725767000011356001"
+        }
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}

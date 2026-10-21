@@ -1,0 +1,43 @@
+{
+  "request": {
+    "path": "/crm/v8/Notes",
+    "query": {
+      "fields": "id,Note_Title,Note_Content,Parent_Id,Created_Time,Modified_Time,Owner"
+    }
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011370001",
+        "Created_Time": "2026-08-01T09:00:00-07:00",
+        "Modified_Time": "2026-08-01T09:00:00-07:00",
+        "Owner": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001",
+          "email": "isla@fernhill.example"
+        },
+        "Note_Title": "Glaze preference",
+        "Note_Content": "Prefers celadon.",
+        "Parent_Id": {
+          "module": {
+            "api_name": "Contacts",
+            "id": "5725767000000002179"
+          },
+          "name": "Ada Thorne",
+          "id": "5725767000011356001"
+        }
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}

@@ -148,6 +148,16 @@ final class OAuth2Test extends TestCase
         self::assertSame('https://www.zohoapis.test', $authorizer->extra('api_domain'));
     }
 
+    public function testAVendorsOwnAuthorizationSchemeIsSent(): void
+    {
+        $clock = new RecordingSleeper();
+        $tokens = new InMemoryTokens(new TokenSet('a1', 'r1', (int) $clock->now() + 3600, []));
+        $client = new OAuth2Client(self::app(), new ScriptedTransport(null, []), $tokens, $clock);
+
+        self::assertSame(['Authorization' => 'Zoho-oauthtoken a1'], BearerAuthorizer::oauth($client, [], 'Zoho-oauthtoken')->headers());
+        self::assertSame(['Authorization' => 'Zoho-oauthtoken t'], BearerAuthorizer::token('t', 'Zoho CRM', [], 'Zoho-oauthtoken')->headers());
+    }
+
     public function testAStaticTokenHasNothingToRenew(): void
     {
         $authorizer = BearerAuthorizer::token('private-app-token', 'Vendor');

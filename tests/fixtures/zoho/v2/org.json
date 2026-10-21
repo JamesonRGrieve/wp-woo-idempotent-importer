@@ -1,0 +1,55 @@
+{
+  "request": {
+    "path": "/crm/v8/org"
+  },
+  "response": {
+    "org": [
+      {
+        "country": "Canada",
+        "photo_id": null,
+        "city": null,
+        "description": null,
+        "type": "bigin",
+        "created_time": "x",
+        "mc_status": false,
+        "gapps_enabled": false,
+        "translation_enabled": false,
+        "street": null,
+        "domain_name": "1",
+        "alias": null,
+        "currency": "Canadian Dollar - CAD",
+        "id": "5725767000000001001",
+        "employee_count": null,
+        "state": null,
+        "fax": null,
+        "zip": null,
+        "website": null,
+        "currency_symbol": "$",
+        "mobile": null,
+        "currency_locale": "en_CA",
+        "primary_zuid": null,
+        "zia_portal_id": null,
+        "time_zone": "America/Vancouver",
+        "zgid": "x",
+        "country_code": null,
+        "deletable_org_account": false,
+        "license_details": {
+          "users_license_purchased": 0,
+          "paid": false,
+          "paid_type": "free",
+          "portal_users_license_purchased": 0
+        },
+        "hierarchy_preferences": {
+          "type": "Role_Hierarchy"
+        },
+        "phone": null,
+        "company_name": "Fernhill Ceramics",
+        "privacy_settings": false,
+        "primary_email": null,
+        "iso_code": "CAD",
+        "hipaa_compliance_enabled": false,
+        "lite_users_enabled": false
+      }
+    ]
+  }
+}

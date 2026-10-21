@@ -1,0 +1,15 @@
+{
+  "request": {
+    "path": "/crm/v8/settings/tags",
+    "query": {
+      "module": "Leads"
+    }
+  },
+  "response": {
+    "tags": [],
+    "info": {
+      "count": 0,
+      "allowed_count": 100
+    }
+  }
+}

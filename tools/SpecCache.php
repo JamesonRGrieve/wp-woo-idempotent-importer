@@ -156,7 +156,26 @@ final class SpecCache
                 SpecDocument::FORMAT_YAML,
                 'b14dad2526cf6dc8696270a2e42a9b141fecc0f47198f45a837ada7330d457d5',
             ),
+            ...self::zoho(),
         ];
+    }
+
+    /**
+     * The Zoho CRM API v8 documents the adapter reads (zoho/crm-oas, one OpenAPI document per API, at the commit of
+     * 2026-09-02), in the order a request is matched against them: the specific paths (`/settings/fields`, `/Notes`,
+     * related lists) before the records API's `/{module}`. Requests go to <api domain>/crm/v8/…, so that prefix is
+     * stripped.
+     */
+    private const ZOHO_COMMIT = 'a6687fc961acdaa52592d39c5c7e4385e5b4c289';
+    private const ZOHO_DOCUMENTS = ['fields', 'tags', 'org', 'notes', 'related_records', 'record'];
+
+    /** @return list<SpecDocument> */
+    private static function zoho(): array
+    {
+        return array_map(
+            static fn(string $name): SpecDocument => new SpecDocument('zoho', $name, 'https://raw.githubusercontent.com/zoho/crm-oas/' . self::ZOHO_COMMIT . "/v8.0/{$name}/{$name}.yaml", '/crm/v8', false, SpecDocument::FORMAT_YAML),
+            self::ZOHO_DOCUMENTS,
+        );
     }
 
     /** @return list<SpecDocument> */

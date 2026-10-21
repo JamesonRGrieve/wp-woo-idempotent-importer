@@ -36,6 +36,8 @@ define('IIM_SALESFORCE_INSTANCE_URL', 'http://salesforce-fake:8080');
 define('IIM_SALESFORCE_ACCESS_TOKEN', 'e2e-salesforce-token');
 define('IIM_PIPEDRIVE_ENDPOINT', 'http://pipedrive-fake:8080');
 define('IIM_PIPEDRIVE_API_TOKEN', 'e2e-pipedrive-token');
+define('IIM_ZOHO_API_DOMAIN', 'http://zoho-fake:8080');
+define('IIM_ZOHO_ACCESS_TOKEN', 'e2e-zoho-token');
 define('IIM_SQUARE_STORED_VALUE_ENDPOINT', 'http://square_stored_value-fake:8080');
 define('IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN', 'e2e-square-token');
 define('IIM_SQUARE_STORED_VALUE_LOCATION_ID', 'LOCMAIN1');

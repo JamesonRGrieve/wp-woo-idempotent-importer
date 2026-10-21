@@ -1,0 +1,23 @@
+{
+  "request": {
+    "path": "/crm/v8/Leads",
+    "query": {
+      "fields": "id,First_Name,Last_Name,Email,Company,City,State,Zip_Code,Country,Lead_Source,Lead_Status,Email_Opt_Out,Tag,Created_Time,Modified_Time,Owner",
+      "converted": "false"
+    }
+  },
+  "response": {
+    "data": [],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 0,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}

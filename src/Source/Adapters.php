@@ -19,6 +19,7 @@ use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
 use IdempotentImporter\Source\Squarespace\SquarespaceAdapter;
 use IdempotentImporter\Source\Webflow\WebflowAdapter;
 use IdempotentImporter\Source\Wix\WixAdapter;
+use IdempotentImporter\Source\Zoho\ZohoAdapter;
 
 /** Every source platform the importer knows, built or deferred. The single list of adapters. */
 final class Adapters
@@ -43,6 +44,7 @@ final class Adapters
             new HubSpotAdapter(),
             new SalesforceAdapter(),
             new PipedriveAdapter(),
+            new ZohoAdapter(),
         ] as $adapter) {
             $byId[$adapter->id()] = $adapter;
         }

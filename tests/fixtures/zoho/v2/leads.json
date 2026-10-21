@@ -1,0 +1,44 @@
+{
+  "request": {
+    "path": "/crm/v8/Leads",
+    "query": {
+      "fields": "id,First_Name,Last_Name,Email,Company,City,State,Zip_Code,Country,Lead_Source,Lead_Status,Email_Opt_Out,Tag,Created_Time,Modified_Time,Owner",
+      "converted": "false"
+    }
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011357001",
+        "Created_Time": "2026-08-01T09:00:00-07:00",
+        "Modified_Time": "2026-08-01T09:00:00-07:00",
+        "Owner": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001",
+          "email": "isla@fernhill.example"
+        },
+        "First_Name": "Cy",
+        "Last_Name": "Moreau",
+        "Email": "cy@zoho.example",
+        "Company": "Moreau Pottery",
+        "City": "Montréal",
+        "State": "QC",
+        "Lead_Source": "Trade Show",
+        "Lead_Status": "Not Contacted",
+        "Email_Opt_Out": false,
+        "Tag": []
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}

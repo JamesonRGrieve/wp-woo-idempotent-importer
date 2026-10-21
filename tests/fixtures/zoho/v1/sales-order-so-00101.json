@@ -1,0 +1,73 @@
+{
+  "request": {
+    "path": "/crm/v8/Sales_Orders/5725767000011355001"
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011355001",
+        "Created_Time": "2026-08-01T09:00:00-07:00",
+        "Modified_Time": "2026-08-01T09:00:00-07:00",
+        "Owner": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001",
+          "email": "isla@fernhill.example"
+        },
+        "Subject": "Order SO-00101",
+        "SO_Number": "SO-00101",
+        "Contact_Name": {
+          "name": "Ada Thorne",
+          "id": "5725767000011356001"
+        },
+        "Account_Name": {
+          "name": "Fernhill Ceramics",
+          "id": "5725767000011373001"
+        },
+        "Status": "Delivered",
+        "Sub_Total": 100,
+        "Discount": 5,
+        "Tax": 4.75,
+        "Adjustment": 1.25,
+        "Grand_Total": 101,
+        "Billing_Street": "88 Kiln Road",
+        "Billing_City": "Victoria",
+        "Billing_State": "BC",
+        "Billing_Code": "V8V 2B2",
+        "Billing_Country": "Canada",
+        "Carrier": "FedEx",
+        "Ordered_Items": [
+          {
+            "id": "5725767000011380001",
+            "Product_Name": {
+              "name": "Stoneware clay, 10 kg",
+              "id": "5725767000011358001"
+            },
+            "Quantity": 2,
+            "List_Price": 42.5,
+            "Discount": 5,
+            "Total": 85,
+            "Line_Tax": [
+              {
+                "name": "GST",
+                "percentage": 5,
+                "value": 4
+              }
+            ]
+          },
+          {
+            "id": "5725767000011380002",
+            "Product_Name": {
+              "name": "Glaze sample kit",
+              "id": "5725767000011358002"
+            },
+            "Quantity": 1,
+            "List_Price": 15,
+            "Discount": 0,
+            "Total": 15,
+            "Line_Tax": []
+          }
+        ]
+      }
+    ]
+  }
+}

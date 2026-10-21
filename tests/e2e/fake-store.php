@@ -22,6 +22,7 @@ use IdempotentImporter\Source\Pipedrive\ApiTokenAuthorizer;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAuthorizer;
 use IdempotentImporter\Source\Squarespace\SquarespaceAuthorizer;
 use IdempotentImporter\Source\Wix\WixAuthorizer;
+use IdempotentImporter\Source\Zoho\ZohoAdapter;
 use IdempotentImporter\Tests\Support\EtsyResponder;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\ShopifyResponder;
@@ -53,6 +54,7 @@ const REST_SOURCES = [
     'hubspot' => ['#^/crm/v3/#', ['Authorization' => 'Bearer e2e-hubspot-token']],
     'salesforce' => ['#^/services/data/#', ['Authorization' => 'Bearer e2e-salesforce-token']],
     'pipedrive' => ['#^/api/v[12]/#', [ApiTokenAuthorizer::HEADER => 'e2e-pipedrive-token']],
+    'zoho' => ['#^/crm/v8/#', ['Authorization' => ZohoAdapter::SCHEME . ' e2e-zoho-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 /** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */

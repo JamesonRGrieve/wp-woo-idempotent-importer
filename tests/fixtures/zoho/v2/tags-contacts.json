@@ -1,0 +1,31 @@
+{
+  "request": {
+    "path": "/crm/v8/settings/tags",
+    "query": {
+      "module": "Contacts"
+    }
+  },
+  "response": {
+    "tags": [
+      {
+        "created_time": "2026-08-01T09:00:00-07:00",
+        "modified_time": "2026-08-01T09:00:00-07:00",
+        "name": "Wholesale",
+        "modified_by": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001"
+        },
+        "id": "5725767000011390001",
+        "created_by": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001"
+        },
+        "color_code": "#57B1FD"
+      }
+    ],
+    "info": {
+      "count": 1,
+      "allowed_count": 100
+    }
+  }
+}

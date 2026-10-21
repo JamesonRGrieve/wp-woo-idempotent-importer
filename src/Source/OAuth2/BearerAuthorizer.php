@@ -16,33 +16,39 @@ use IdempotentImporter\Source\SourceError;
  */
 final readonly class BearerAuthorizer implements RequestAuthorizer
 {
+    public const BEARER = 'Bearer';
+
     /** @param array<string, string> $headers */
     private function __construct(
         private ?OAuth2Client $oauth,
         #[\SensitiveParameter]
         private ?string $staticToken,
         private array $headers,
+        private string $scheme,
     ) {}
 
-    /** @param array<string, string> $headers */
-    public static function oauth(OAuth2Client $oauth, array $headers = []): self
+    /**
+     * @param array<string, string> $headers
+     * @param string $scheme the authorization scheme the vendor names (Zoho's is `Zoho-oauthtoken`)
+     */
+    public static function oauth(OAuth2Client $oauth, array $headers = [], string $scheme = self::BEARER): self
     {
-        return new self($oauth, null, $headers);
+        return new self($oauth, null, $headers, $scheme);
     }
 
     /** @param array<string, string> $headers */
-    public static function token(#[\SensitiveParameter] string $token, string $label, array $headers = []): self
+    public static function token(#[\SensitiveParameter] string $token, string $label, array $headers = [], string $scheme = self::BEARER): self
     {
         if ($token === '') {
             throw new SourceError("{$label} is not configured: enter an access token or connect the account.");
         }
 
-        return new self(null, $token, $headers);
+        return new self(null, $token, $headers, $scheme);
     }
 
     public function headers(): array
     {
-        return [...$this->headers, 'Authorization' => 'Bearer ' . ($this->staticToken ?? $this->client()->current()->accessToken)];
+        return [...$this->headers, 'Authorization' => $this->scheme . ' ' . ($this->staticToken ?? $this->client()->current()->accessToken)];
     }
 
     public function renew(): bool

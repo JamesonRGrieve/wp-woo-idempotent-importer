@@ -1,0 +1,26 @@
+{
+  "request": {
+    "path": "/crm/v8/Campaigns",
+    "query": {
+      "fields": "id"
+    }
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011360001"
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}

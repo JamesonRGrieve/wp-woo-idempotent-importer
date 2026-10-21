@@ -1,0 +1,63 @@
+{
+  "request": {
+    "path": "/crm/v8/Contacts",
+    "query": {
+      "ids": "5725767000011356001",
+      "fields": "id,First_Name,Last_Name,Salutation,Email,Phone,Mobile,Date_of_Birth,Title,Mailing_Street,Mailing_City,Mailing_State,Mailing_Zip,Mailing_Country,Email_Opt_Out,Account_Name,Tag,Favorite_Glaze,Kiln_Sizes,Wholesale,Created_Time,Modified_Time,Owner"
+    }
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011356001",
+        "Created_Time": "2026-08-01T09:00:00-07:00",
+        "Modified_Time": "2026-08-01T09:00:00-07:00",
+        "Owner": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001",
+          "email": "isla@fernhill.example"
+        },
+        "First_Name": "Ada",
+        "Last_Name": "Thorne",
+        "Salutation": "Ms.",
+        "Email": "Ada@Zoho.example",
+        "Phone": "+1 250 555 0111",
+        "Date_of_Birth": "1988-04-12",
+        "Title": "Potter",
+        "Mailing_Street": "12 Cedar Lane",
+        "Mailing_City": "Victoria",
+        "Mailing_State": "BC",
+        "Mailing_Zip": "V8V 1A1",
+        "Mailing_Country": "Canada",
+        "Email_Opt_Out": false,
+        "Account_Name": {
+          "name": "Fernhill Ceramics",
+          "id": "5725767000011373001"
+        },
+        "Tag": [
+          {
+            "name": "Wholesale",
+            "id": "5725767000011390001"
+          }
+        ],
+        "Favorite_Glaze": "Celadon",
+        "Kiln_Sizes": [
+          "Small",
+          "Large"
+        ],
+        "Wholesale": true
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}
