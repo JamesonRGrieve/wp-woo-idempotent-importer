@@ -135,6 +135,27 @@ final class SpecCache
             // transcribed from the REST API Developer Guide and the Object Reference (API version 62.0; each schema
             // cites its page). Requests go to <instance>/services/data/v62.0/…, so that prefix is stripped.
             SpecDocument::committed('salesforce', 'rest-api-reference', 'tests/schemas/salesforce.json', '/services/data/v[0-9.]+', false),
+            // Pipedrive's API v1 and v2 (OpenAPI 3.0.1, linked from developers.pipedrive.com/docs/api/v1), published at
+            // unversioned URLs, so pinned to the bytes fetched on 2026-10-21. Requests go to <company domain>/api/v1/…
+            // and /api/v2/…, so those prefixes are stripped.
+            new SpecDocument(
+                'pipedrive',
+                'api-v1',
+                'https://developers.pipedrive.com/docs/api/v1/openapi.yaml',
+                '/api/v1',
+                false,
+                SpecDocument::FORMAT_YAML,
+                '16a59954e145348795dd9c7acb37612a05497c6bd108d86a90736504c79b9a83',
+            ),
+            new SpecDocument(
+                'pipedrive',
+                'api-v2',
+                'https://developers.pipedrive.com/docs/api/v1/openapi-v2.yaml',
+                '/api/v2',
+                false,
+                SpecDocument::FORMAT_YAML,
+                'b14dad2526cf6dc8696270a2e42a9b141fecc0f47198f45a837ada7330d457d5',
+            ),
         ];
     }
 

@@ -1,0 +1,41 @@
+{
+  "request": {
+    "path": "/api/v2/products/302/variations"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 3021,
+        "name": "Evenings",
+        "product_id": 302,
+        "prices": [
+          {
+            "product_variation_id": 3021,
+            "currency": "CAD",
+            "price": 160,
+            "cost": 0,
+            "notes": ""
+          }
+        ]
+      },
+      {
+        "id": 3022,
+        "name": "Weekends",
+        "product_id": 302,
+        "prices": [
+          {
+            "product_variation_id": 3022,
+            "currency": "CAD",
+            "price": 180,
+            "cost": 0,
+            "notes": ""
+          }
+        ]
+      }
+    ],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

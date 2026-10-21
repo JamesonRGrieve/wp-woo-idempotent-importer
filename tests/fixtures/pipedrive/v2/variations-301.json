@@ -1,0 +1,12 @@
+{
+  "request": {
+    "path": "/api/v2/products/301/variations"
+  },
+  "response": {
+    "success": true,
+    "data": [],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

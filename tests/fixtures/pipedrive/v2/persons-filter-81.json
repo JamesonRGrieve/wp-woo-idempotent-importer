@@ -1,0 +1,110 @@
+{
+  "request": {
+    "path": "/api/v2/persons",
+    "query": {
+      "filter_id": 81
+    }
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 201,
+        "name": "Ada Thorne",
+        "first_name": "Ada",
+        "last_name": "Thorne",
+        "owner_id": 9,
+        "org_id": 101,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-09-01T16:00:00Z",
+        "emails": [
+          {
+            "value": "ada@studio.example",
+            "primary": false,
+            "label": "work"
+          },
+          {
+            "value": "Ada.Thorne@pipedrive.example",
+            "primary": true,
+            "label": "home"
+          }
+        ],
+        "phones": [
+          {
+            "value": "+1 250 555 0111",
+            "primary": true,
+            "label": "mobile"
+          }
+        ],
+        "is_deleted": false,
+        "visible_to": 3,
+        "label_ids": [
+          31,
+          32
+        ],
+        "picture_id": null,
+        "postal_address": {
+          "value": "12 Cedar Lane, Victoria, BC V8V 1A1, Canada",
+          "country": "Canada",
+          "admin_area_level_1": "BC",
+          "admin_area_level_2": null,
+          "locality": "Victoria",
+          "sublocality": null,
+          "route": "Cedar Lane",
+          "street_number": "12",
+          "subpremise": null,
+          "postal_code": "V8V 1A1"
+        },
+        "notes": null,
+        "im": [],
+        "birthday": null,
+        "job_title": null,
+        "custom_fields": {
+          "8c2d9f1a0b3e4f5a6b7c8d9e0f1a2b3c4d5e6f70": 42,
+          "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d": {
+            "value": 1200.5,
+            "currency": "CAD"
+          },
+          "0123456789abcdef0123456789abcdef01234567": "2026-08-20"
+        }
+      },
+      {
+        "id": 204,
+        "name": "Cy Moreau",
+        "first_name": "Cy",
+        "last_name": "Moreau",
+        "owner_id": 9,
+        "org_id": null,
+        "add_time": "2026-09-10T16:00:00Z",
+        "update_time": "2026-09-01T16:00:00Z",
+        "emails": [
+          {
+            "value": "cy@pipedrive.example",
+            "primary": true,
+            "label": "work"
+          }
+        ],
+        "phones": [],
+        "is_deleted": false,
+        "visible_to": 3,
+        "label_ids": [
+          32
+        ],
+        "picture_id": null,
+        "postal_address": null,
+        "notes": null,
+        "im": [],
+        "birthday": null,
+        "job_title": null,
+        "custom_fields": {
+          "8c2d9f1a0b3e4f5a6b7c8d9e0f1a2b3c4d5e6f70": 41,
+          "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d": null,
+          "0123456789abcdef0123456789abcdef01234567": null
+        }
+      }
+    ],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

@@ -34,6 +34,8 @@ define('IIM_HUBSPOT_ENDPOINT', 'http://hubspot-fake:8080');
 define('IIM_HUBSPOT_ACCESS_TOKEN', 'e2e-hubspot-token');
 define('IIM_SALESFORCE_INSTANCE_URL', 'http://salesforce-fake:8080');
 define('IIM_SALESFORCE_ACCESS_TOKEN', 'e2e-salesforce-token');
+define('IIM_PIPEDRIVE_ENDPOINT', 'http://pipedrive-fake:8080');
+define('IIM_PIPEDRIVE_API_TOKEN', 'e2e-pipedrive-token');
 define('IIM_SQUARE_STORED_VALUE_ENDPOINT', 'http://square_stored_value-fake:8080');
 define('IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN', 'e2e-square-token');
 define('IIM_SQUARE_STORED_VALUE_LOCATION_ID', 'LOCMAIN1');

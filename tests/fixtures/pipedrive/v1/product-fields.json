@@ -1,0 +1,62 @@
+{
+  "request": {
+    "path": "/api/v1/productFields"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 21,
+        "key": "name",
+        "name": "Name",
+        "order_nr": 21,
+        "field_type": "varchar",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      },
+      {
+        "id": 22,
+        "key": "category",
+        "name": "Category",
+        "order_nr": 22,
+        "field_type": "enum",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": [
+          {
+            "id": 71,
+            "label": "Clay"
+          },
+          {
+            "id": 72,
+            "label": "Classes"
+          }
+        ]
+      }
+    ],
+    "additional_data": {
+      "start": 0,
+      "limit": 500,
+      "more_items_in_collection": false
+    }
+  }
+}

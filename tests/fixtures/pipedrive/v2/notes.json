@@ -1,0 +1,38 @@
+{
+  "request": {
+    "path": "/api/v1/notes",
+    "query": {
+      "start": 0
+    }
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 401,
+        "active_flag": true,
+        "add_time": "2026-08-15 17:00:00",
+        "content": "<p>Asked about wholesale mugs.</p>",
+        "lead_id": null,
+        "deal_id": null,
+        "last_update_user_id": 9,
+        "org_id": 101,
+        "person_id": 201,
+        "project_id": null,
+        "pinned_to_deal_flag": false,
+        "pinned_to_organization_flag": false,
+        "pinned_to_person_flag": false,
+        "pinned_to_project_flag": false,
+        "update_time": "2026-08-15 17:00:00",
+        "user_id": 9
+      }
+    ],
+    "additional_data": {
+      "pagination": {
+        "start": 0,
+        "limit": 500,
+        "more_items_in_collection": false
+      }
+    }
+  }
+}

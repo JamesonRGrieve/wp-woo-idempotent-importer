@@ -18,6 +18,7 @@ use IdempotentImporter\Source\BigCommerce\BigCommerceAuthorizer;
 use IdempotentImporter\Source\Ecwid\EcwidAuthorizer;
 use IdempotentImporter\Source\Lightspeed\LightspeedAuthorizer;
 use IdempotentImporter\Source\Magento\MagentoAuthorizer;
+use IdempotentImporter\Source\Pipedrive\ApiTokenAuthorizer;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAuthorizer;
 use IdempotentImporter\Source\Squarespace\SquarespaceAuthorizer;
 use IdempotentImporter\Source\Wix\WixAuthorizer;
@@ -51,6 +52,7 @@ const REST_SOURCES = [
     'webflow' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-webflow-token']],
     'hubspot' => ['#^/crm/v3/#', ['Authorization' => 'Bearer e2e-hubspot-token']],
     'salesforce' => ['#^/services/data/#', ['Authorization' => 'Bearer e2e-salesforce-token']],
+    'pipedrive' => ['#^/api/v[12]/#', [ApiTokenAuthorizer::HEADER => 'e2e-pipedrive-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 /** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */

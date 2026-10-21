@@ -1,0 +1,96 @@
+{
+  "request": {
+    "path": "/api/v1/organizationFields"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 11,
+        "key": "name",
+        "name": "Name",
+        "order_nr": 11,
+        "field_type": "varchar",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      },
+      {
+        "id": 12,
+        "key": "industry",
+        "name": "Industry",
+        "order_nr": 12,
+        "field_type": "enum",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": [
+          {
+            "id": 51,
+            "label": "Retail"
+          },
+          {
+            "id": 52,
+            "label": "Wholesale"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "key": "f0e1d2c3b4a5968778695a4b3c2d1e0f9a8b7c6d",
+        "name": "Wholesale tier",
+        "order_nr": 13,
+        "field_type": "enum",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": true,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": [
+          {
+            "id": 61,
+            "label": "Gold"
+          },
+          {
+            "id": 62,
+            "label": "Silver"
+          }
+        ]
+      }
+    ],
+    "additional_data": {
+      "start": 0,
+      "limit": 500,
+      "more_items_in_collection": false
+    }
+  }
+}

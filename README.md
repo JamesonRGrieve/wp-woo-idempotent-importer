@@ -22,6 +22,7 @@ Each source platform is an adapter over the same engine:
 | Webflow | Built | Site settings, assets, e-commerce categories, products with their SKUs and inventory, buyers, orders with refunds, static pages, the blog collection and its posts, every other CMS collection as a custom post type with its items, and 301 redirects — [coverage/webflow.md](coverage/webflow.md) |
 | HubSpot | Built | Into FluentCRM: companies, contact lists and segments, contacts with their companies, lists and custom properties, and their notes, calls, emails and meetings. Into WooCommerce: the product library, buyers and commerce orders. Deals, pipelines and tasks are planned — [coverage/hubspot.md](coverage/hubspot.md) |
 | Salesforce | Built | Into FluentCRM: accounts, campaigns (as lists), topics (as tags), contacts and leads with their custom fields, and their logged calls, emails, events and notes. Into WooCommerce: products at their standard price, buyers and orders. Opportunities and tasks are planned — [coverage/salesforce.md](coverage/salesforce.md) |
+| Pipedrive | Built | Into FluentCRM: organizations, person filters (as lists), labels (as tags), persons with their custom fields, and their notes and done activities. Into WooCommerce: product categories and products with their variations. Deals and pending activities are planned — [coverage/pipedrive.md](coverage/pipedrive.md) |
 
 Each coverage page lists everything the source has, and what WordPress can't hold.
 
@@ -137,6 +138,10 @@ site's 301 redirects.
      callback URL shown on the settings page, enter its consumer key and secret (and the login URL of a
      sandbox or My Domain, if not `login.salesforce.com`), save and click **Connect to Salesforce**. Salesforce
      counts requests per day, so a spent daily allowance pauses the run until it frees up.
+   - **Pipedrive:** enter a personal API token, or register a Pipedrive app (scopes `contacts:read`,
+     `activities:read`, `products:read`) with the callback URL shown on the settings page, enter its client ID
+     and secret and click **Connect to Pipedrive**. Requests are paced at ten a second, under the lowest plan's
+     burst limit.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
    `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
@@ -146,7 +151,8 @@ site's 301 redirects.
    `IIM_LIGHTSPEED_API_KEY`, `IIM_LIGHTSPEED_API_SECRET`, `IIM_ECWID_STORE_ID`, `IIM_ECWID_SECRET_TOKEN`, `IIM_WEBFLOW_SITE_ID`, `IIM_WEBFLOW_BLOG_COLLECTION_ID`,
    `IIM_WEBFLOW_API_TOKEN`, `IIM_WEBFLOW_CLIENT_ID`, `IIM_WEBFLOW_CLIENT_SECRET`, `IIM_HUBSPOT_ACCESS_TOKEN`,
    `IIM_HUBSPOT_CLIENT_ID`, `IIM_HUBSPOT_CLIENT_SECRET`, `IIM_SALESFORCE_CLIENT_ID`, `IIM_SALESFORCE_CLIENT_SECRET`,
-   `IIM_SALESFORCE_LOGIN_URL`, or a token issued elsewhere as `IIM_SALESFORCE_ACCESS_TOKEN` with `IIM_SALESFORCE_INSTANCE_URL`); tokens from a connect flow (Etsy's refresh
+   `IIM_SALESFORCE_LOGIN_URL`, or a token issued elsewhere as `IIM_SALESFORCE_ACCESS_TOKEN` with `IIM_SALESFORCE_INSTANCE_URL`,
+   `IIM_PIPEDRIVE_API_TOKEN`, `IIM_PIPEDRIVE_CLIENT_ID`, `IIM_PIPEDRIVE_CLIENT_SECRET`); tokens from a connect flow (Etsy's refresh
    token, which Etsy replaces on every use, and every OAuth source's tokens) are kept by the plugin.
 4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
 

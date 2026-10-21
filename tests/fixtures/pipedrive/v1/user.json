@@ -1,0 +1,21 @@
+{
+  "request": {
+    "path": "/api/v1/users/me"
+  },
+  "response": {
+    "success": true,
+    "data": {
+      "id": 9,
+      "name": "Isla Fenn",
+      "default_currency": "CAD",
+      "locale": "en_CA",
+      "lang": 1,
+      "email": "isla@fernhill.example",
+      "company_id": 7,
+      "company_name": "Fernhill Ceramics",
+      "company_domain": "fernhill",
+      "timezone_name": "America/Vancouver",
+      "active_flag": true
+    }
+  }
+}

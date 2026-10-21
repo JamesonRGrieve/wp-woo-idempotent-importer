@@ -1,0 +1,77 @@
+{
+  "request": {
+    "path": "/api/v2/products"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 301,
+        "name": "Stoneware clay, 10 kg",
+        "code": "PD-CLAY",
+        "unit": "bag",
+        "tax": 5,
+        "is_deleted": false,
+        "is_linkable": true,
+        "visible_to": 3,
+        "owner_id": 9,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-09-01T16:00:00Z",
+        "description": "Mid-fire stoneware.",
+        "category": "71",
+        "custom_fields": {},
+        "billing_frequency": "one-time",
+        "billing_frequency_cycles": null,
+        "prices": [
+          {
+            "product_id": 301,
+            "price": 42.5,
+            "currency": "CAD",
+            "cost": 18.25,
+            "direct_cost": null,
+            "notes": ""
+          },
+          {
+            "product_id": 301,
+            "price": 31,
+            "currency": "USD",
+            "cost": null,
+            "direct_cost": null,
+            "notes": ""
+          }
+        ]
+      },
+      {
+        "id": 302,
+        "name": "Wheel class",
+        "code": null,
+        "unit": null,
+        "tax": 0,
+        "is_deleted": false,
+        "is_linkable": true,
+        "visible_to": 3,
+        "owner_id": 9,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-09-01T16:00:00Z",
+        "description": null,
+        "category": "72",
+        "custom_fields": {},
+        "billing_frequency": "monthly",
+        "billing_frequency_cycles": 4,
+        "prices": [
+          {
+            "product_id": 302,
+            "price": 160,
+            "currency": "CAD",
+            "cost": null,
+            "direct_cost": null,
+            "notes": ""
+          }
+        ]
+      }
+    ],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

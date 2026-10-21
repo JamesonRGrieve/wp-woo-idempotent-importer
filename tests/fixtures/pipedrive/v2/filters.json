@@ -1,0 +1,25 @@
+{
+  "request": {
+    "path": "/api/v1/filters",
+    "query": {
+      "type": "people"
+    }
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 81,
+        "name": "Glaze lovers",
+        "active_flag": true,
+        "type": "people",
+        "temporary_flag": false,
+        "user_id": 9,
+        "add_time": "2026-08-01 16:00:00",
+        "update_time": "2026-08-01 16:00:00",
+        "visible_to": "3",
+        "custom_view_id": null
+      }
+    ]
+  }
+}

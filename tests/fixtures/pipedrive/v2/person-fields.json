@@ -1,0 +1,182 @@
+{
+  "request": {
+    "path": "/api/v1/personFields"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 1,
+        "key": "name",
+        "name": "Name",
+        "order_nr": 1,
+        "field_type": "varchar",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      },
+      {
+        "id": 2,
+        "key": "email",
+        "name": "Email",
+        "order_nr": 2,
+        "field_type": "varchar",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      },
+      {
+        "id": 3,
+        "key": "phone",
+        "name": "Phone",
+        "order_nr": 3,
+        "field_type": "phone",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      },
+      {
+        "id": 4,
+        "key": "label_ids",
+        "name": "Labels",
+        "order_nr": 4,
+        "field_type": "set",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": false,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": [
+          {
+            "id": 31,
+            "label": "Wholesale",
+            "color": "green"
+          },
+          {
+            "id": 32,
+            "label": "Studio member",
+            "color": "blue"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "key": "8c2d9f1a0b3e4f5a6b7c8d9e0f1a2b3c4d5e6f70",
+        "name": "Favourite glaze",
+        "order_nr": 5,
+        "field_type": "enum",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": true,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": [
+          {
+            "id": 41,
+            "label": "Ash"
+          },
+          {
+            "id": 42,
+            "label": "Celadon"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "key": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+        "name": "Lifetime spend",
+        "order_nr": 6,
+        "field_type": "monetary",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": true,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      },
+      {
+        "id": 7,
+        "key": "0123456789abcdef0123456789abcdef01234567",
+        "name": "Last firing",
+        "order_nr": 7,
+        "field_type": "date",
+        "add_time": "2026-01-01 00:00:00",
+        "update_time": "2026-01-01 00:00:00",
+        "active_flag": true,
+        "edit_flag": true,
+        "index_visible_flag": true,
+        "details_visible_flag": true,
+        "add_visible_flag": true,
+        "important_flag": false,
+        "bulk_edit_allowed": true,
+        "searchable_flag": false,
+        "filtering_allowed": true,
+        "sortable_flag": true,
+        "mandatory_flag": false,
+        "options": null
+      }
+    ],
+    "additional_data": {
+      "start": 0,
+      "limit": 500,
+      "more_items_in_collection": false
+    }
+  }
+}
