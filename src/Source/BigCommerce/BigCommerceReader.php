@@ -53,6 +53,8 @@ final class BigCommerceReader implements SourceReader
 
     private const PHASE_COUPONS = 'coupons';
     private const PHASE_PROMOTIONS = 'promotions';
+    private const PHASE_CERTIFICATES = 'certificates';
+    private const PHASE_STORE_CREDIT = 'credit';
     private const CURSOR_SEPARATOR = ':';
     private const FIRST_PAGE = 1;
     private const STORE_HASH_PATTERN = '/^[a-z0-9]+$/';
@@ -120,7 +122,7 @@ final class BigCommerceReader implements SourceReader
             Kind::Order => $this->order($id),
             Kind::Page => $this->contentPage($id),
             Kind::Article => $this->post($id),
-            Kind::GiftCard => $this->giftCertificate($id),
+            Kind::GiftCard => $this->giftCertificate($gid),
             default => $this->first('/v3/storefront/redirects', ['id:in' => $id, 'include' => 'to_url'], 'Redirect', 'id'),
         };
     }
@@ -355,19 +357,43 @@ final class BigCommerceReader implements SourceReader
         ]);
     }
 
-    /** Gift certificates (v2, page by page; BigCommerce has no modified-since filter for them). */
+    /**
+     * Gift certificates (v2, page by page; BigCommerce has no modified-since filter for them), then each
+     * customer's store credit (as a StoreCredit node, in the store's currency). The cursor is "<phase>:<page>".
+     */
     private function giftCertificates(?string $cursor): Page
     {
-        [$certificates, $next] = $this->v2Page('/v2/gift_certificates', [], $cursor);
+        [$phase, $page] = $cursor === null ? [self::PHASE_CERTIFICATES, ''] : array_pad(explode(self::CURSOR_SEPARATOR, $cursor, 2), 2, '');
+        $page = $page === '' ? null : $page;
+        if ($phase === self::PHASE_CERTIFICATES) {
+            [$certificates, $next] = $this->v2Page('/v2/gift_certificates', [], $page);
+            $nodes = array_map(static fn(Node $certificate): Node => self::identified('GiftCertificate', $certificate->int('id'), $certificate->raw()), $certificates);
 
-        return self::paged(array_map(static fn(Node $certificate): Node => self::identified('GiftCertificate', $certificate->int('id'), $certificate->raw()), $certificates), $next);
+            return new Page($nodes, true, $next === null ? self::PHASE_STORE_CREDIT . self::CURSOR_SEPARATOR : self::PHASE_CERTIFICATES . self::CURSOR_SEPARATOR . $next);
+        }
+        [$customers, $next] = $this->v3Page('/v3/customers', ['include' => self::CUSTOMER_INCLUDES, 'sort' => 'date_created:asc'], $page, self::PAGE_SIZE);
+        $credits = array_values(array_filter($customers, static fn(Node $customer): bool => $customer->list('store_credit_amounts') !== []));
+
+        return new Page(array_map(fn(Node $customer): Node => $this->storeCredit($customer->int('id'), $customer), $credits), $next !== null, $next === null ? null : self::PHASE_STORE_CREDIT . self::CURSOR_SEPARATOR . $next);
     }
 
-    private function giftCertificate(string $id): ?Node
+    private function giftCertificate(string $gid): ?Node
     {
+        $id = self::numericId($gid);
+        if (self::type($gid) === 'StoreCredit') {
+            $customer = $this->first('/v3/customers', ['id:in' => $id, 'include' => self::CUSTOMER_INCLUDES], 'Customer', 'id');
+
+            return $customer === null || $customer->list('store_credit_amounts') === [] ? null : $this->storeCredit((int) $id, $customer);
+        }
         $certificate = $this->client->get("/v2/gift_certificates/{$id}");
 
         return $certificate === null ? null : self::identified('GiftCertificate', $certificate->int('id'), $certificate->raw());
+    }
+
+    /** A customer's store credit, which BigCommerce keeps in the store's currency. */
+    private function storeCredit(int $customerId, Node $customer): Node
+    {
+        return self::identified('StoreCredit', $customerId, [...$customer->raw(), 'currency' => $this->store()->string('currency')]);
     }
 
     private function redirects(?string $cursor): Page

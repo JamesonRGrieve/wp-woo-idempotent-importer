@@ -111,13 +111,31 @@ final class GiftCardsTest extends TestCase
         self::assertSame(['observed', '-20', '30'], [$spent->records('ledger')[1]->string('kind'), $spent->records('ledger')[1]->string('amount'), $spent->records('ledger')[1]->nullableString('balance_after')]);
     }
 
+    public function testBigCommerceStoreCreditIsACardForItsCustomer(): void
+    {
+        $credit = $this->certificates('v2')[2];
+
+        self::assertSame(['store_credit', null, '15', 'CAD'], [$credit->string('kind'), $credit->nullableString('code'), $credit->string('balance'), $credit->string('currency')]);
+        self::assertSame('gid://bigcommerce/Customer/41', $credit->nullableString('customer_gid'));
+        self::assertSame('observed', $credit->records('ledger')[0]->string('kind'));
+        self::assertSame('0', $this->certificates('v1')[2]->string('balance'), 'no credit yet');
+    }
+
     /** @return list<Values> */
     private function certificates(string $state): array
     {
         $reader = BigCommerceReader::connect('https://api.bigcommerce.test', 'bcfix123', 'fixture-access-token', new ScriptedTransport(new FixtureResponder('bigcommerce', $state)), new RecordingSleeper());
         $mapper = new GiftCertificateMapper(self::settings());
 
-        return array_map(static fn(Node $node): Values => Values::of($mapper->map($node)), $reader->page(Kind::GiftCard, null, null, '')->nodes);
+        $nodes = [];
+        $cursor = null;
+        do {
+            $page = $reader->page(Kind::GiftCard, $cursor, null, '');
+            $nodes = [...$nodes, ...$page->nodes];
+            $cursor = $page->endCursor;
+        } while ($page->hasNextPage);
+
+        return array_map(static fn(Node $node): Values => Values::of($mapper->map($node)), $nodes);
     }
 
     private static function settings(): Settings

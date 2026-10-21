@@ -166,8 +166,8 @@ Account. The seller needs a Square Loyalty subscription.
 
 Set the Square account in `wp-config.php`: `IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN` (scopes `GIFTCARDS_READ
 GIFTCARDS_WRITE LOYALTY_READ LOYALTY_WRITE CUSTOMERS_READ CUSTOMERS_WRITE`), `IIM_SQUARE_STORED_VALUE_LOCATION_ID`, and
-`IIM_SQUARE_STORED_VALUE_ENVIRONMENT=sandbox` to try it first. Sources: BigCommerce gift certificates
-(Shopify and Wix hide their cards' codes; see their coverage pages).
+`IIM_SQUARE_STORED_VALUE_ENVIRONMENT=sandbox` to try it first. Sources: BigCommerce gift certificates and
+customer store credit (Shopify and Wix hide their cards' codes; see their coverage pages).
 
 Square's own route for third-party gift cards is a one-time import by Square Support; creating many
 digital cards through the API "may trigger compliance limit or rate limit errors". **None of this has run

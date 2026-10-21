@@ -16,6 +16,10 @@ use IdempotentImporter\Source\Node;
 use IdempotentImporter\Support\Decimal;
 
 /**
+ * A customer's store credit → a Square gift card linked to the customer (the store credit ruling): its
+ * balance (the sum of its amounts, in the store's currency), no code (a new number, shown in the customer's
+ * account), and as its ledger the balance BigCommerce reported (it keeps no store credit history).
+ *
  * A gift certificate → a Square gift card (GiftCardContract) with its code, remaining balance and state
  * (active; pending, which isn't paid for yet, and disabled carry no balance; expired). It belongs to its
  * recipient (`to_email`), and to the customer who bought it when that customer is mirrored. BigCommerce
@@ -44,6 +48,9 @@ final class GiftCertificateMapper implements Mapper
 
     public function map(Node $node): Desired
     {
+        if (str_contains($node->id(), '/StoreCredit/')) {
+            return $this->storeCredit($node);
+        }
         $id = Fields::sourceId($node);
         $currency = $node->optionalString('currency_code') ?? throw new Unsupported("Gift certificate {$id} names no currency.");
         $amount = Fields::decimalOrZero($node, 'amount');
@@ -74,6 +81,30 @@ final class GiftCertificateMapper implements Mapper
             $family,
             $ledger,
             Fields::details($node, self::DETAILS),
+        );
+    }
+
+    private function storeCredit(Node $node): Desired
+    {
+        $id = Fields::sourceId($node);
+        $balance = Decimal::sum(array_map(static fn(Node $credit): string => Fields::decimalOrZero($credit, 'amount'), $node->list('store_credit_amounts')));
+        $ledger = Decimal::isZero($balance) ? [] : [GiftCardContract::entry(Fields::id('StoreCreditBalance', "{$id}-{$balance}"), null, 'observed', $balance, $balance, null, 'Store credit at BigCommerce')];
+
+        return GiftCardContract::desired(
+            $node->id(),
+            $this->settings,
+            GiftCardContract::STORE_CREDIT,
+            null,
+            null,
+            $node->string('currency'),
+            $balance,
+            GiftCardContract::ACTIVE,
+            Fields::id('Customer', $id),
+            $node->optionalString('email'),
+            $node->optionalString('first_name'),
+            $node->optionalString('last_name'),
+            $ledger,
+            [],
         );
     }
 

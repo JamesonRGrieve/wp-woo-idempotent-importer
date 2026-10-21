@@ -21,6 +21,7 @@ use IdempotentImporter\StoredValue\GiftCardNumber;
 use IdempotentImporter\StoredValue\GiftCardPlan;
 use IdempotentImporter\StoredValue\SquareStoredValue;
 use IdempotentImporter\Support\Currency;
+use IdempotentImporter\Support\Decimal;
 
 /**
  * Gift cards and store credit → Square Gift Cards, the store's one spendable balance (online through
@@ -73,6 +74,11 @@ final class GiftCardWriter implements Writer
         );
         $id = $this->cards->save($record);
         $this->cards->replaceSourceHistory($id, array_map(self::sourceEntry(...), $f->records('ledger')));
+        $target = $f->string('state') === GiftCardContract::ACTIVE ? $f->string('balance') : '0';
+        if ($record->squareId === '' && Decimal::isZero($target)) {
+            // Nothing to spend yet (store credit at zero): no Square card until there is.
+            return $id;
+        }
 
         $card = $record->squareId !== ''
             ? $square->card($record->squareId) ?? throw new SourceError("Square has no gift card {$record->squareId} for {$desired->gid}.")
@@ -80,7 +86,6 @@ final class GiftCardWriter implements Writer
         $record = $record->with($card->string('id'), $record->loadedBalance, $record->held);
         $this->cards->save($record);
 
-        $target = $f->string('state') === GiftCardContract::ACTIVE ? $f->string('balance') : '0';
         $plan = GiftCardPlan::next($target, $record->loadedBalance, $card->string('state'), self::balance($card, $currency), $f->bool('load_increases'));
         if ($plan->step !== null) {
             $activity = $square->activity($plan->step, $record->squareId, $plan->amount, $currency, $desired->gid, SquareStoredValue::key($desired->gid, $plan->step, $record->loadedBalance, $plan->loaded));

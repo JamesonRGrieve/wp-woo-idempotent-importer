@@ -40,10 +40,10 @@ final class GiftCardStore
         return $row === null ? null : GiftCardRecord::fromRow($row);
     }
 
-    /** @return list<GiftCardRecord> a customer's cards, newest first */
+    /** @return list<GiftCardRecord> a customer's cards and accounts in Square, newest first */
     public function forUser(int $userId): array
     {
-        return array_map(GiftCardRecord::fromRow(...), Sql::rows($this->db, 'SELECT * FROM %i WHERE user_id = %d ORDER BY id DESC', $this->cards(), $userId));
+        return array_map(GiftCardRecord::fromRow(...), Sql::rows($this->db, "SELECT * FROM %i WHERE user_id = %d AND square_id <> '' ORDER BY id DESC", $this->cards(), $userId));
     }
 
     /** Creates or updates the card (keyed by its source identity); returns its id. */

@@ -49,6 +49,7 @@ spelled, exponents expanded), never through float arithmetic.
 | Refunds (v3) | WooCommerce refunds (no money moves, nothing restocked) | Refunded product lines with their quantities. |
 | Shipments | A private order note each, once | Carrier, tracking number and link. |
 | Staff notes, customer message | A private order note, the customer note | |
+| Customer store credit | A Square gift card linked to the customer (store credit lives in Square Gift Cards), shown in their My Account | The sum of its amounts, in the store's currency, with a new number. None until there is credit to spend. BigCommerce keeps no store credit history: the ledger is the balance it reported. |
 | Gift certificates | Square Gift Cards (the store's one spendable balance), kept in the importer's gift card ledger and shown in the customer's My Account | Opt-in kind `gift_card`, with the Square account set up (README, "Gift cards and store credit"). The code is the Square card number (separators dropped) where Square can take it, else a new number shown in the customer's account. Active certificates are loaded; pending (unpaid) and disabled ones carry no balance. BigCommerce keeps no redemption history: the ledger is the issue and what was spent before the move. Linked to the recipient's Square customer (by email). Sender, message, template and dates are kept with the card. |
 | Payment status, payment method, provider id, channel, order source, external source/ids, currency exchange rate, store credit and gift certificate amounts, refunded amount, IP and geo-IP country | Paid date (captured or paid), payment method title, order meta | |
 | Content pages (page, raw) | WordPress pages | Body, slug from the URL, SEO title and description. Hidden → draft, customers only → private. Parent, sort order, home-page flag, channel and keywords are meta. BigCommerce keeps no publication time, so a page is dated when first mirrored. The old URL 301s to the page. |
@@ -79,7 +80,7 @@ spelled, exponents expanded), never through float arithmetic.
 | Contact-form and link pages | A form and a menu link, not content pages (reported as unsupported) | A forms plugin; menus |
 | Brands as pages, brand images | WooCommerce brands are terms; only the name is mirrored | Brand term details in the product writer |
 | Volatile statistics (views, units sold, review counts, calculated price) | Would rewrite every product on every sale or view | — |
-| Product videos, metafields, channels, price lists, customer groups, wishlists, abandoned carts, store credit balances (kept as customer meta; into Square store credit is an operator decision), subscribers, widgets, themes, scripts | No WooCommerce schema, or not store content (videos and channels are product meta) | Dedicated WooCommerce extensions |
+| Product videos, metafields, channels, price lists, customer groups, wishlists, abandoned carts, subscribers, widgets, themes, scripts | No WooCommerce schema, or not store content (videos and channels are product meta) | Dedicated WooCommerce extensions |
 | Multi-storefront content | Pages, posts and redirects of every channel are mirrored into one site; the blog is the first blog page's | A multisite per storefront |
 | BigCommerce webhooks | The plugin's webhook endpoint verifies Shopify's signatures only | A BigCommerce webhook receiver |
 

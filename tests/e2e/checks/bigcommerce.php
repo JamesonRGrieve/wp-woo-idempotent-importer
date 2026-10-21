@@ -29,6 +29,8 @@ return [
         expect($card->sourceBalance === '50' && $card->loadedBalance === '50' && $card->userId === $ingrid->ID, 'its balance is loaded, and it is the buyer\'s');
         $pending = services()->giftCards()->find('gid://bigcommerce/GiftCertificate/902') ?? throw new RuntimeException('FAILED: the pending certificate has no card');
         expect($pending->gan === '9415999166351453' && $pending->loadedBalance === '0' && $pending->state === 'disabled', 'a code Square cannot take gets a new number; an unpaid certificate carries no balance');
+        $credit = services()->giftCards()->find('gid://bigcommerce/StoreCredit/41') ?? throw new RuntimeException('FAILED: the store credit was not read');
+        expect($credit->squareId === '' && $credit->sourceBalance === '0', 'store credit at zero is kept, with no Square card until there is something to spend');
         wp_set_current_user($ingrid->ID);
         ob_start();
         (new GiftCardAccount(services()->giftCards()))->render();
@@ -104,6 +106,8 @@ return [
         expect($card->sourceBalance === '30' && $card->loadedBalance === '30', 'a balance spent at BigCommerce is deducted from the Square card');
         $kinds = array_map(static fn($entry): string => $entry->kind, services()->giftCards()->ledger($card->id));
         expect($kinds === ['issue', 'observed', 'activate', 'adjust_decrement'], 'the ledger: issued, spent at the source, brought into Square, deducted in Square');
+        $credit = services()->giftCards()->find('gid://bigcommerce/StoreCredit/41') ?? throw new RuntimeException('FAILED: the store credit has no card');
+        expect($credit->kind === 'store_credit' && $credit->squareId === 'GC_SC41' && $credit->loadedBalance === '15' && $credit->gan === '9357516589041711', 'store credit given at BigCommerce becomes a Square gift card with a new number, linked to the customer');
         expect(product('gid://bigcommerce/Product/111')->get_regular_price() === '26', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://bigcommerce/Product/113') === null, 'deleted product unlinked');
         expect(trashedProducts() === 4, 'deleted product trashed beside the earlier deletions');
