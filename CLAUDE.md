@@ -21,6 +21,11 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 - `src/Wp/` — WordPress side, shared by every source: one `Writer` per kind, shared helpers
   (`MetaSync`, `MediaLibrary`, `Posts`, `Comments`, `Terms`, `Quiet`, `Retirement`), scheduler,
   webhooks, storefront, admin, CLI.
+- `src/StoredValue/` — the Square account gift cards and store credit are written to (`SquareStoredValue`),
+  their numbers (`GiftCardNumber`) and how a balance change is applied (`GiftCardPlan`, pure); the
+  ledger lives in `Store/GiftCardStore`, the writer in `Wp/Writer/GiftCardWriter`, the customer's page in
+  `Wp/GiftCardAccount`. Fixtures for systems the importer writes to record whole request bodies, which
+  `validate-fixtures` checks against the request schema too.
 - `src/Services.php` — the composition root; nothing else constructs dependencies.
 
 ## Rules

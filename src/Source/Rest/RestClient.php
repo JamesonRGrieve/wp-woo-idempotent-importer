@@ -79,6 +79,17 @@ final class RestClient
         );
     }
 
+    /**
+     * A write sent as a JSON POST. Retried like any request, so the body must carry the idempotency key the
+     * API uses to apply it once.
+     *
+     * @param array<string, mixed> $body
+     */
+    public function write(string $path, array $body): ?Node
+    {
+        return $this->query($path, $body);
+    }
+
     /** @param callable(array<string, string>): HttpResponse $request */
     private function send(string $path, callable $request): ?Node
     {

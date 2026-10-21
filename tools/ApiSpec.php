@@ -46,23 +46,66 @@ final readonly class ApiSpec
      */
     public function responseSchema(string $method, string $path): ?array
     {
+        [$template, $operation] = $this->operation($method, $path) ?? [null, null];
+        if ($operation === null) {
+            return null;
+        }
+        $schema = self::at($operation, ['responses', '200', 'content', 'application/json', 'schema'])
+            ?? self::at($operation, ['responses', '200', 'schema']);
+
+        return $schema === null ? null : Json::object($schema, "{$method} {$template} 200 schema");
+    }
+
+    /**
+     * The JSON request body schema of an operation on a concrete request path (OpenAPI 3's requestBody, or
+     * Swagger 2's body parameter); null when the document has no such operation or it takes no body.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function requestSchema(string $method, string $path): ?array
+    {
+        [$template, $operation] = $this->operation($method, $path) ?? [null, null];
+        if ($operation === null) {
+            return null;
+        }
+        $schema = self::at($operation, ['requestBody', 'content', 'application/json', 'schema']);
+        foreach (is_array($operation['parameters'] ?? null) ? $operation['parameters'] : [] as $parameter) {
+            if (is_array($parameter) && ($parameter['in'] ?? null) === 'body') {
+                $schema ??= $parameter['schema'] ?? null;
+            }
+        }
+
+        return $schema === null ? null : Json::object($schema, "{$method} {$template} request schema");
+    }
+
+    /**
+     * The operation a concrete request path names: [path template, operation object].
+     *
+     * @return array{0: string, 1: array<array-key, mixed>}|null
+     */
+    private function operation(string $method, string $path): ?array
+    {
         $relative = $this->relative($path);
         if ($relative === null) {
             return null;
         }
         $method = strtolower($method);
+        $literal = null;
+        $templated = null;
         foreach ($this->paths as $template => $operations) {
             $pattern = '#^' . preg_replace('/\\\\\{[A-Za-z_]+\\\\\}/', '[^/]+', preg_quote($template, '#')) . '$#';
-            if (preg_match($pattern, $relative) !== 1 || !isset($operations[$method])) {
+            if (preg_match($pattern, $relative) !== 1 || !is_array($operations[$method] ?? null)) {
                 continue;
             }
-            $schema = self::at($operations, [$method, 'responses', '200', 'content', 'application/json', 'schema'])
-                ?? self::at($operations, [$method, 'responses', '200', 'schema']);
-
-            return $schema === null ? null : Json::object($schema, "{$method} {$template} 200 schema");
+            // A literal path (/v2/gift-cards/from-gan) wins over a template it also matches (/v2/gift-cards/{id}).
+            if (!str_contains($template, '{')) {
+                $literal ??= [$template, $operations[$method]];
+            } else {
+                $templated ??= [$template, $operations[$method]];
+            }
         }
 
-        return null;
+        return $literal ?? $templated;
     }
 
     /** The request path relative to the document's server prefix; null when it isn't under that prefix. */

@@ -26,6 +26,8 @@ enum Kind: string
     case Refund = 'refund';
     /** A return order (an itemized return, or the return half of an exchange): refunds on the sales it returns. */
     case Return = 'return';
+    /** A gift card or store credit account: mirrored into Square Gift Cards (SquareStoredValue), with its ledger. */
+    case GiftCard = 'gift_card';
     case DraftOrder = 'draft_order';
     case Page = 'page';
     case Blog = 'blog';
@@ -47,6 +49,7 @@ enum Kind: string
         self::Discount,
         self::Order,
         self::Return,
+        self::GiftCard,
         self::DraftOrder,
         self::Page,
         self::Blog,

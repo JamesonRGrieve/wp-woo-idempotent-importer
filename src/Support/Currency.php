@@ -46,4 +46,19 @@ final class Currency
     {
         return Decimal::shift((string) $amount, -self::minorUnits($code));
     }
+
+    /**
+     * An exact decimal amount in the currency's smallest unit ("19.99" CAD → 1999).
+     *
+     * @throws InvalidArgumentException for an amount finer than the currency's smallest unit
+     */
+    public static function toMinorUnits(string $amount, string $code): int
+    {
+        $minor = Decimal::normalise(Decimal::shift($amount, self::minorUnits($code)));
+        if (preg_match('/^-?\d+$/', $minor) !== 1) {
+            throw new InvalidArgumentException("{$amount} {$code} is finer than the currency's smallest unit.");
+        }
+
+        return (int) $minor;
+    }
 }

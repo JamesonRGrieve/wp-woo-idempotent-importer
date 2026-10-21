@@ -36,6 +36,8 @@ const ETSY_API_PREFIX = '/v3/';
 /** REST sources answered from their fixtures: source => [API path pattern, the headers every request must carry]. */
 const REST_SOURCES = [
     'square_online' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-square-token', 'Square-Version' => SquareOnlineAuthorizer::API_VERSION]],
+    // The Square account gift cards are written to (whatever the source).
+    'square_stored_value' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-square-token', 'Square-Version' => SquareOnlineAuthorizer::API_VERSION]],
     'bigcommerce' => ['#^/stores/#', [BigCommerceAuthorizer::TOKEN_HEADER => 'e2e-bigcommerce-token']],
     'squarespace' => ['#^/(1\.0|v1|v2)/#', ['Authorization' => 'Bearer e2e-squarespace-key', 'User-Agent' => SquarespaceAuthorizer::USER_AGENT]],
     'wix' => [

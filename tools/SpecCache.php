@@ -55,6 +55,14 @@ final class SpecCache
                 '',
                 false,
             ),
+            // The same document for the Square account gift cards and store credit are written to (any source).
+            new SpecDocument(
+                'square_stored_value',
+                'connect-api-2026-09-16',
+                'https://raw.githubusercontent.com/square/connect-api-specification/79ccc3f89e1527f7b943cc2f6628b6098572583e/api.json',
+                '',
+                false,
+            ),
             ...self::bigCommerce(),
             // Squarespace's Commerce APIs (OpenAPI 3.1.1, linked from the docs' schemas page), published at an
             // unversioned URL, so pinned to the bytes fetched on 2026-10-16 (last modified 2026-10-12). Its

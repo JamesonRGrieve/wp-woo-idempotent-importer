@@ -17,6 +17,7 @@ use IdempotentImporter\Source\BigCommerce\Mapping\BlogMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\CategoryMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\CustomerMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\DiscountMapper;
+use IdempotentImporter\Source\BigCommerce\Mapping\GiftCertificateMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\OrderMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\PageMapper;
 use IdempotentImporter\Source\BigCommerce\Mapping\ProductMapper;
@@ -55,8 +56,8 @@ final class BigCommerceAdapter implements Adapter
     public function kinds(): array
     {
         return [
-            Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order, Kind::Page,
-            Kind::Blog, Kind::Article, Kind::UrlRedirect, Kind::Review,
+            Kind::Shop, Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order, Kind::GiftCard,
+            Kind::Page, Kind::Blog, Kind::Article, Kind::UrlRedirect, Kind::Review,
         ];
     }
 
@@ -74,6 +75,7 @@ final class BigCommerceAdapter implements Adapter
             new ArticleMapper(),
             new UrlRedirectMapper(),
             new ReviewMapper(),
+            new GiftCertificateMapper($settings),
         ];
     }
 

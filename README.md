@@ -139,6 +139,34 @@ WooCommerce order and never mirrored back. **None of this has run against the Sq
 Square request, response and webhook the tests use is recorded and validated against Square's published
 API specification.
 
+## Gift cards and store credit
+
+Gift cards and store credit live in **Square Gift Cards**: one balance, spendable online (WooCommerce
+Square redeems them) and at the Square counter. With the `gift_card` kind switched on, each source gift card
+becomes a digital Square gift card:
+
+- Its number is the source's own code where Square can take it (8 to 20 letters and digits, separators
+  dropped). A code Square can't use gets a new 16-digit number, shown to the customer in My Account →
+  Gift cards (switch "new numbers" off to hold such cards instead).
+- Its balance is loaded when it is first created. After that only what the source changes is applied, so
+  money spent in Square is never put back. A balance that went up at the source is held and reported
+  unless you allow loading it, because Square charges a load fee on increases in the US, Canada and
+  Australia. A drop bigger than what's left in Square (spent in both stores) is reported, never taken
+  below zero. Disabled, expired or unpaid source cards carry no balance.
+- Square can't backdate activity, so the card's history at its source, and every change made in Square,
+  is kept in the importer's ledger and shown in the customer's My Account.
+- It is linked to the customer's Square profile, found by email or created.
+
+Set the Square account in `wp-config.php`: `IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN` (scopes `GIFTCARDS_READ
+GIFTCARDS_WRITE CUSTOMERS_READ CUSTOMERS_WRITE`), `IIM_SQUARE_STORED_VALUE_LOCATION_ID`, and
+`IIM_SQUARE_STORED_VALUE_ENVIRONMENT=sandbox` to try it first. Sources: BigCommerce gift certificates
+(Shopify and Wix hide their cards' codes; see their coverage pages).
+
+Square's own route for third-party gift cards is a one-time import by Square Support; creating many
+digital cards through the API "may trigger compliance limit or rate limit errors". **None of this has run
+against the Square sandbox yet**: every Square request and response the tests use is recorded and
+validated against Square's published API specification.
+
 ## Commands
 
 ```sh

@@ -106,7 +106,8 @@ chmod 0777 "$STATE_DIR"
 podman run -d --name "$DB" --network "$NETWORK" --network-alias db \
     -e MARIADB_DATABASE=wp -e MARIADB_USER=wp -e MARIADB_PASSWORD=wp -e MARIADB_RANDOM_ROOT_PASSWORD=1 \
     "$DB_IMAGE" >/dev/null
-FAKE_ALIASES=()
+FAKE_ALIASES=(--network-alias square_stored_value-fake)
+source_state square_stored_value v1
 for source in "${SOURCES[@]}"; do
     source_state "$source" v1
     FAKE_ALIASES+=(--network-alias "$source-fake")
@@ -133,7 +134,7 @@ import_source etsy "a price, a removed listing, a refund, a new receipt and revi
 import_source square_online "a price, a deleted item, a refund, a return, an exchange, a new order and customer, and an order WooCommerce Square pushed"
 echo "== Square webhooks"
 wp iim-e2e square-webhook
-import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review"
+import_source bigcommerce "a price, a deleted product, a refund, a new order, customer, post and review, and a gift certificate spent"
 import_source squarespace "a price, a deleted product, a refund, a new order and customer"
 import_source wix "a price, a deleted product, a refund, a new order, contact and post"
 import_source magento "a price, a deleted product, a refund, a new order, customer and page"

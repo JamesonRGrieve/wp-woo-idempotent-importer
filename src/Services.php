@@ -6,12 +6,14 @@ declare(strict_types=1);
 
 namespace IdempotentImporter;
 
+use IdempotentImporter\Config\Credentials;
 use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Http\HttpTransport;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Adapter;
 use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Source\SourceReader;
+use IdempotentImporter\Store\GiftCardStore;
 use IdempotentImporter\Store\LinkStore;
 use IdempotentImporter\Store\RedirectStore;
 use IdempotentImporter\Store\RunLog;
@@ -33,6 +35,7 @@ use IdempotentImporter\Wp\Writer\CustomerWriter;
 use IdempotentImporter\Wp\Writer\DeliveryProfileWriter;
 use IdempotentImporter\Wp\Writer\DiscountWriter;
 use IdempotentImporter\Wp\Writer\FileWriter;
+use IdempotentImporter\Wp\Writer\GiftCardWriter;
 use IdempotentImporter\Wp\Writer\MenuWriter;
 use IdempotentImporter\Wp\Writer\OrderWriter;
 use IdempotentImporter\Wp\Writer\PageWriter;
@@ -78,6 +81,19 @@ final class Services
     public function tables(): Tables
     {
         return $this->tables;
+    }
+
+    /** The key new gift card numbers are derived with: GiftCardWriter::NUMBER_KEY, else WordPress's secure-auth salt. */
+    private function giftCardNumberKey(): string
+    {
+        $key = Credentials::get(GiftCardWriter::NUMBER_KEY);
+
+        return $key !== '' ? $key : wp_salt('secure_auth');
+    }
+
+    public function giftCards(): GiftCardStore
+    {
+        return new GiftCardStore($this->db, $this->tables);
     }
 
     public function links(): LinkStore
@@ -194,6 +210,7 @@ final class Services
             new DiscountWriter($targets),
             new OrderWriter(Kind::Order, $targets),
             new ReturnWriter($targets),
+            new GiftCardWriter($targets, $this->giftCards(), $this->transport, $this->giftCardNumberKey()),
             new OrderWriter(Kind::DraftOrder, $targets),
             new PageWriter($targets),
             new TermWriter(Kind::Blog, 'category', $targets),

@@ -8,12 +8,33 @@ declare(strict_types=1);
  * BigCommerce's end-to-end checks (the shape is described at checks() in assert.php).
  */
 
+use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Mapping\LegacyPaths;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\BigCommerce\BigCommerceAdapter;
+use IdempotentImporter\Wp\GiftCardAccount;
+use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Storefront;
 
 return [
+    // BigCommerce, with its gift certificates mirrored into Square Gift Cards (the fake Square in wp-config).
+    'configure' => static function (): void {
+        selectSource(BigCommerceAdapter::ID);
+        update_option(Settings::OPTION, [...Options::array(Settings::OPTION), 'kinds' => [...Settings::DEFAULTS['kinds'], Kind::GiftCard->value]], false);
+    },
     'v1' => static function (): void {
+        $card = services()->giftCards()->find('gid://bigcommerce/GiftCertificate/901') ?? throw new RuntimeException('FAILED: the gift certificate has no card');
+        $ingrid = user('gid://bigcommerce/Customer/41');
+        expect($card->gan === '4KZX0OUHIJHC' && $card->squareId === 'GC_901', 'the gift certificate is a Square gift card with its own code as its number');
+        expect($card->sourceBalance === '50' && $card->loadedBalance === '50' && $card->userId === $ingrid->ID, 'its balance is loaded, and it is the buyer\'s');
+        $pending = services()->giftCards()->find('gid://bigcommerce/GiftCertificate/902') ?? throw new RuntimeException('FAILED: the pending certificate has no card');
+        expect($pending->gan === '9415999166351453' && $pending->loadedBalance === '0' && $pending->state === 'disabled', 'a code Square cannot take gets a new number; an unpaid certificate carries no balance');
+        wp_set_current_user($ingrid->ID);
+        ob_start();
+        (new GiftCardAccount(services()->giftCards()))->render();
+        $page = (string) ob_get_clean();
+        wp_set_current_user(0);
+        expect(str_contains($page, '4KZX 0OUH IJHC') && str_contains($page, 'Brought into Square'), "the customer's account shows the card's number and ledger");
         expect(get_option('woocommerce_weight_unit') === 'kg' && get_option('woocommerce_currency') === 'CAD', 'store settings: weight unit KGS → kg, currency');
 
         $mug = product('gid://bigcommerce/Product/111');
@@ -79,6 +100,10 @@ return [
         expect($storefront->target(LegacyPaths::normalise('/about-us/')) === get_permalink(target(Kind::Page, 'gid://bigcommerce/Page/81')), 'old page URL → page');
     },
     'v2' => static function (): void {
+        $card = services()->giftCards()->find('gid://bigcommerce/GiftCertificate/901') ?? throw new RuntimeException('FAILED: the gift certificate has no card');
+        expect($card->sourceBalance === '30' && $card->loadedBalance === '30', 'a balance spent at BigCommerce is deducted from the Square card');
+        $kinds = array_map(static fn($entry): string => $entry->kind, services()->giftCards()->ledger($card->id));
+        expect($kinds === ['issue', 'observed', 'activate', 'adjust_decrement'], 'the ledger: issued, spent at the source, brought into Square, deducted in Square');
         expect(product('gid://bigcommerce/Product/111')->get_regular_price() === '26', 'price updated');
         expect(services()->links()->targetId(Kind::Product, 'gid://bigcommerce/Product/113') === null, 'deleted product unlinked');
         expect(trashedProducts() === 4, 'deleted product trashed beside the earlier deletions');
@@ -90,6 +115,7 @@ return [
         expect(count(reviews(product('gid://bigcommerce/Product/112')->get_id())) === 1, 'new approved review on the toque');
     },
     'intact' => static function (): void {
+        expect(services()->giftCards()->find('gid://bigcommerce/GiftCertificate/901')?->loadedBalance === '30', 'the BigCommerce gift card is untouched');
         expect(product('gid://bigcommerce/Product/111')->get_status() === 'publish', 'the BigCommerce mug is still published');
         expect(order(Kind::Order, 'gid://bigcommerce/Order/501')->get_status() === 'completed', 'the BigCommerce order is untouched');
     },

@@ -7,8 +7,9 @@ declare(strict_types=1);
 /**
  * Validates every recorded REST response (tests/fixtures/<source>/<state>) against that source's pinned,
  * published API documents: the request must be an operation one of them defines, and the response must
- * match its 200 schema strictly (see OpenApiValidator); and every recorded webhook notification against the
- * event schema it names. Usage: composer validate-fixtures
+ * match its 200 schema strictly (see OpenApiValidator); for a system the importer writes to, the whole
+ * request body against the operation's request schema too; and every recorded webhook notification against
+ * the event schema it names. Usage: composer validate-fixtures
  */
 
 use IdempotentImporter\Tests\Support\SourceFixtures;
@@ -16,6 +17,9 @@ use IdempotentImporter\Tools\OpenApiValidator;
 use IdempotentImporter\Tools\SpecCache;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+/** Systems the importer writes to: their fixtures record whole request bodies, each validated too. */
+const WRITE_DESTINATIONS = ['square_stored_value'];
 
 $failures = [];
 $counts = [];
@@ -38,6 +42,12 @@ foreach (array_unique(array_map(static fn($document): string => $document->sourc
                 $validator = new OpenApiValidator($spec->schemas, $spec->refPrefix, $completeObjects);
                 foreach ($validator->validate($fixture['response'], $schema) as $error) {
                     $failures[] = "{$name}: {$error}";
+                }
+                if (in_array($source, WRITE_DESTINATIONS, true) && $fixture['body'] !== []) {
+                    $requestSchema = $spec->requestSchema($fixture['method'], $fixture['path']);
+                    $failures = [...$failures, ...($requestSchema === null
+                        ? ["{$name}: {$fixture['method']} {$fixture['path']} takes no request body"]
+                        : array_map(static fn(string $error): string => "{$name} request: {$error}", $validator->validate($fixture['body'], $requestSchema)))];
                 }
                 break;
             }

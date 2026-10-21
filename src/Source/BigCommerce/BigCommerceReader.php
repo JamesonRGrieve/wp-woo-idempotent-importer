@@ -57,7 +57,7 @@ final class BigCommerceReader implements SourceReader
     private const FIRST_PAGE = 1;
     private const STORE_HASH_PATTERN = '/^[a-z0-9]+$/';
     private const INCREMENTAL = [Kind::Product, Kind::Customer, Kind::Order];
-    private const SINGLY_READABLE = [Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order, Kind::Page, Kind::Article, Kind::UrlRedirect];
+    private const SINGLY_READABLE = [Kind::Collection, Kind::Product, Kind::Customer, Kind::Discount, Kind::Order, Kind::Page, Kind::Article, Kind::UrlRedirect, Kind::GiftCard];
 
     private ?Node $store = null;
 
@@ -99,6 +99,7 @@ final class BigCommerceReader implements SourceReader
             Kind::Article => $this->posts($cursor),
             Kind::UrlRedirect => $this->redirects($cursor),
             Kind::Review => $this->reviews($cursor),
+            Kind::GiftCard => $this->giftCertificates($cursor),
             default => throw new SourceError("BigCommerce has no {$kind->value}."),
         };
     }
@@ -119,6 +120,7 @@ final class BigCommerceReader implements SourceReader
             Kind::Order => $this->order($id),
             Kind::Page => $this->contentPage($id),
             Kind::Article => $this->post($id),
+            Kind::GiftCard => $this->giftCertificate($id),
             default => $this->first('/v3/storefront/redirects', ['id:in' => $id, 'include' => 'to_url'], 'Redirect', 'id'),
         };
     }
@@ -351,6 +353,21 @@ final class BigCommerceReader implements SourceReader
             'blog_id' => $this->storeHash,
             'store_url' => $this->store()->optionalString('secure_url'),
         ]);
+    }
+
+    /** Gift certificates (v2, page by page; BigCommerce has no modified-since filter for them). */
+    private function giftCertificates(?string $cursor): Page
+    {
+        [$certificates, $next] = $this->v2Page('/v2/gift_certificates', [], $cursor);
+
+        return self::paged(array_map(static fn(Node $certificate): Node => self::identified('GiftCertificate', $certificate->int('id'), $certificate->raw()), $certificates), $next);
+    }
+
+    private function giftCertificate(string $id): ?Node
+    {
+        $certificate = $this->client->get("/v2/gift_certificates/{$id}");
+
+        return $certificate === null ? null : self::identified('GiftCertificate', $certificate->int('id'), $certificate->raw());
     }
 
     private function redirects(?string $cursor): Page

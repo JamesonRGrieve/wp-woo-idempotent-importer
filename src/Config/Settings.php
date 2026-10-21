@@ -37,6 +37,8 @@ final readonly class Settings
         'generate_missing_skus' => false,
         'default_author' => 0,
         'notify_email' => '',
+        'gift_card_load_increases' => false,
+        'gift_card_new_numbers' => true,
     ];
 
     public const MIN_INTERVAL_MINUTES = 5;
@@ -61,6 +63,8 @@ final readonly class Settings
         public bool $generateMissingSkus,
         public int $defaultAuthor,
         public string $notifyEmail,
+        public bool $giftCardLoadIncreases = false,
+        public bool $giftCardNewNumbers = true,
     ) {}
 
     public static function load(): self
@@ -111,6 +115,8 @@ final readonly class Settings
             generateMissingSkus: (bool) $value('generate_missing_skus'),
             defaultAuthor: self::int($value('default_author')),
             notifyEmail: sanitize_email(self::string($value('notify_email'))),
+            giftCardLoadIncreases: (bool) $value('gift_card_load_increases'),
+            giftCardNewNumbers: (bool) $value('gift_card_new_numbers'),
         );
     }
 

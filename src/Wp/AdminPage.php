@@ -35,6 +35,8 @@ final class AdminPage
         'clean_html' => 'Clean imported HTML with WordPress\'s post filter',
         'preserve_order_numbers' => 'Show the source store\'s order numbers on mirrored orders',
         'generate_missing_skus' => 'Give variants without a SKU a stable one (needed by WooCommerce Square)',
+        'gift_card_load_increases' => 'Load gift card balance increases into Square (Square charges a load fee on them)',
+        'gift_card_new_numbers' => 'Give gift cards whose source code Square can\'t use (or the source hides) a new number, shown in the customer\'s account',
     ];
     /** Kinds switched by their own setting (or with orders) rather than the kinds list. */
     private const SEPARATELY_SWITCHED_KINDS = [Kind::DeliveryProfile, Kind::Return];

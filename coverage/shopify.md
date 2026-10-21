@@ -79,7 +79,7 @@ off by default). Keep Square's system of record on WooCommerce while the importe
 
 | Shopify | What it would take |
 |---|---|
-| Gift cards and their balances | A gift-card plugin (e.g. WooCommerce Gift Cards) or a custom writer into Square Gift Cards via the Square API. |
+| Gift cards and their balances | Square Gift Cards, through the gift card writer the BigCommerce adapter already uses. Not built for Shopify yet: Shopify's API never reveals a card's code (only its last characters), so each card needs a new number (an operator decision: customers must be told), and its new GraphQL needs costs recorded from the live store (`tools/calibrate-query-cost.php`), which needs the operator's go-ahead. |
 | Store credit accounts | A store-credit/wallet plugin. |
 | Customer passwords | Not exportable from Shopify; customers reset on first login (`wp idempotent-import send-password-resets` at cutover). |
 | Saved customer payment methods | Not exportable (PCI). |
