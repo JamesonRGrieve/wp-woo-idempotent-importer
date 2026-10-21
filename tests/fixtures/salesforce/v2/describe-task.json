@@ -1,0 +1,199 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/sobjects/Task/describe"
+  },
+  "response": {
+    "name": "Task",
+    "label": "Task",
+    "custom": false,
+    "fields": [
+      {
+        "name": "Id",
+        "label": "Record ID",
+        "type": "id",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsDeleted",
+        "label": "Deleted",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CreatedDate",
+        "label": "Created Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "LastModifiedDate",
+        "label": "Last Modified Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "SystemModstamp",
+        "label": "System Modstamp",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "WhoId",
+        "label": "Name ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "WhatId",
+        "label": "Related To ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Subject",
+        "label": "Subject",
+        "type": "combobox",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ActivityDate",
+        "label": "Due Date Only",
+        "type": "date",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Status",
+        "label": "Status",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Priority",
+        "label": "Priority",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "OwnerId",
+        "label": "Assigned To ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Description",
+        "label": "Description",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "TaskSubtype",
+        "label": "Task Subtype",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CallDurationInSeconds",
+        "label": "Call Duration",
+        "type": "int",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CallType",
+        "label": "Call Type",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CallDisposition",
+        "label": "Call Result",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      }
+    ]
+  }
+}

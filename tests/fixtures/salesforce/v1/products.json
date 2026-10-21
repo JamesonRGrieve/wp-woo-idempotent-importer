@@ -1,0 +1,61 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, Name, ProductCode, Description, IsActive, Family, StockKeepingUnit, (SELECT UnitPrice FROM PricebookEntries WHERE Pricebook2.IsStandard = true) FROM Product2 ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Product2",
+          "url": "/services/data/v62.0/sobjects/Product2/01tFh00000Clay1AAA"
+        },
+        "Id": "01tFh00000Clay1AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "Name": "Stoneware clay, 10 kg",
+        "ProductCode": "SF-CLAY",
+        "Description": "Mid-fire stoneware.",
+        "IsActive": true,
+        "Family": "Supplies",
+        "StockKeepingUnit": "SF-CLAY-10",
+        "PricebookEntries": {
+          "totalSize": 1,
+          "done": true,
+          "records": [
+            {
+              "attributes": {
+                "type": "PricebookEntry"
+              },
+              "UnitPrice": 42.5
+            }
+          ]
+        }
+      },
+      {
+        "attributes": {
+          "type": "Product2",
+          "url": "/services/data/v62.0/sobjects/Product2/01tFh00000Clss1AAA"
+        },
+        "Id": "01tFh00000Clss1AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "Name": "Wheel class",
+        "ProductCode": "SF-CLASS",
+        "Description": null,
+        "IsActive": false,
+        "Family": null,
+        "StockKeepingUnit": null,
+        "PricebookEntries": null
+      }
+    ]
+  }
+}

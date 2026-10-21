@@ -1,0 +1,2620 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Salesforce REST API responses read by wp-woo-idempotent-importer",
+    "version": "v62.0",
+    "description": "Salesforce publishes no OpenAPI document for its REST resources and sObjects. This subset is transcribed by hand from the REST API Developer Guide (https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/) and the Object Reference (https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/) for API version 62.0: only the responses the Salesforce adapter reads. Paths are relative to `<instance URL>/services/data/v62.0`."
+  },
+  "servers": [
+    {
+      "url": "https://{instance}.my.salesforce.com/services/data/v62.0"
+    }
+  ],
+  "paths": {
+    "/query": {
+      "get": {
+        "externalDocs": {
+          "url": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/{queryLocator}": {
+      "get": {
+        "externalDocs": {
+          "url": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sobjects/{sObject}/describe": {
+      "get": {
+        "externalDocs": {
+          "url": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_sobject_describe.htm"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DescribeSObjectResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Attributes": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "QueryResult": {
+        "description": "The Query resource's response (https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm): `done` is false while `nextRecordsUrl` names the next batch.",
+        "type": "object",
+        "required": [
+          "totalSize",
+          "done",
+          "records"
+        ],
+        "properties": {
+          "totalSize": {
+            "type": "integer"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "nextRecordsUrl": {
+            "type": "string"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Account"
+                },
+                {
+                  "$ref": "#/components/schemas/Contact"
+                },
+                {
+                  "$ref": "#/components/schemas/Lead"
+                },
+                {
+                  "$ref": "#/components/schemas/Campaign"
+                },
+                {
+                  "$ref": "#/components/schemas/Topic"
+                },
+                {
+                  "$ref": "#/components/schemas/Task"
+                },
+                {
+                  "$ref": "#/components/schemas/Event"
+                },
+                {
+                  "$ref": "#/components/schemas/Note"
+                },
+                {
+                  "$ref": "#/components/schemas/Product2"
+                },
+                {
+                  "$ref": "#/components/schemas/Order"
+                },
+                {
+                  "$ref": "#/components/schemas/CampaignMember"
+                },
+                {
+                  "$ref": "#/components/schemas/TopicAssignment"
+                },
+                {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PricebookEntryQueryResult": {
+        "type": "object",
+        "required": [
+          "totalSize",
+          "done",
+          "records"
+        ],
+        "properties": {
+          "totalSize": {
+            "type": "integer"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "attributes",
+                "UnitPrice"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "attributes": {
+                  "$ref": "#/components/schemas/Attributes"
+                },
+                "UnitPrice": {
+                  "type": "number"
+                },
+                "CurrencyIsoCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "OrderItemQueryResult": {
+        "type": "object",
+        "required": [
+          "totalSize",
+          "done",
+          "records"
+        ],
+        "properties": {
+          "totalSize": {
+            "type": "integer"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "attributes",
+                "Id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "attributes": {
+                  "$ref": "#/components/schemas/Attributes"
+                },
+                "Id": {
+                  "type": "string"
+                },
+                "Product2Id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "Quantity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "UnitPrice": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "TotalPrice": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "Description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "Product2": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "attributes": {
+                          "$ref": "#/components/schemas/Attributes"
+                        },
+                        "Name": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "DescribeSObjectResult": {
+        "description": "The sObject Describe resource's response (https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_sobject_describe.htm), the parts the adapter reads.",
+        "type": "object",
+        "required": [
+          "name",
+          "fields"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "custom": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Field"
+            }
+          }
+        }
+      },
+      "Field": {
+        "description": "A field's describe (Field in the SOAP API's describeSObjects result, which the REST resource returns as JSON).",
+        "type": "object",
+        "required": [
+          "name",
+          "label",
+          "type",
+          "custom",
+          "calculated",
+          "createable",
+          "updateable"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "id",
+              "string",
+              "textarea",
+              "email",
+              "phone",
+              "url",
+              "picklist",
+              "multipicklist",
+              "combobox",
+              "reference",
+              "boolean",
+              "currency",
+              "double",
+              "percent",
+              "int",
+              "long",
+              "date",
+              "datetime",
+              "time",
+              "address",
+              "location",
+              "base64",
+              "encryptedstring",
+              "anyType"
+            ]
+          },
+          "custom": {
+            "type": "boolean"
+          },
+          "calculated": {
+            "type": "boolean"
+          },
+          "createable": {
+            "type": "boolean"
+          },
+          "updateable": {
+            "type": "boolean"
+          },
+          "nillable": {
+            "type": "boolean"
+          },
+          "picklistValues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "defaultValue": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Account": {
+        "description": "A Account record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_account.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Account"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ParentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingStreet": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingCity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingState": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingPostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingCountry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingStateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingCountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingLatitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "BillingLongitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "BillingGeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingStreet": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingCity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingState": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingPostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingCountry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingStateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingCountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingLatitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ShippingLongitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ShippingGeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Fax": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AccountNumber": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Sic": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Industry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AnnualRevenue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "NumberOfEmployees": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "Ownership": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "TickerSymbol": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Rating": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Site": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AccountSource": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Contact": {
+        "description": "A Contact record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_contact.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Contact"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AccountId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "FirstName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Salutation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingStreet": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingCity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingState": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingPostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingCountry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingStateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingCountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MailingLatitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "MailingLongitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "MailingGeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherStreet": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherCity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherState": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherPostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherCountry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherStateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherCountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherLatitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "OtherLongitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "OtherGeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Fax": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MobilePhone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "HomePhone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OtherPhone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AssistantPhone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ReportsToId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Department": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AssistantName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LeadSource": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Birthdate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "HasOptedOutOfEmail": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "HasOptedOutOfFax": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "DoNotCall": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "EmailBouncedReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "EmailBouncedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Lead": {
+        "description": "A Lead record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_lead.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Lead"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "FirstName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Salutation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Company": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Street": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "City": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "State": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "PostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "StateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Latitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "Longitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "GeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MobilePhone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Fax": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LeadSource": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Industry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Rating": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AnnualRevenue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "NumberOfEmployees": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "HasOptedOutOfEmail": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "IsConverted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "ConvertedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ConvertedAccountId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ConvertedContactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ConvertedOpportunityId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsUnreadByOwner": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "DoNotCall": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "HasOptedOutOfFax": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Campaign": {
+        "description": "A Campaign record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_campaign.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Campaign"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ParentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "StartDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "EndDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ExpectedRevenue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "BudgetedCost": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ActualCost": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ExpectedResponse": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "NumberSent": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "IsActive": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Topic": {
+        "description": "A Topic record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_topic.htm). Fields are those of the object's describe; a SOQL selects these.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Topic"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "TalkingAbout": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ManagedTopicType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Task": {
+        "description": "A Task record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_task.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Task"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "WhoId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "WhatId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ActivityDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Priority": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsClosed": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "AccountId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CallDurationInSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "CallType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CallDisposition": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CallObject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "TaskSubtype": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CompletedDateTime": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Event": {
+        "description": "A Event record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_event.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Event"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "WhoId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "WhatId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Location": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsAllDayEvent": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "ActivityDateTime": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ActivityDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "DurationInMinutes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "StartDateTime": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "EndDateTime": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AccountId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShowAs": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "EventSubtype": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Note": {
+        "description": "A Note record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_note.htm). Fields are those of the object's describe; a SOQL selects these.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Note"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ParentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Title": {
+            "type": "string"
+          },
+          "IsPrivate": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "Body": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Product2": {
+        "description": "A Product2 record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_product2.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Product2"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ProductCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsActive": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "Family": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ExternalId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "DisplayUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "QuantityUnitOfMeasure": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "StockKeepingUnit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsArchived": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "PricebookEntries": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PricebookEntryQueryResult"
+              }
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Order": {
+        "description": "A Order record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_order.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Order"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ContractId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AccountId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Pricebook2Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OriginalOrderId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "EffectiveDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "EndDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsReductionOrder": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "Status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CustomerAuthorizedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CompanyAuthorizedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingStreet": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingCity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingState": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingPostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingCountry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingStateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingCountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillingLatitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "BillingLongitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "BillingGeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingStreet": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingCity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingState": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingPostalCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingCountry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingStateCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingCountryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShippingLatitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ShippingLongitude": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ShippingGeocodeAccuracy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "PoDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "PoNumber": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OrderReferenceNumber": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "BillToContactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ShipToContactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ActivatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ActivatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "StatusCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OrderNumber": {
+            "type": "string"
+          },
+          "TotalAmount": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OrderItems": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderItemQueryResult"
+              }
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "CampaignMember": {
+        "description": "A CampaignMember record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_campaignmember.htm). Fields are those of the object's describe; a SOQL selects these.",
+        "type": "object",
+        "required": [
+          "attributes"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "CampaignMember"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CampaignId": {
+            "type": "string"
+          },
+          "ContactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LeadId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "TopicAssignment": {
+        "description": "A TopicAssignment record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_topicassignment.htm). Fields are those of the object's describe; a SOQL selects these.",
+        "type": "object",
+        "required": [
+          "attributes"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "TopicAssignment"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "TopicId": {
+            "type": "string"
+          },
+          "EntityId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Organization": {
+        "description": "A Organization record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_organization.htm). Fields are those of the object's describe; a SOQL selects these.",
+        "type": "object",
+        "required": [
+          "attributes"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Organization"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "DefaultCurrencyIsoCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

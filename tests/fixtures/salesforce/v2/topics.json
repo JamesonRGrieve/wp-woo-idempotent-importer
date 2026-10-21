@@ -1,0 +1,24 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, Name, Description, CreatedDate FROM Topic ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 1,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Topic",
+          "url": "/services/data/v62.0/sobjects/Topic/0TOFh00000Whl001AAA"
+        },
+        "Id": "0TOFh00000Whl001AAA",
+        "Name": "Wholesale",
+        "Description": "Buys for resale.",
+        "CreatedDate": "2026-08-01T16:00:00.000+0000"
+      }
+    ]
+  }
+}

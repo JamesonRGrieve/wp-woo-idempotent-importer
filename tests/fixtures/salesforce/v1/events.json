@@ -1,0 +1,33 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Description, OwnerId FROM Event ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 1,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Event",
+          "url": "/services/data/v62.0/sobjects/Event/00UFh00000Evnt1AAA"
+        },
+        "Id": "00UFh00000Evnt1AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "WhoId": null,
+        "WhatId": "001Fh00000Kiln01AAA",
+        "Subject": "Studio visit",
+        "Location": "Fernhill studio",
+        "StartDateTime": "2026-08-18T17:00:00.000+0000",
+        "EndDateTime": "2026-08-18T18:00:00.000+0000",
+        "Description": "Tour of the kiln room.",
+        "OwnerId": null
+      }
+    ]
+  }
+}

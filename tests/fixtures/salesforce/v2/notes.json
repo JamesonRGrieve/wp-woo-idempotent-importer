@@ -1,0 +1,46 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, ParentId, Title, IsPrivate, Body, OwnerId FROM Note ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Note",
+          "url": "/services/data/v62.0/sobjects/Note/002Fh00000Note1AAA"
+        },
+        "Id": "002Fh00000Note1AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "ParentId": "003Fh00000Ada001AAA",
+        "Title": "Glaze preference",
+        "IsPrivate": false,
+        "Body": "Prefers celadon and ash.",
+        "OwnerId": null
+      },
+      {
+        "attributes": {
+          "type": "Note",
+          "url": "/services/data/v62.0/sobjects/Note/002Fh00000Note2AAA"
+        },
+        "Id": "002Fh00000Note2AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "ParentId": "00QFh00000Cy0001AAA",
+        "Title": "Met at the market",
+        "IsPrivate": false,
+        "Body": "Wants a class.",
+        "OwnerId": null
+      }
+    ]
+  }
+}

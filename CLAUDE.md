@@ -2,7 +2,7 @@
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent store → WooCommerce mirror kept current until
 cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce, Squarespace, Wix,
-Magento, Lightspeed eCom, Ecwid and Webflow), and of CRMs (HubSpot) into FluentCRM. README.md is the user-facing contract; `coverage/<source>.md`
+Magento, Lightspeed eCom, Ecwid and Webflow), and of CRMs (HubSpot, Salesforce) into FluentCRM. README.md is the user-facing contract; `coverage/<source>.md`
 is the single source of truth for what each source mirrors and what is a gap. PHP rules:
 `/home/jameson/Source/ai-prompts/php.md`.
 

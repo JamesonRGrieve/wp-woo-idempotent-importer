@@ -1,0 +1,155 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/sobjects/Event/describe"
+  },
+  "response": {
+    "name": "Event",
+    "label": "Event",
+    "custom": false,
+    "fields": [
+      {
+        "name": "Id",
+        "label": "Record ID",
+        "type": "id",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsDeleted",
+        "label": "Deleted",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CreatedDate",
+        "label": "Created Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "LastModifiedDate",
+        "label": "Last Modified Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "SystemModstamp",
+        "label": "System Modstamp",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "WhoId",
+        "label": "Name ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "WhatId",
+        "label": "Related To ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Subject",
+        "label": "Subject",
+        "type": "combobox",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Location",
+        "label": "Location",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "StartDateTime",
+        "label": "Start Date Time",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "EndDateTime",
+        "label": "End Date Time",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Description",
+        "label": "Description",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "OwnerId",
+        "label": "Assigned To ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      }
+    ]
+  }
+}

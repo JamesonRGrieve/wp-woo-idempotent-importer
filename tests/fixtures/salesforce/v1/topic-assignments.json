@@ -1,0 +1,21 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT TopicId, EntityId FROM TopicAssignment WHERE EntityType IN ('Contact', 'Lead') ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 1,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "TopicAssignment"
+        },
+        "TopicId": "0TOFh00000Whl001AAA",
+        "EntityId": "003Fh00000Ada001AAA"
+      }
+    ]
+  }
+}

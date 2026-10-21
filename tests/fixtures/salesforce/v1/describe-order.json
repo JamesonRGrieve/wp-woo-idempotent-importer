@@ -1,0 +1,298 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/sobjects/Order/describe"
+  },
+  "response": {
+    "name": "Order",
+    "label": "Order",
+    "custom": false,
+    "fields": [
+      {
+        "name": "Id",
+        "label": "Record ID",
+        "type": "id",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsDeleted",
+        "label": "Deleted",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CreatedDate",
+        "label": "Created Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "LastModifiedDate",
+        "label": "Last Modified Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "SystemModstamp",
+        "label": "System Modstamp",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "AccountId",
+        "label": "Account ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "EffectiveDate",
+        "label": "Order Start Date",
+        "type": "date",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Status",
+        "label": "Status",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Description",
+        "label": "Description",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillingStreet",
+        "label": "Billing Street",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillingCity",
+        "label": "Billing City",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillingState",
+        "label": "Billing State/Province",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillingPostalCode",
+        "label": "Billing Zip/Postal Code",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillingCountry",
+        "label": "Billing Country",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillingAddress",
+        "label": "Billing Address",
+        "type": "address",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ShippingStreet",
+        "label": "Shipping Street",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ShippingCity",
+        "label": "Shipping City",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ShippingState",
+        "label": "Shipping State/Province",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ShippingPostalCode",
+        "label": "Shipping Zip/Postal Code",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ShippingCountry",
+        "label": "Shipping Country",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ShippingAddress",
+        "label": "Shipping Address",
+        "type": "address",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "BillToContactId",
+        "label": "Bill To Contact ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "StatusCode",
+        "label": "Status Category",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "OrderNumber",
+        "label": "Order Number",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "TotalAmount",
+        "label": "Order Amount",
+        "type": "currency",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "PoNumber",
+        "label": "PO Number",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      }
+    ]
+  }
+}

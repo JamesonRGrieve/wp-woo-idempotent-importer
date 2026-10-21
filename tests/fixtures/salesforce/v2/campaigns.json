@@ -1,0 +1,50 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, Name, Type, Status, StartDate, IsActive, Description, NumberOfContacts FROM Campaign ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Campaign",
+          "url": "/services/data/v62.0/sobjects/Campaign/701Fh00000Mem001AAA"
+        },
+        "Id": "701Fh00000Mem001AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "Name": "Studio members",
+        "Type": "Other",
+        "Status": "In Progress",
+        "StartDate": null,
+        "IsActive": true,
+        "Description": "Members of the studio.",
+        "NumberOfContacts": null
+      },
+      {
+        "attributes": {
+          "type": "Campaign",
+          "url": "/services/data/v62.0/sobjects/Campaign/701Fh00000Evt001AAA"
+        },
+        "Id": "701Fh00000Evt001AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "Name": "Autumn market",
+        "Type": "Event",
+        "Status": "Planned",
+        "StartDate": "2026-10-01",
+        "IsActive": true,
+        "Description": null,
+        "NumberOfContacts": null
+      }
+    ]
+  }
+}

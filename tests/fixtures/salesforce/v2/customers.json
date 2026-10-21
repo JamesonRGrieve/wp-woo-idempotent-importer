@@ -1,0 +1,74 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, AccountId, LastName, FirstName, Salutation, MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry, Phone, MobilePhone, Email, Title, Birthdate, HasOptedOutOfEmail, Favorite_Glaze__c, Kiln_Sizes__c, Wholesale__c, Lifetime_Spend__c FROM Contact WHERE Id IN (SELECT BillToContactId FROM Order) ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Contact",
+          "url": "/services/data/v62.0/sobjects/Contact/003Fh00000Ada001AAA"
+        },
+        "Id": "003Fh00000Ada001AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "AccountId": "001Fh00000Fern01AAA",
+        "LastName": "Thorne",
+        "FirstName": "Ada",
+        "Salutation": "Ms.",
+        "MailingStreet": "12 Cedar Lane",
+        "MailingCity": "Victoria",
+        "MailingState": "BC",
+        "MailingPostalCode": "V8V 1A1",
+        "MailingCountry": "Canada",
+        "Phone": "+1 250 555 0111",
+        "MobilePhone": null,
+        "Email": "Ada@Fernhill.example",
+        "Title": "Potter",
+        "Birthdate": "1988-04-12",
+        "HasOptedOutOfEmail": false,
+        "Favorite_Glaze__c": "Celadon",
+        "Kiln_Sizes__c": "Small;Large",
+        "Wholesale__c": true,
+        "Lifetime_Spend__c": 1200.5
+      },
+      {
+        "attributes": {
+          "type": "Contact",
+          "url": "/services/data/v62.0/sobjects/Contact/003Fh00000Bo0001AAA"
+        },
+        "Id": "003Fh00000Bo0001AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "AccountId": "001Fh00000Kiln01AAA",
+        "LastName": "Lindqvist",
+        "FirstName": "Bo",
+        "Salutation": null,
+        "MailingStreet": null,
+        "MailingCity": null,
+        "MailingState": null,
+        "MailingPostalCode": null,
+        "MailingCountry": null,
+        "Phone": null,
+        "MobilePhone": "+1 250 555 0122",
+        "Email": "bo@example.com",
+        "Title": null,
+        "Birthdate": null,
+        "HasOptedOutOfEmail": true,
+        "Favorite_Glaze__c": null,
+        "Kiln_Sizes__c": null,
+        "Wholesale__c": false,
+        "Lifetime_Spend__c": null
+      }
+    ]
+  }
+}

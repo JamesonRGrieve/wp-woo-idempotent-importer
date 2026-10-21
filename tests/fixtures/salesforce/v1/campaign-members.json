@@ -1,0 +1,30 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT CampaignId, ContactId, LeadId FROM CampaignMember ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "CampaignMember"
+        },
+        "CampaignId": "701Fh00000Mem001AAA",
+        "ContactId": "003Fh00000Ada001AAA",
+        "LeadId": null
+      },
+      {
+        "attributes": {
+          "type": "CampaignMember"
+        },
+        "CampaignId": "701Fh00000Evt001AAA",
+        "ContactId": "003Fh00000Ada001AAA",
+        "LeadId": null
+      }
+    ]
+  }
+}

@@ -21,6 +21,7 @@ Each source platform is an adapter over the same engine:
 | Ecwid (Lightspeed) | Built | Store settings and legal pages, categories, products with variations, images, stock and brands, customers, discount coupons, orders with taxes, refunds and tracking, Instant Site redirects, and product reviews — [coverage/ecwid.md](coverage/ecwid.md) |
 | Webflow | Built | Site settings, assets, e-commerce categories, products with their SKUs and inventory, buyers, orders with refunds, static pages, the blog collection and its posts, every other CMS collection as a custom post type with its items, and 301 redirects — [coverage/webflow.md](coverage/webflow.md) |
 | HubSpot | Built | Into FluentCRM: companies, contact lists and segments, contacts with their companies, lists and custom properties, and their notes, calls, emails and meetings. Into WooCommerce: the product library, buyers and commerce orders. Deals, pipelines and tasks are planned — [coverage/hubspot.md](coverage/hubspot.md) |
+| Salesforce | Built | Into FluentCRM: accounts, campaigns (as lists), topics (as tags), contacts and leads with their custom fields, and their logged calls, emails, events and notes. Into WooCommerce: products at their standard price, buyers and orders. Opportunities and tasks are planned — [coverage/salesforce.md](coverage/salesforce.md) |
 
 Each coverage page lists everything the source has, and what WordPress can't hold.
 
@@ -132,6 +133,10 @@ site's 301 redirects.
      and enter its access token, or register an OAuth app with the callback URL shown on the settings page,
      enter its client ID and secret and click **Connect to HubSpot**. HubSpot allows 100 requests every 10
      seconds, so requests are paced at ten a second.
+   - **Salesforce:** create a connected app with OAuth (scopes `api` and `refresh_token`, PKCE) and the
+     callback URL shown on the settings page, enter its consumer key and secret (and the login URL of a
+     sandbox or My Domain, if not `login.salesforce.com`), save and click **Connect to Salesforce**. Salesforce
+     counts requests per day, so a spent daily allowance pauses the run until it frees up.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
    `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
@@ -140,7 +145,8 @@ site's 301 redirects.
    `IIM_MAGENTO_STORE_CODE`, `IIM_MAGENTO_ACCESS_TOKEN`, `IIM_LIGHTSPEED_CLUSTER`, `IIM_LIGHTSPEED_LANGUAGE`,
    `IIM_LIGHTSPEED_API_KEY`, `IIM_LIGHTSPEED_API_SECRET`, `IIM_ECWID_STORE_ID`, `IIM_ECWID_SECRET_TOKEN`, `IIM_WEBFLOW_SITE_ID`, `IIM_WEBFLOW_BLOG_COLLECTION_ID`,
    `IIM_WEBFLOW_API_TOKEN`, `IIM_WEBFLOW_CLIENT_ID`, `IIM_WEBFLOW_CLIENT_SECRET`, `IIM_HUBSPOT_ACCESS_TOKEN`,
-   `IIM_HUBSPOT_CLIENT_ID`, `IIM_HUBSPOT_CLIENT_SECRET`); tokens from a connect flow (Etsy's refresh
+   `IIM_HUBSPOT_CLIENT_ID`, `IIM_HUBSPOT_CLIENT_SECRET`, `IIM_SALESFORCE_CLIENT_ID`, `IIM_SALESFORCE_CLIENT_SECRET`,
+   `IIM_SALESFORCE_LOGIN_URL`, or a token issued elsewhere as `IIM_SALESFORCE_ACCESS_TOKEN` with `IIM_SALESFORCE_INSTANCE_URL`); tokens from a connect flow (Etsy's refresh
    token, which Etsy replaces on every use, and every OAuth source's tokens) are kept by the plugin.
 4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
 

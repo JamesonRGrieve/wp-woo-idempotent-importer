@@ -36,9 +36,16 @@ final class RestClient
     private const HTTP_UNAUTHORIZED = 401;
     private const HTTP_FORBIDDEN = 403;
     private const HTTP_NOT_FOUND = 404;
+    private const HTTP_TOO_MANY_REQUESTS = 429;
 
     private readonly RequestPacer $pacer;
 
+    /**
+     * @param (\Closure(HttpResponse): bool)|null $isRateLimited a source that reports a spent request allowance
+     *                                                            other than with a 429 (Salesforce's 403
+     *                                                            REQUEST_LIMIT_EXCEEDED): such a response is
+     *                                                            treated as a 429, never as rejected credentials
+     */
     public function __construct(
         private readonly string $label,
         private readonly string $baseUrl,
@@ -46,6 +53,7 @@ final class RestClient
         private readonly HttpTransport $transport,
         private readonly Sleeper $sleeper,
         private readonly RateLimit $rateLimit = new RateLimit(),
+        private readonly ?\Closure $isRateLimited = null,
     ) {
         $this->pacer = new RequestPacer($rateLimit, $sleeper);
     }
@@ -98,6 +106,9 @@ final class RestClient
             $this->pacer->beforeRequest($this->label);
             $response = $request(['Accept' => 'application/json', ...$this->authorizer->headers()]);
             $this->pacer->afterResponse($response);
+            if ($this->isRateLimited !== null && ($this->isRateLimited)($response)) {
+                $response = new HttpResponse(self::HTTP_TOO_MANY_REQUESTS, $response->body, $response->retryAfter, $response->rateLimitResetMs, $response->headers);
+            }
             if ($response->status === self::HTTP_UNAUTHORIZED && !$renewed && $this->authorizer->renew()) {
                 $renewed = true;
                 continue;

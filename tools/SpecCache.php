@@ -131,6 +131,10 @@ final class SpecCache
                 SpecDocument::FORMAT_YAML,
             ),
             ...self::hubSpot(),
+            // Salesforce publishes no OpenAPI document for its REST resources: the responses the adapter reads,
+            // transcribed from the REST API Developer Guide and the Object Reference (API version 62.0; each schema
+            // cites its page). Requests go to <instance>/services/data/v62.0/…, so that prefix is stripped.
+            SpecDocument::committed('salesforce', 'rest-api-reference', 'tests/schemas/salesforce.json', '/services/data/v[0-9.]+', false),
         ];
     }
 

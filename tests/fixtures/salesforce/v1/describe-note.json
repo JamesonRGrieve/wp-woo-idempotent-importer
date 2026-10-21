@@ -1,0 +1,122 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/sobjects/Note/describe"
+  },
+  "response": {
+    "name": "Note",
+    "label": "Note",
+    "custom": false,
+    "fields": [
+      {
+        "name": "Id",
+        "label": "Record ID",
+        "type": "id",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsDeleted",
+        "label": "Deleted",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CreatedDate",
+        "label": "Created Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "LastModifiedDate",
+        "label": "Last Modified Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "SystemModstamp",
+        "label": "System Modstamp",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "ParentId",
+        "label": "Parent ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Title",
+        "label": "Title",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsPrivate",
+        "label": "Private",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Body",
+        "label": "Body",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "OwnerId",
+        "label": "Owner ID",
+        "type": "reference",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/sobjects/Campaign/describe"
+  },
+  "response": {
+    "name": "Campaign",
+    "label": "Campaign",
+    "custom": false,
+    "fields": [
+      {
+        "name": "Id",
+        "label": "Record ID",
+        "type": "id",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsDeleted",
+        "label": "Deleted",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "CreatedDate",
+        "label": "Created Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "LastModifiedDate",
+        "label": "Last Modified Date",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "SystemModstamp",
+        "label": "System Modstamp",
+        "type": "datetime",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Name",
+        "label": "Name",
+        "type": "string",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Type",
+        "label": "Type",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Status",
+        "label": "Status",
+        "type": "picklist",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "StartDate",
+        "label": "Start Date",
+        "type": "date",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "IsActive",
+        "label": "Active",
+        "type": "boolean",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "Description",
+        "label": "Description",
+        "type": "textarea",
+        "custom": false,
+        "calculated": false,
+        "createable": true,
+        "updateable": true,
+        "nillable": true,
+        "picklistValues": []
+      },
+      {
+        "name": "NumberOfContacts",
+        "label": "Contacts in Campaign",
+        "type": "int",
+        "custom": false,
+        "calculated": false,
+        "createable": false,
+        "updateable": false,
+        "nillable": true,
+        "picklistValues": []
+      }
+    ]
+  }
+}

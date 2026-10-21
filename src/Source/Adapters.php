@@ -12,6 +12,7 @@ use IdempotentImporter\Source\Etsy\EtsyAdapter;
 use IdempotentImporter\Source\HubSpot\HubSpotAdapter;
 use IdempotentImporter\Source\Lightspeed\LightspeedAdapter;
 use IdempotentImporter\Source\Magento\MagentoAdapter;
+use IdempotentImporter\Source\Salesforce\SalesforceAdapter;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
 use IdempotentImporter\Source\Squarespace\SquarespaceAdapter;
@@ -39,6 +40,7 @@ final class Adapters
             new LightspeedAdapter(),
             new WebflowAdapter(),
             new HubSpotAdapter(),
+            new SalesforceAdapter(),
         ] as $adapter) {
             $byId[$adapter->id()] = $adapter;
         }

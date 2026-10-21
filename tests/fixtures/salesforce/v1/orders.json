@@ -1,0 +1,84 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, AccountId, EffectiveDate, Status, Description, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, ShippingCountry, BillToContactId, StatusCode, OrderNumber, TotalAmount, PoNumber, (SELECT Id, Product2Id, Product2.Name, Quantity, UnitPrice, TotalPrice, Description FROM OrderItems) FROM Order ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 1,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Order",
+          "url": "/services/data/v62.0/sobjects/Order/801Fh00000Ord01AAA"
+        },
+        "Id": "801Fh00000Ord01AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-01T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "AccountId": "001Fh00000Fern01AAA",
+        "EffectiveDate": "2026-09-02",
+        "Status": "Activated",
+        "Description": null,
+        "BillingStreet": "88 Kiln Road",
+        "BillingCity": "Victoria",
+        "BillingState": "BC",
+        "BillingPostalCode": "V8V 2B2",
+        "BillingCountry": "Canada",
+        "ShippingStreet": null,
+        "ShippingCity": "Victoria",
+        "ShippingState": null,
+        "ShippingPostalCode": null,
+        "ShippingCountry": null,
+        "BillToContactId": "003Fh00000Ada001AAA",
+        "StatusCode": "Activated",
+        "OrderNumber": "00000101",
+        "TotalAmount": 100.0,
+        "PoNumber": "PO-77",
+        "OrderItems": {
+          "totalSize": 2,
+          "done": true,
+          "records": [
+            {
+              "attributes": {
+                "type": "OrderItem"
+              },
+              "Id": "802Fh00000Itm01AAA",
+              "Product2Id": "01tFh00000Clay1AAA",
+              "Quantity": 2.0,
+              "UnitPrice": 42.5,
+              "TotalPrice": 85.0,
+              "Description": null,
+              "Product2": {
+                "attributes": {
+                  "type": "Product2"
+                },
+                "Name": "Stoneware clay, 10 kg"
+              }
+            },
+            {
+              "attributes": {
+                "type": "OrderItem"
+              },
+              "Id": "802Fh00000Itm02AAA",
+              "Product2Id": null,
+              "Quantity": 1.0,
+              "UnitPrice": 15.0,
+              "TotalPrice": 15.0,
+              "Description": null,
+              "Product2": {
+                "attributes": {
+                  "type": "Product2"
+                },
+                "Name": "Glaze kit"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -50,6 +50,7 @@ const REST_SOURCES = [
     'ecwid' => ['#^/api/v3/\d+/#', [EcwidAuthorizer::HEADER => EcwidAuthorizer::BEARER . 'e2e-ecwid-token']],
     'webflow' => ['#^/v2/#', ['Authorization' => 'Bearer e2e-webflow-token']],
     'hubspot' => ['#^/crm/v3/#', ['Authorization' => 'Bearer e2e-hubspot-token']],
+    'salesforce' => ['#^/services/data/#', ['Authorization' => 'Bearer e2e-salesforce-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 /** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */

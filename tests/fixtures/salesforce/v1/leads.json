@@ -1,0 +1,13 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, LastName, FirstName, Salutation, Company, Street, City, State, PostalCode, Country, Phone, MobilePhone, Email, LeadSource, Status, HasOptedOutOfEmail, IsConverted FROM Lead WHERE IsConverted = false ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 0,
+    "done": true,
+    "records": []
+  }
+}
