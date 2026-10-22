@@ -1,0 +1,238 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/query",
+    "query": {
+      "minorversion": "75",
+      "query": "SELECT * FROM Invoice ORDERBY MetaData.CreateTime STARTPOSITION 1 MAXRESULTS 1000"
+    }
+  },
+  "response": {
+    "QueryResponse": {
+      "startPosition": 1,
+      "maxResults": 2,
+      "Invoice": [
+        {
+          "Id": "130",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-08-04T11:00:00-07:00",
+            "LastUpdatedTime": "2026-08-04T11:00:00-07:00"
+          },
+          "DocNumber": "1037",
+          "TxnDate": "2026-08-04",
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          },
+          "Line": [
+            {
+              "Id": "1",
+              "LineNum": 1,
+              "Amount": 65,
+              "DetailType": "SalesItemLineDetail",
+              "SalesItemLineDetail": {
+                "ItemRef": {
+                  "value": "2",
+                  "name": "Celadon glaze, 1 L"
+                },
+                "UnitPrice": 32.5,
+                "Qty": 2,
+                "TaxCodeRef": {
+                  "value": "TAX"
+                }
+              }
+            },
+            {
+              "Id": "2",
+              "LineNum": 2,
+              "Amount": 77.5,
+              "DetailType": "GroupLineDetail",
+              "GroupLineDetail": {
+                "GroupItemRef": {
+                  "value": "5",
+                  "name": "Starter set"
+                },
+                "Quantity": 1,
+                "Line": [
+                  {
+                    "Id": "3",
+                    "LineNum": 3,
+                    "Amount": 32.5,
+                    "DetailType": "SalesItemLineDetail",
+                    "SalesItemLineDetail": {
+                      "ItemRef": {
+                        "value": "2",
+                        "name": "Celadon glaze, 1 L"
+                      },
+                      "UnitPrice": 32.5,
+                      "Qty": 1,
+                      "TaxCodeRef": {
+                        "value": "TAX"
+                      }
+                    }
+                  },
+                  {
+                    "Id": "4",
+                    "LineNum": 4,
+                    "Amount": 45,
+                    "DetailType": "SalesItemLineDetail",
+                    "SalesItemLineDetail": {
+                      "ItemRef": {
+                        "value": "3",
+                        "name": "Kiln firing"
+                      },
+                      "UnitPrice": 45,
+                      "Qty": 1,
+                      "TaxCodeRef": {
+                        "value": "TAX"
+                      }
+                    },
+                    "Description": "Set firing"
+                  }
+                ]
+              }
+            },
+            {
+              "Amount": 10,
+              "DetailType": "DiscountLineDetail",
+              "DiscountLineDetail": {
+                "PercentBased": false,
+                "DiscountAccountRef": {
+                  "value": "86",
+                  "name": "Discounts given"
+                }
+              }
+            },
+            {
+              "Amount": 142.5,
+              "DetailType": "SubTotalLineDetail",
+              "SubTotalLineDetail": {}
+            },
+            {
+              "Id": "5",
+              "LineNum": 5,
+              "Amount": 12,
+              "DetailType": "SalesItemLineDetail",
+              "Description": "Ground",
+              "SalesItemLineDetail": {
+                "ItemRef": {
+                  "value": "SHIPPING_ITEM_ID"
+                }
+              }
+            }
+          ],
+          "TxnTaxDetail": {
+            "TotalTax": 7.95,
+            "TxnTaxCodeRef": {
+              "value": "2"
+            },
+            "TaxLine": [
+              {
+                "Amount": 7.95,
+                "DetailType": "TaxLineDetail",
+                "TaxLineDetail": {
+                  "TaxRateRef": {
+                    "value": "3"
+                  },
+                  "PercentBased": true,
+                  "TaxPercent": 6,
+                  "NetAmountTaxable": 132.5
+                }
+              }
+            ]
+          },
+          "CustomerRef": {
+            "value": "10",
+            "name": "Juniper Studio"
+          },
+          "CustomerMemo": {
+            "value": "Thank you!"
+          },
+          "BillAddr": {
+            "Id": "1",
+            "Line1": "40 Alder Street",
+            "City": "Portland",
+            "CountrySubDivisionCode": "OR",
+            "PostalCode": "97201",
+            "Country": "USA"
+          },
+          "ShipAddr": {
+            "Id": "1",
+            "Line1": "40 Alder Street",
+            "City": "Portland",
+            "CountrySubDivisionCode": "OR",
+            "PostalCode": "97201",
+            "Country": "USA"
+          },
+          "SalesTermRef": {
+            "value": "3",
+            "name": "Net 30"
+          },
+          "DueDate": "2026-09-03",
+          "PONumber": "JS-88",
+          "GlobalTaxCalculation": "TaxExcluded",
+          "TotalAmt": 152.45,
+          "PrintStatus": "NotSet",
+          "EmailStatus": "EmailSent",
+          "BillEmail": {
+            "Address": "maya@qbo.example"
+          },
+          "Balance": 0
+        },
+        {
+          "Id": "131",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-08-20T11:00:00-07:00",
+            "LastUpdatedTime": "2026-08-20T11:00:00-07:00"
+          },
+          "DocNumber": "1038",
+          "TxnDate": "2026-08-20",
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          },
+          "Line": [
+            {
+              "Id": "1",
+              "LineNum": 1,
+              "Amount": 45,
+              "DetailType": "SalesItemLineDetail",
+              "SalesItemLineDetail": {
+                "ItemRef": {
+                  "value": "3",
+                  "name": "Kiln firing"
+                },
+                "UnitPrice": 45,
+                "Qty": 1,
+                "TaxCodeRef": {
+                  "value": "TAX"
+                }
+              }
+            },
+            {
+              "Amount": 45,
+              "DetailType": "SubTotalLineDetail",
+              "SubTotalLineDetail": {}
+            }
+          ],
+          "TxnTaxDetail": {
+            "TotalTax": 0
+          },
+          "CustomerRef": {
+            "value": "11",
+            "name": "Sam Ortiz"
+          },
+          "DueDate": "2026-09-19",
+          "TotalAmt": 45,
+          "Balance": 0
+        }
+      ]
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}

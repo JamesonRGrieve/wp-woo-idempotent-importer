@@ -14,6 +14,7 @@ use IdempotentImporter\Source\HubSpot\HubSpotAdapter;
 use IdempotentImporter\Source\Lightspeed\LightspeedAdapter;
 use IdempotentImporter\Source\Magento\MagentoAdapter;
 use IdempotentImporter\Source\Pipedrive\PipedriveAdapter;
+use IdempotentImporter\Source\QuickBooksOnline\QuickBooksOnlineAdapter;
 use IdempotentImporter\Source\Salesforce\SalesforceAdapter;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
@@ -49,6 +50,7 @@ final class Adapters
             new ZohoAdapter(),
             new FreshBooksAdapter(),
             new WaveAdapter(),
+            new QuickBooksOnlineAdapter(),
         ] as $adapter) {
             $byId[$adapter->id()] = $adapter;
         }

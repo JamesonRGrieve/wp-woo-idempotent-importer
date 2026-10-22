@@ -161,6 +161,11 @@ final class SpecCache
             // reference (www.freshbooks.com/api/, each path cites its page). Its paths are full (the server is the
             // bare api.freshbooks.com host).
             SpecDocument::committed('freshbooks', 'api-reference', 'tests/schemas/freshbooks.json', '', false),
+            // QuickBooks Online publishes its data model as XML Schemas, in its official Java SDK
+            // (intuit/QuickBooks-V3-Java-SDK, ipp-v3-java-data/src/main/xsd, Apache-2.0, the commit of 2026-07-17,
+            // c4d5dfad23ffebf0302356876d0dc389708513a9); the JSON API returns the same types. The answers the adapter
+            // reads, built from those types (each an object, nothing required, no undeclared key). Its paths are full.
+            SpecDocument::committed('quickbooks_online', 'data-model', 'tests/schemas/quickbooks_online.json', '', false),
         ];
     }
 

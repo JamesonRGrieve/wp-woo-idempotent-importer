@@ -1,0 +1,147 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/query",
+    "query": {
+      "minorversion": "75",
+      "query": "SELECT * FROM Item WHERE Active IN (true, false) ORDERBY MetaData.CreateTime STARTPOSITION 1 MAXRESULTS 1000"
+    }
+  },
+  "response": {
+    "QueryResponse": {
+      "startPosition": 1,
+      "maxResults": 5,
+      "Item": [
+        {
+          "Id": "1",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-01-04T10:00:00-08:00",
+            "LastUpdatedTime": "2026-01-04T10:00:00-08:00"
+          },
+          "Name": "Glazes",
+          "Active": true,
+          "SubItem": false,
+          "Level": 0,
+          "FullyQualifiedName": "Glazes",
+          "Type": "Category"
+        },
+        {
+          "Id": "2",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-01-04T10:01:00-08:00",
+            "LastUpdatedTime": "2026-01-04T10:01:00-08:00"
+          },
+          "Name": "Celadon glaze, 1 L",
+          "Sku": "CEL-1",
+          "Description": "Pale green, cone 6.",
+          "Active": true,
+          "SubItem": true,
+          "ParentRef": {
+            "value": "1",
+            "name": "Glazes"
+          },
+          "Level": 1,
+          "FullyQualifiedName": "Glazes:Celadon glaze, 1 L",
+          "Taxable": true,
+          "UnitPrice": 34,
+          "Type": "Inventory",
+          "IncomeAccountRef": {
+            "value": "79",
+            "name": "Sales of Product Income"
+          },
+          "PurchaseCost": 14,
+          "ExpenseAccountRef": {
+            "value": "80",
+            "name": "Cost of Goods Sold"
+          },
+          "AssetAccountRef": {
+            "value": "81",
+            "name": "Inventory Asset"
+          },
+          "TrackQtyOnHand": true,
+          "QtyOnHand": 18,
+          "InvStartDate": "2026-01-04"
+        },
+        {
+          "Id": "3",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-01-04T10:02:00-08:00",
+            "LastUpdatedTime": "2026-01-04T10:02:00-08:00"
+          },
+          "Name": "Kiln firing",
+          "Description": "One shelf, cone 6.",
+          "Active": true,
+          "FullyQualifiedName": "Kiln firing",
+          "Taxable": false,
+          "UnitPrice": 45,
+          "Type": "Service",
+          "IncomeAccountRef": {
+            "value": "82",
+            "name": "Services"
+          }
+        },
+        {
+          "Id": "4",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-01-04T10:03:00-08:00",
+            "LastUpdatedTime": "2026-01-04T10:03:00-08:00"
+          },
+          "Name": "Gift wrap",
+          "Active": false,
+          "FullyQualifiedName": "Gift wrap",
+          "Taxable": true,
+          "UnitPrice": 3,
+          "Type": "NonInventory",
+          "IncomeAccountRef": {
+            "value": "79",
+            "name": "Sales of Product Income"
+          }
+        },
+        {
+          "Id": "5",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-01-04T10:04:00-08:00",
+            "LastUpdatedTime": "2026-01-04T10:04:00-08:00"
+          },
+          "Name": "Starter set",
+          "Active": true,
+          "FullyQualifiedName": "Starter set",
+          "Type": "Group",
+          "ItemGroupDetail": {
+            "ItemGroupLine": [
+              {
+                "ItemRef": {
+                  "value": "2",
+                  "name": "Celadon glaze, 1 L"
+                },
+                "Qty": 1
+              },
+              {
+                "ItemRef": {
+                  "value": "3",
+                  "name": "Kiln firing"
+                },
+                "Qty": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/preferences",
+    "query": {
+      "minorversion": "75"
+    }
+  },
+  "response": {
+    "Preferences": {
+      "Id": "1",
+      "SyncToken": "0",
+      "domain": "QBO",
+      "sparse": false,
+      "MetaData": {
+        "CreateTime": "2026-01-02T09:00:00-08:00",
+        "LastUpdatedTime": "2026-01-02T09:00:00-08:00"
+      },
+      "CurrencyPrefs": {
+        "MultiCurrencyEnabled": false,
+        "HomeCurrency": {
+          "value": "USD"
+        }
+      }
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}

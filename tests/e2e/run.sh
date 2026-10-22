@@ -23,7 +23,7 @@ PLUGIN_PATH="/var/www/html/wp-content/plugins/$PLUGIN_SLUG"
 DB_READY_ATTEMPTS=120
 DB_READY_INTERVAL=1
 WP_CLI_MEMORY=1G
-ALL_SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid webflow hubspot salesforce pipedrive zoho freshbooks wave)
+ALL_SOURCES=(shopify etsy square_online bigcommerce squarespace wix magento lightspeed ecwid webflow hubspot salesforce pipedrive zoho freshbooks wave quickbooks_online)
 # What changes between each source's two fake store states.
 declare -A CHANGES=(
     [shopify]="updates, a new order, a deletion and a completed draft"
@@ -42,6 +42,7 @@ declare -A CHANGES=(
     [zoho]="a custom account field, a new lead in a campaign with a note, a changed note, a price and a new sales order"
     [freshbooks]="a price and stock count, a changed phone, a new client and organization, a payment settling an invoice, and a disputed invoice"
     [wave]="a price, a changed phone, a payment settling a guest invoice, and a new partly paid invoice"
+    [quickbooks_online]="a price and quantity on hand, a changed phone, and a payment settling an invoice"
 )
 # E2E_SOURCES (space-separated) runs only those sources, in the order above, for a quicker check while developing
 # one; the full suite (the default, and CI) runs them all, each beside the mirrors of the ones before it.

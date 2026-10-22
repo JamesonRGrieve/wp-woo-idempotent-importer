@@ -57,6 +57,7 @@ const REST_SOURCES = [
     'zoho' => ['#^/crm/v8/#', ['Authorization' => ZohoAdapter::SCHEME . ' e2e-zoho-token']],
     'freshbooks' => ['#^/(auth/api|accounting|comments)/#', ['Authorization' => 'Bearer e2e-freshbooks-token']],
     'wave' => ['#^/graphql/public$#', ['Authorization' => 'Bearer e2e-wave-token']],
+    'quickbooks_online' => ['#^/v3/company/\d+/#', ['Authorization' => 'Bearer e2e-quickbooks-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 /** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */

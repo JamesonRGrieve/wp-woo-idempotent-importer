@@ -1,0 +1,67 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/query",
+    "query": {
+      "minorversion": "75",
+      "query": "SELECT * FROM SalesReceipt ORDERBY MetaData.CreateTime STARTPOSITION 1 MAXRESULTS 1000"
+    }
+  },
+  "response": {
+    "QueryResponse": {
+      "startPosition": 1,
+      "maxResults": 1,
+      "SalesReceipt": [
+        {
+          "Id": "140",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-08-22T15:00:00-07:00",
+            "LastUpdatedTime": "2026-08-22T15:00:00-07:00"
+          },
+          "DocNumber": "1039",
+          "TxnDate": "2026-08-22",
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          },
+          "Line": [
+            {
+              "Id": "1",
+              "LineNum": 1,
+              "Amount": 3,
+              "DetailType": "SalesItemLineDetail",
+              "SalesItemLineDetail": {
+                "ItemRef": {
+                  "value": "4",
+                  "name": "Gift wrap"
+                },
+                "UnitPrice": 3,
+                "Qty": 1,
+                "TaxCodeRef": {
+                  "value": "TAX"
+                }
+              }
+            }
+          ],
+          "TxnTaxDetail": {
+            "TotalTax": 0
+          },
+          "CustomerRef": {
+            "value": "12",
+            "name": "Cash Customer"
+          },
+          "TotalAmt": 3,
+          "Balance": 0,
+          "PaymentMethodRef": {
+            "value": "1",
+            "name": "Cash"
+          },
+          "PaymentRefNum": "R-140"
+        }
+      ]
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}

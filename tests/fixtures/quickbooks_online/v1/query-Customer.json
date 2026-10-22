@@ -1,0 +1,103 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/query",
+    "query": {
+      "minorversion": "75",
+      "query": "SELECT * FROM Customer WHERE Active IN (true, false) ORDERBY MetaData.CreateTime STARTPOSITION 1 MAXRESULTS 1000"
+    }
+  },
+  "response": {
+    "QueryResponse": {
+      "startPosition": 1,
+      "maxResults": 3,
+      "Customer": [
+        {
+          "Id": "10",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-02-01T09:00:00-08:00",
+            "LastUpdatedTime": "2026-02-01T09:00:00-08:00"
+          },
+          "GivenName": "Maya",
+          "FamilyName": "Chen",
+          "CompanyName": "Juniper Studio",
+          "DisplayName": "Juniper Studio",
+          "PrintOnCheckName": "Juniper Studio",
+          "Active": true,
+          "PrimaryPhone": {
+            "FreeFormNumber": "(503) 555-0110"
+          },
+          "PrimaryEmailAddr": {
+            "Address": "Maya@QBO.example"
+          },
+          "WebAddr": {
+            "URI": "https://juniper.example"
+          },
+          "BillAddr": {
+            "Id": "1",
+            "Line1": "40 Alder Street",
+            "City": "Portland",
+            "CountrySubDivisionCode": "OR",
+            "PostalCode": "97201",
+            "Country": "USA"
+          },
+          "ShipAddr": {
+            "Id": "1",
+            "Line1": "40 Alder Street",
+            "City": "Portland",
+            "CountrySubDivisionCode": "OR",
+            "PostalCode": "97201",
+            "Country": "USA"
+          },
+          "Notes": "Wholesale account.",
+          "Taxable": true,
+          "Job": false,
+          "BillWithParent": false,
+          "Balance": 0,
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          }
+        },
+        {
+          "Id": "11",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-02-02T09:00:00-08:00",
+            "LastUpdatedTime": "2026-02-02T09:00:00-08:00"
+          },
+          "GivenName": "Sam",
+          "FamilyName": "Ortiz",
+          "DisplayName": "Sam Ortiz",
+          "Active": true,
+          "PrimaryEmailAddr": {
+            "Address": "sam@qbo.example"
+          },
+          "Taxable": true,
+          "Job": false,
+          "Balance": 45
+        },
+        {
+          "Id": "12",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-02-03T09:00:00-08:00",
+            "LastUpdatedTime": "2026-02-03T09:00:00-08:00"
+          },
+          "DisplayName": "Cash Customer",
+          "Active": true,
+          "Taxable": false,
+          "Job": false,
+          "Balance": 0
+        }
+      ]
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}

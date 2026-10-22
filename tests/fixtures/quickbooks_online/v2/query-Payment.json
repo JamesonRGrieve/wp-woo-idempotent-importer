@@ -1,0 +1,92 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/query",
+    "query": {
+      "minorversion": "75",
+      "query": "SELECT * FROM Payment ORDERBY MetaData.CreateTime STARTPOSITION 1 MAXRESULTS 1000"
+    }
+  },
+  "response": {
+    "QueryResponse": {
+      "startPosition": 1,
+      "maxResults": 2,
+      "Payment": [
+        {
+          "Id": "501",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-08-10T12:00:00-07:00",
+            "LastUpdatedTime": "2026-08-10T12:00:00-07:00"
+          },
+          "TxnDate": "2026-08-10",
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          },
+          "Line": [
+            {
+              "Amount": 152.45,
+              "LinkedTxn": [
+                {
+                  "TxnId": "130",
+                  "TxnType": "Invoice"
+                }
+              ]
+            }
+          ],
+          "CustomerRef": {
+            "value": "10"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "PaymentRefNum": "1042",
+          "TotalAmt": 152.45,
+          "UnappliedAmt": 0,
+          "ProcessPayment": false
+        },
+        {
+          "Id": "502",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-09-01T12:00:00-07:00",
+            "LastUpdatedTime": "2026-09-01T12:00:00-07:00"
+          },
+          "TxnDate": "2026-09-01",
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          },
+          "Line": [
+            {
+              "Amount": 45,
+              "LinkedTxn": [
+                {
+                  "TxnId": "131",
+                  "TxnType": "Invoice"
+                }
+              ]
+            }
+          ],
+          "CustomerRef": {
+            "value": "11"
+          },
+          "PaymentMethodRef": {
+            "value": "1",
+            "name": "Cash"
+          },
+          "PaymentRefNum": "C-9",
+          "TotalAmt": 45,
+          "UnappliedAmt": 0,
+          "ProcessPayment": false
+        }
+      ]
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}
