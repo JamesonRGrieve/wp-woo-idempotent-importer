@@ -1,0 +1,162 @@
+{
+  "request": {
+    "path": "/accounting/account/fbAcc1/invoices/invoices",
+    "query": {
+      "include[]": "lines"
+    }
+  },
+  "response": {
+    "response": {
+      "result": {
+        "invoices": [
+          {
+            "invoiceid": 401,
+            "id": 401,
+            "accountid": "fbAcc1",
+            "invoice_number": "0000101",
+            "customerid": 301,
+            "create_date": "2026-08-03",
+            "due_date": "2026-08-03",
+            "currency_code": "CAD",
+            "amount": {
+              "amount": "142.60",
+              "code": "CAD"
+            },
+            "outstanding": {
+              "amount": "0.00",
+              "code": "CAD"
+            },
+            "paid": {
+              "amount": "142.60",
+              "code": "CAD"
+            },
+            "discount_value": "10",
+            "discount_total": {
+              "amount": "14.85",
+              "code": "CAD"
+            },
+            "status": 4,
+            "v3_status": "paid",
+            "payment_status": "paid",
+            "display_status": "paid",
+            "vis_state": 0,
+            "lines": [
+              {
+                "lineid": 4011,
+                "name": "Kiln wash, 1 kg",
+                "description": null,
+                "qty": "2",
+                "unit_cost": {
+                  "amount": "18.00",
+                  "code": "CAD"
+                },
+                "amount": {
+                  "amount": "36.00",
+                  "code": "CAD"
+                },
+                "taxName1": "GST",
+                "taxAmount1": "5",
+                "taxName2": "PST",
+                "taxAmount2": "7",
+                "type": 0,
+                "updated": "2026-08-01 09:00:00"
+              },
+              {
+                "lineid": 4012,
+                "name": "Glaze consultation",
+                "description": "Ash and celadon tests.",
+                "qty": "1.5",
+                "unit_cost": {
+                  "amount": "75.00",
+                  "code": "CAD"
+                },
+                "amount": {
+                  "amount": "112.50",
+                  "code": "CAD"
+                },
+                "taxName1": "GST",
+                "taxAmount1": "5",
+                "taxName2": null,
+                "taxAmount2": null,
+                "type": 0,
+                "updated": "2026-08-01 09:00:00"
+              }
+            ],
+            "street": "12 Clay Street",
+            "city": "Victoria",
+            "province": "BC",
+            "code": "V8W 1A1",
+            "country": "Canada",
+            "fname": "Mira",
+            "lname": "Okafor",
+            "organization": "Kilnworks Collective",
+            "po_number": "PO-77",
+            "notes": "Thanks for your business.",
+            "terms": "Net 15",
+            "date_paid": "2026-08-10"
+          },
+          {
+            "invoiceid": 402,
+            "id": 402,
+            "accountid": "fbAcc1",
+            "invoice_number": "0000102",
+            "customerid": 302,
+            "create_date": "2026-08-20",
+            "due_date": "2026-08-20",
+            "currency_code": "CAD",
+            "amount": {
+              "amount": "18.00",
+              "code": "CAD"
+            },
+            "outstanding": {
+              "amount": "18.00",
+              "code": "CAD"
+            },
+            "paid": {
+              "amount": "0.00",
+              "code": "CAD"
+            },
+            "discount_value": "0",
+            "discount_total": {
+              "amount": "0.00",
+              "code": "CAD"
+            },
+            "status": 2,
+            "v3_status": "sent",
+            "payment_status": "unpaid",
+            "display_status": "sent",
+            "vis_state": 0,
+            "lines": [
+              {
+                "lineid": 4021,
+                "name": "Kiln wash, 1 kg",
+                "description": null,
+                "qty": "1",
+                "unit_cost": {
+                  "amount": "18.00",
+                  "code": "CAD"
+                },
+                "amount": {
+                  "amount": "18.00",
+                  "code": "CAD"
+                },
+                "taxName1": null,
+                "taxAmount1": null,
+                "taxName2": null,
+                "taxAmount2": null,
+                "type": 0,
+                "updated": "2026-08-01 09:00:00"
+              }
+            ],
+            "fname": "Theo",
+            "lname": "Park"
+          }
+        ],
+        "page": 1,
+        "pages": 1,
+        "per_page": 100,
+        "total": 2
+      }
+    }
+  }
+}

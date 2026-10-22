@@ -119,6 +119,31 @@ final class Decimal
         return self::shift((string) ((int) self::shift($value, $places) * $factor), -$places);
     }
 
+    /** Exact product of two decimal strings ("12.5" × "0.13" → "1.625"). */
+    public static function product(string $a, string $b): string
+    {
+        $placesA = strlen(explode('.', self::normalise($a), 2)[1] ?? '');
+        $placesB = strlen(explode('.', self::normalise($b), 2)[1] ?? '');
+
+        return self::shift((string) ((int) self::shift($a, $placesA) * (int) self::shift($b, $placesB)), -($placesA + $placesB));
+    }
+
+    /** Rounds to $places decimals, halves away from zero ("1.625", 2 → "1.63"; "-0.005", 2 → "-0.01"). */
+    public static function round(string $value, int $places): string
+    {
+        $value = self::normalise($value);
+        $negative = str_starts_with($value, '-');
+        $fraction = explode('.', $value, 2)[1] ?? '';
+        if (strlen($fraction) <= $places) {
+            return $value;
+        }
+        $scaled = self::shift(ltrim($value, '-'), $places);
+        [$whole, $rest] = array_pad(explode('.', $scaled, 2), 2, '');
+        $rounded = (int) $whole + ((int) ($rest[0] ?? '0') >= 5 ? 1 : 0);
+
+        return self::normalise(($negative ? '-' : '') . self::shift((string) $rounded, -$places));
+    }
+
     /** Exact comparison of two decimal strings: -1, 0 or 1. */
     public static function compare(string $a, string $b): int
     {

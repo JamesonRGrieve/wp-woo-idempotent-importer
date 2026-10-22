@@ -80,6 +80,24 @@ final class OAuth2Test extends TestCase
         self::assertStringNotContainsString('client_secret', $transport->requests[0]['body']);
     }
 
+    public function testAJsonAppSendsJsonTokenRequestsAndARefreshNamesTheRedirectUri(): void
+    {
+        $tokens = new InMemoryTokens();
+        $transport = new ScriptedTransport(null, [
+            self::tokenResponse(['access_token' => 'a1', 'refresh_token' => 'r1', 'expires_in' => 3600]),
+            self::tokenResponse(['access_token' => 'a2', 'refresh_token' => 'r2', 'expires_in' => 3600]),
+        ]);
+        $app = new OAuthApp('Vendor', self::AUTHORIZE, self::TOKEN, 'client-1', 'secret-1', [], ClientAuth::Json, refreshNamesRedirectUri: true);
+        $client = self::client($app, $transport, $tokens);
+
+        $client->exchange('code-1', 'v', self::REDIRECT);
+        $client->refresh();
+
+        self::assertSame('application/json', $transport->requests[0]['headers']['Content-Type']);
+        self::assertSame(['grant_type' => 'authorization_code', 'code' => 'code-1', 'redirect_uri' => self::REDIRECT, 'client_id' => 'client-1', 'client_secret' => 'secret-1'], json_decode($transport->requests[0]['body'], true));
+        self::assertSame(['grant_type' => 'refresh_token', 'refresh_token' => 'r1', 'redirect_uri' => self::REDIRECT, 'client_id' => 'client-1', 'client_secret' => 'secret-1'], json_decode($transport->requests[1]['body'], true));
+    }
+
     public function testAnAccessTokenAboutToExpireIsRefreshedAndARotatedRefreshTokenReplacesTheOld(): void
     {
         $clock = new RecordingSleeper();

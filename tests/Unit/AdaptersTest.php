@@ -22,7 +22,7 @@ final class AdaptersTest extends TestCase
     {
         $adapters = Adapters::all();
 
-        self::assertSame(['shopify', 'etsy', 'squarespace', 'wix', 'bigcommerce', 'square_online', 'ecwid', 'magento', 'lightspeed', 'webflow', 'hubspot', 'salesforce', 'pipedrive', 'zoho'], array_keys($adapters));
+        self::assertSame(['shopify', 'etsy', 'squarespace', 'wix', 'bigcommerce', 'square_online', 'ecwid', 'magento', 'lightspeed', 'webflow', 'hubspot', 'salesforce', 'pipedrive', 'zoho', 'freshbooks'], array_keys($adapters));
         foreach ($adapters as $id => $adapter) {
             self::assertSame($id, $adapter->id());
             self::assertMatchesRegularExpression('/^[a-z_]+$/', $id, 'ids are the host of every identity they mint');

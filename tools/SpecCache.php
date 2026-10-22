@@ -157,6 +157,10 @@ final class SpecCache
                 'b14dad2526cf6dc8696270a2e42a9b141fecc0f47198f45a837ada7330d457d5',
             ),
             ...self::zoho(),
+            // FreshBooks publishes no OpenAPI document: the answers the adapter reads, transcribed from its API
+            // reference (www.freshbooks.com/api/, each path cites its page). Its paths are full (the server is the
+            // bare api.freshbooks.com host).
+            SpecDocument::committed('freshbooks', 'api-reference', 'tests/schemas/freshbooks.json', '', false),
         ];
     }
 

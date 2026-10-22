@@ -1,0 +1,71 @@
+{
+  "request": {
+    "path": "/accounting/account/fbAcc1/items/items"
+  },
+  "response": {
+    "response": {
+      "result": {
+        "items": [
+          {
+            "itemid": 101,
+            "id": 101,
+            "accounting_systemid": "fbAcc1",
+            "name": "Kiln wash, 1 kg",
+            "description": "Protects kiln shelves.",
+            "qty": "1",
+            "inventory": "10",
+            "unit_cost": {
+              "amount": "19.50",
+              "code": "CAD"
+            },
+            "tax1": 0,
+            "tax2": 0,
+            "vis_state": 0,
+            "updated": "2026-08-01 09:00:00",
+            "sku": "FB-WASH"
+          },
+          {
+            "itemid": 102,
+            "id": 102,
+            "accounting_systemid": "fbAcc1",
+            "name": "Wheel rental, per day",
+            "description": null,
+            "qty": "1",
+            "inventory": null,
+            "unit_cost": {
+              "amount": "40.00",
+              "code": "CAD"
+            },
+            "tax1": 0,
+            "tax2": 0,
+            "vis_state": 2,
+            "updated": "2026-08-01 09:00:00",
+            "sku": null
+          },
+          {
+            "itemid": 103,
+            "id": 103,
+            "accounting_systemid": "fbAcc1",
+            "name": "Old glaze",
+            "description": null,
+            "qty": "1",
+            "inventory": null,
+            "unit_cost": {
+              "amount": "5.00",
+              "code": "CAD"
+            },
+            "tax1": 0,
+            "tax2": 0,
+            "vis_state": 1,
+            "updated": "2026-08-01 09:00:00",
+            "sku": null
+          }
+        ],
+        "page": 1,
+        "pages": 1,
+        "per_page": 100,
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "request": {
+    "path": "/accounting/account/fbAcc1/payments/payments"
+  },
+  "response": {
+    "response": {
+      "result": {
+        "payments": [
+          {
+            "id": 501,
+            "logid": 501,
+            "invoiceid": 401,
+            "creditid": null,
+            "amount": {
+              "amount": "50.00",
+              "code": "CAD"
+            },
+            "date": "2026-08-05",
+            "type": "Check",
+            "note": null,
+            "clientid": 301,
+            "vis_state": 0,
+            "updated": "2026-08-05 12:00:00",
+            "gateway": null,
+            "from_credit": false,
+            "overpaymentid": null,
+            "orderid": null,
+            "accounting_systemid": "fbAcc1"
+          },
+          {
+            "id": 502,
+            "logid": 502,
+            "invoiceid": 401,
+            "creditid": null,
+            "amount": {
+              "amount": "92.60",
+              "code": "CAD"
+            },
+            "date": "2026-08-10",
+            "type": "Credit Card",
+            "note": "Visa ending 4242",
+            "clientid": 301,
+            "vis_state": 0,
+            "updated": "2026-08-10 12:00:00",
+            "gateway": null,
+            "from_credit": false,
+            "overpaymentid": null,
+            "orderid": null,
+            "accounting_systemid": "fbAcc1"
+          }
+        ],
+        "page": 1,
+        "pages": 1,
+        "per_page": 100,
+        "total": 2
+      }
+    }
+  }
+}

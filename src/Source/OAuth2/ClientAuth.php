@@ -13,4 +13,6 @@ enum ClientAuth
     case Form;
     /** HTTP Basic with client_id:client_secret. */
     case Basic;
+    /** client_id and client_secret in a JSON body: the whole token request is JSON (FreshBooks). */
+    case Json;
 }

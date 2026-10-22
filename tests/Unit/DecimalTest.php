@@ -65,6 +65,24 @@ final class DecimalTest extends TestCase
         self::assertSame('5', Decimal::subtract('5', '0'));
     }
 
+    public function testProductIsExact(): void
+    {
+        self::assertSame('1.625', Decimal::product('12.5', '0.13'));
+        self::assertSame('-0.06', Decimal::product('-0.2', '0.3'));
+        self::assertSame('0', Decimal::product('19.99', '0'));
+        self::assertSame('300', Decimal::product('15', '20'));
+    }
+
+    public function testRoundHalvesAwayFromZero(): void
+    {
+        self::assertSame('1.63', Decimal::round('1.625', 2));
+        self::assertSame('1.62', Decimal::round('1.6249', 2));
+        self::assertSame('-0.01', Decimal::round('-0.005', 2));
+        self::assertSame('0', Decimal::round('-0.004', 2));
+        self::assertSame('1', Decimal::round('0.995', 2));
+        self::assertSame('2.5', Decimal::round('2.5', 2), 'already within the places');
+    }
+
     public function testCompare(): void
     {
         self::assertSame(1, Decimal::compare('80.00', '60'));

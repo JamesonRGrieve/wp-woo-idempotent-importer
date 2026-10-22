@@ -12,7 +12,8 @@ use IdempotentImporter\Source\SourceError;
  * One vendor's OAuth 2 app as the operator registered it, and how that vendor runs the authorization-code
  * grant (RFC 6749 §4.1): where the owner approves access and where codes and refresh tokens are traded, the
  * read scopes asked for, whether the app proves itself with HTTP Basic or in the form, whether PKCE (RFC
- * 7636) is used, and any extra parameters the vendor's authorize page takes (offline access, consent).
+ * 7636) is used, any extra parameters the vendor's authorize page takes (offline access, consent), and whether a
+ * refresh names the redirect URI the code was traded with (FreshBooks asks for it).
  */
 final readonly class OAuthApp
 {
@@ -32,6 +33,7 @@ final readonly class OAuthApp
         public bool $pkce = false,
         public array $authorizeParams = [],
         public string $scopeSeparator = ' ',
+        public bool $refreshNamesRedirectUri = false,
     ) {
         if ($clientId === '' || $clientSecret === '') {
             throw new SourceError("{$label} is not configured: enter the app's client ID and client secret.");
@@ -41,6 +43,6 @@ final readonly class OAuthApp
     /** The same app with its token URL elsewhere (a vendor whose token host is per region or per account). */
     public function withTokenUrl(string $tokenUrl): self
     {
-        return new self($this->label, $this->authorizeUrl, $tokenUrl, $this->clientId, $this->clientSecret, $this->scopes, $this->clientAuth, $this->pkce, $this->authorizeParams, $this->scopeSeparator);
+        return new self($this->label, $this->authorizeUrl, $tokenUrl, $this->clientId, $this->clientSecret, $this->scopes, $this->clientAuth, $this->pkce, $this->authorizeParams, $this->scopeSeparator, $this->refreshNamesRedirectUri);
     }
 }

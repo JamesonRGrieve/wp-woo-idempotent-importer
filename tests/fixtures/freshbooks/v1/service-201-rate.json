@@ -1,0 +1,12 @@
+{
+  "request": {
+    "path": "/comments/business/7001001/service/201/rate"
+  },
+  "response": {
+    "service_rate": {
+      "rate": "75.00",
+      "business_id": 7001001,
+      "service_id": 201
+    }
+  }
+}

@@ -29,6 +29,8 @@ final class OAuth2Client
     private const HTTP_OK = 200;
     private const HTTP_BAD_REQUEST = 400;
     private const HTTP_UNAUTHORIZED = 401;
+    /** Where the redirect URI a code was traded with is kept, for a vendor whose refresh names it. */
+    private const REDIRECT_URI_EXTRA = 'redirect_uri';
 
     /** @param list<string> $keptFields token response fields requests need (e.g. `instance_url`), kept with the tokens */
     public function __construct(
@@ -67,7 +69,9 @@ final class OAuth2Client
             $form['code_verifier'] = $verifier;
         }
 
-        return $this->request($form, null, $callbackExtras);
+        $kept = $this->app->refreshNamesRedirectUri ? [self::REDIRECT_URI_EXTRA => $redirectUri] : [];
+
+        return $this->request($form, null, [...$callbackExtras, ...$kept]);
     }
 
     /** A current access token: the stored one, or a new one when it is about to expire. */
@@ -86,7 +90,13 @@ final class OAuth2Client
             throw new CredentialsRejected("{$this->app->label} rejected the access token and issued no refresh token; connect the account again.");
         }
 
-        return $this->request(['grant_type' => 'refresh_token', 'refresh_token' => $tokens->refreshToken], $tokens, []);
+        $form = ['grant_type' => 'refresh_token', 'refresh_token' => $tokens->refreshToken];
+        $redirectUri = $tokens->extra(self::REDIRECT_URI_EXTRA);
+        if ($this->app->refreshNamesRedirectUri && $redirectUri !== null) {
+            $form['redirect_uri'] = $redirectUri;
+        }
+
+        return $this->request($form, $tokens, []);
     }
 
     public function isConnected(): bool
@@ -103,13 +113,15 @@ final class OAuth2Client
      */
     private function request(array $form, ?TokenSet $previous, array $callbackExtras): TokenSet
     {
-        $headers = ['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json'];
+        $json = $this->app->clientAuth === ClientAuth::Json;
+        $headers = ['Content-Type' => $json ? 'application/json' : 'application/x-www-form-urlencoded', 'Accept' => 'application/json'];
         if ($this->app->clientAuth === ClientAuth::Basic) {
             $headers['Authorization'] = 'Basic ' . base64_encode("{$this->app->clientId}:{$this->app->clientSecret}");
         } else {
             $form += ['client_id' => $this->app->clientId, 'client_secret' => $this->app->clientSecret];
         }
-        $response = $this->transport->post($this->app->tokenUrl, $headers, http_build_query($form, '', '&', PHP_QUERY_RFC3986), self::REQUEST_TIMEOUT_SECONDS);
+        $body = $json ? (string) json_encode($form, JSON_UNESCAPED_SLASHES) : http_build_query($form, '', '&', PHP_QUERY_RFC3986);
+        $response = $this->transport->post($this->app->tokenUrl, $headers, $body, self::REQUEST_TIMEOUT_SECONDS);
         if ($response->status === self::HTTP_BAD_REQUEST || $response->status === self::HTTP_UNAUTHORIZED) {
             throw new CredentialsRejected("{$this->app->label} refused the token request (HTTP {$response->status}); connect the account again.");
         }

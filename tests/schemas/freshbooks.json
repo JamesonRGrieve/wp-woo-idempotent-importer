@@ -1,0 +1,1312 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FreshBooks API: the answers read by wp-woo-idempotent-importer",
+    "version": "2026-10-21",
+    "description": "FreshBooks publishes no OpenAPI document: the answers the adapter reads, transcribed from FreshBooks' API reference (each path cites its page under https://www.freshbooks.com/api/). Money is FreshBooks' {amount, code}: an exact decimal string and a three-letter currency code; a field without a value is null."
+  },
+  "paths": {
+    "/auth/api/v1/users/me": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/identity_model"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "business_memberships": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Membership"
+                          }
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "business_memberships"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "response"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/account/{accountId}/items/items": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/items"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Item"
+                              }
+                            },
+                            "page": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            },
+                            "per_page": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "items",
+                            "page",
+                            "pages",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "result"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "response"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/account/{accountId}/users/clients": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/clients"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "object",
+                          "properties": {
+                            "clients": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Client"
+                              }
+                            },
+                            "page": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            },
+                            "per_page": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "clients",
+                            "page",
+                            "pages",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "result"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "response"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/account/{accountId}/invoices/invoices": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/invoices"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "object",
+                          "properties": {
+                            "invoices": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Invoice"
+                              }
+                            },
+                            "page": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            },
+                            "per_page": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "invoices",
+                            "page",
+                            "pages",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "result"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "response"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/account/{accountId}/payments/payments": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/payments"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "object",
+                          "properties": {
+                            "payments": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Payment"
+                              }
+                            },
+                            "page": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            },
+                            "per_page": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "payments",
+                            "page",
+                            "pages",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "result"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "response"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comments/business/{businessId}/services": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/services"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "services": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Service"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pages": {
+                          "type": "integer"
+                        },
+                        "per_page": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "total_logged": {
+                          "type": "integer"
+                        },
+                        "total_unbilled": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "page",
+                        "pages",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "services",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comments/business/{businessId}/service/{serviceId}/rate": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/services"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "service_rate": {
+                      "$ref": "#/components/schemas/ServiceRate"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "service_rate"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "itemid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "accounting_systemid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "qty": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "inventory": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit_cost": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tax1": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "tax2": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "vis_state": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sku": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "Client": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "userid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "fname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "organization": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "home_phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bus_phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "mob_phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "p_street": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "p_street2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "p_city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "p_province": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "p_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "p_country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "currency_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vis_state": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "accounting_systemid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vat_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vat_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fax": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_street": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_street2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_province": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "signup_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "company_industry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "company_size": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "Line": {
+        "type": "object",
+        "properties": {
+          "lineid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "qty": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit_cost": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "taxName1": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "taxAmount1": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "taxName2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "taxAmount2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "invoiceid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "accountid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "invoice_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "customerid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "create_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "due_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "currency_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "amount": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outstanding": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paid": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "discount_value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discount_total": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "v3_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "payment_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "display_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vis_state": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Line"
+            }
+          },
+          "date_paid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "terms": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "po_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "street": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "street2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "province": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "organization": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current_organization": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discount_description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dispute_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vat_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vat_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "logid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "invoiceid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "creditid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "amount": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clientid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "vis_state": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gateway": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "from_credit": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "overpaymentid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "orderid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "accounting_systemid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "send_client_notification": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "bulk_paymentid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "Money": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "amount",
+          "code"
+        ]
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "business_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "billable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "vis_state": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "ServiceRate": {
+        "type": "object",
+        "properties": {
+          "rate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "business_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "service_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Membership": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "role": {
+            "type": "string"
+          },
+          "business": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "business_uuid": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "account_id": {
+                "type": "string"
+              },
+              "date_format": {
+                "type": "string"
+              },
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "business_uuid",
+              "account_id"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "business"
+        ]
+      }
+    }
+  }
+}
