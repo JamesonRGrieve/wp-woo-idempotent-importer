@@ -71,6 +71,15 @@
                   "TxnType": "Invoice"
                 }
               ]
+            },
+            {
+              "Amount": 15,
+              "LinkedTxn": [
+                {
+                  "TxnId": "160",
+                  "TxnType": "CreditMemo"
+                }
+              ]
             }
           ],
           "CustomerRef": {
@@ -81,7 +90,7 @@
             "name": "Cash"
           },
           "PaymentRefNum": "C-9",
-          "TotalAmt": 45,
+          "TotalAmt": 30,
           "UnappliedAmt": 0,
           "ProcessPayment": false
         }

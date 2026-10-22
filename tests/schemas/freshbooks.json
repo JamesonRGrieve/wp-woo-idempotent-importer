@@ -398,6 +398,71 @@
           }
         }
       }
+    },
+    "/accounting/account/{accountId}/credit_notes/credit_notes": {
+      "get": {
+        "externalDocs": {
+          "url": "https://www.freshbooks.com/api/credits"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "response"
+                  ],
+                  "properties": {
+                    "response": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "result"
+                      ],
+                      "properties": {
+                        "result": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "credit_notes",
+                            "page",
+                            "pages",
+                            "per_page",
+                            "total"
+                          ],
+                          "properties": {
+                            "credit_notes": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/CreditNote"
+                              }
+                            },
+                            "page": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            },
+                            "per_page": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1305,6 +1370,347 @@
         "additionalProperties": false,
         "required": [
           "business"
+        ]
+      },
+      "CreditLine": {
+        "description": "A credit note line (www.freshbooks.com/api/credits, Credit Lines): name, description, taxes as percentages, unit cost before taxes.",
+        "type": "object",
+        "properties": {
+          "lineid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "qty": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit_cost": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "taxName1": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "taxAmount1": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "taxName2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "taxAmount2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "compounded_tax": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "credit_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreditNote": {
+        "description": "A credit note (www.freshbooks.com/api/credits): the fields of the reference's example response, and its lines (create's `lines`).",
+        "type": "object",
+        "properties": {
+          "creditid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "accounting_systemid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clientid": {
+            "type": [
+              "integer",
+              "string",
+              "null"
+            ]
+          },
+          "credit_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "credit_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "create_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "currency_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "amount": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paid": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "display_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "payment_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dispute_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "terms": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "template": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "organization": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current_organization": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "street": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "street2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "province": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vat_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vat_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sentid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "ext_archive": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "last_order_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vis_state": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "lines": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreditLine"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "creditid"
         ]
       }
     }

@@ -4011,6 +4011,593 @@
      },
      "totalCount": {
       "type": "integer"
+     },
+     "CreditMemo": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/CreditMemo"
+      }
+     },
+     "RefundReceipt": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/RefundReceipt"
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "CreditMemo": {
+    "type": "object",
+    "properties": {
+     "Id": {
+      "type": "string"
+     },
+     "SyncToken": {
+      "type": "string"
+     },
+     "MetaData": {
+      "$ref": "#/components/schemas/ModificationMetaData"
+     },
+     "CustomField": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/CustomField"
+      }
+     },
+     "AttachableRef": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/AttachableRef"
+      }
+     },
+     "domain": {
+      "type": "string"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "Deleted",
+       "Voided",
+       "Draft",
+       "Pending",
+       "InTransit",
+       "Synchronized",
+       "SyncError"
+      ]
+     },
+     "sparse": {
+      "type": "boolean"
+     },
+     "DocNumber": {
+      "type": "string"
+     },
+     "TxnDate": {
+      "type": "string"
+     },
+     "TxnSubType": {
+      "type": "string",
+      "enum": [
+       "InvoiceTax",
+       "InvoiceRetail",
+       "JournalTaxAdjustment",
+       "ProjectCostEstimate",
+       "EmployeeReimbursableExpense",
+       "EmployeeReimbursableExpensePayment",
+       "RetainageRelease"
+      ]
+     },
+     "DepartmentRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "CurrencyRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "ExchangeRate": {
+      "type": "number"
+     },
+     "PrivateNote": {
+      "type": "string"
+     },
+     "TxnStatus": {
+      "type": "string"
+     },
+     "LinkedTxn": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/LinkedTxn"
+      }
+     },
+     "Line": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Line"
+      }
+     },
+     "TxnTaxDetail": {
+      "$ref": "#/components/schemas/TxnTaxDetail"
+     },
+     "TxnSource": {
+      "type": "string"
+     },
+     "TaxFormType": {
+      "type": "string"
+     },
+     "TaxFormNum": {
+      "type": "string"
+     },
+     "TransactionLocationType": {
+      "type": "string"
+     },
+     "Tag": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Tag"
+      }
+     },
+     "TxnApprovalInfo": {
+      "$ref": "#/components/schemas/TxnApprovalInfo"
+     },
+     "RecurDataRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "RecurringInfo": {
+      "$ref": "#/components/schemas/RecurringInfo"
+     },
+     "ProjectRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "TotalCostAmount": {
+      "type": "number"
+     },
+     "HomeTotalCostAmount": {
+      "type": "number"
+     },
+     "AutoDocNumber": {
+      "type": "boolean"
+     },
+     "CustomerRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "CustomerMemo": {
+      "$ref": "#/components/schemas/MemoRef"
+     },
+     "BillAddr": {
+      "$ref": "#/components/schemas/PhysicalAddress"
+     },
+     "ShipAddr": {
+      "$ref": "#/components/schemas/PhysicalAddress"
+     },
+     "FreeFormAddress": {
+      "type": "boolean"
+     },
+     "ShipFromAddr": {
+      "$ref": "#/components/schemas/PhysicalAddress"
+     },
+     "RemitToRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "ClassRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "SalesTermRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "DueDate": {
+      "type": "string"
+     },
+     "SalesRepRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "PONumber": {
+      "type": "string"
+     },
+     "FOB": {
+      "type": "string"
+     },
+     "ShipMethodRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "ShipDate": {
+      "type": "string"
+     },
+     "TrackingNum": {
+      "type": "string"
+     },
+     "GlobalTaxCalculation": {
+      "type": "string",
+      "enum": [
+       "TaxInclusive",
+       "TaxExcluded",
+       "NotApplicable"
+      ]
+     },
+     "TotalAmt": {
+      "type": "number"
+     },
+     "HomeTotalAmt": {
+      "type": "number"
+     },
+     "ApplyTaxAfterDiscount": {
+      "type": "boolean"
+     },
+     "ShippingTaxIncludedInTotalTax": {
+      "type": "boolean"
+     },
+     "TemplateRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "PrintStatus": {
+      "type": "string",
+      "enum": [
+       "NotSet",
+       "NeedToPrint",
+       "PrintComplete"
+      ]
+     },
+     "EmailStatus": {
+      "type": "string",
+      "enum": [
+       "NotSet",
+       "NeedToSend",
+       "EmailSent"
+      ]
+     },
+     "BillEmail": {
+      "$ref": "#/components/schemas/EmailAddress"
+     },
+     "BillEmailCc": {
+      "$ref": "#/components/schemas/EmailAddress"
+     },
+     "BillEmailBcc": {
+      "$ref": "#/components/schemas/EmailAddress"
+     },
+     "ARAccountRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "Balance": {
+      "type": "number"
+     },
+     "HomeBalance": {
+      "type": "number"
+     },
+     "FinanceCharge": {
+      "type": "boolean"
+     },
+     "PaymentMethodRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "PaymentRefNum": {
+      "type": "string"
+     },
+     "PaymentType": {
+      "type": "string",
+      "enum": [
+       "Cash",
+       "Check",
+       "CreditCard",
+       "Expense",
+       "Other"
+      ]
+     },
+     "CheckPayment": {
+      "$ref": "#/components/schemas/CheckPayment"
+     },
+     "CreditCardPayment": {
+      "$ref": "#/components/schemas/CreditCardPayment"
+     },
+     "DepositToAccountRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "DeliveryInfo": {
+      "$ref": "#/components/schemas/TransactionDeliveryInfo"
+     },
+     "DiscountRate": {
+      "type": "number"
+     },
+     "DiscountAmt": {
+      "type": "number"
+     },
+     "GovtTxnRefIdentifier": {
+      "type": "string"
+     },
+     "TaxExemptionRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "RemainingCredit": {
+      "type": "number"
+     },
+     "InvoiceRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "CreditMemoEx": {
+      "$ref": "#/components/schemas/IntuitAnyType"
+     }
+    },
+    "additionalProperties": false
+   },
+   "RefundReceipt": {
+    "type": "object",
+    "properties": {
+     "Id": {
+      "type": "string"
+     },
+     "SyncToken": {
+      "type": "string"
+     },
+     "MetaData": {
+      "$ref": "#/components/schemas/ModificationMetaData"
+     },
+     "CustomField": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/CustomField"
+      }
+     },
+     "AttachableRef": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/AttachableRef"
+      }
+     },
+     "domain": {
+      "type": "string"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "Deleted",
+       "Voided",
+       "Draft",
+       "Pending",
+       "InTransit",
+       "Synchronized",
+       "SyncError"
+      ]
+     },
+     "sparse": {
+      "type": "boolean"
+     },
+     "DocNumber": {
+      "type": "string"
+     },
+     "TxnDate": {
+      "type": "string"
+     },
+     "TxnSubType": {
+      "type": "string",
+      "enum": [
+       "InvoiceTax",
+       "InvoiceRetail",
+       "JournalTaxAdjustment",
+       "ProjectCostEstimate",
+       "EmployeeReimbursableExpense",
+       "EmployeeReimbursableExpensePayment",
+       "RetainageRelease"
+      ]
+     },
+     "DepartmentRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "CurrencyRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "ExchangeRate": {
+      "type": "number"
+     },
+     "PrivateNote": {
+      "type": "string"
+     },
+     "TxnStatus": {
+      "type": "string"
+     },
+     "LinkedTxn": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/LinkedTxn"
+      }
+     },
+     "Line": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Line"
+      }
+     },
+     "TxnTaxDetail": {
+      "$ref": "#/components/schemas/TxnTaxDetail"
+     },
+     "TxnSource": {
+      "type": "string"
+     },
+     "TaxFormType": {
+      "type": "string"
+     },
+     "TaxFormNum": {
+      "type": "string"
+     },
+     "TransactionLocationType": {
+      "type": "string"
+     },
+     "Tag": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Tag"
+      }
+     },
+     "TxnApprovalInfo": {
+      "$ref": "#/components/schemas/TxnApprovalInfo"
+     },
+     "RecurDataRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "RecurringInfo": {
+      "$ref": "#/components/schemas/RecurringInfo"
+     },
+     "ProjectRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "TotalCostAmount": {
+      "type": "number"
+     },
+     "HomeTotalCostAmount": {
+      "type": "number"
+     },
+     "AutoDocNumber": {
+      "type": "boolean"
+     },
+     "CustomerRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "CustomerMemo": {
+      "$ref": "#/components/schemas/MemoRef"
+     },
+     "BillAddr": {
+      "$ref": "#/components/schemas/PhysicalAddress"
+     },
+     "ShipAddr": {
+      "$ref": "#/components/schemas/PhysicalAddress"
+     },
+     "FreeFormAddress": {
+      "type": "boolean"
+     },
+     "ShipFromAddr": {
+      "$ref": "#/components/schemas/PhysicalAddress"
+     },
+     "RemitToRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "ClassRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "SalesTermRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "DueDate": {
+      "type": "string"
+     },
+     "SalesRepRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "PONumber": {
+      "type": "string"
+     },
+     "FOB": {
+      "type": "string"
+     },
+     "ShipMethodRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "ShipDate": {
+      "type": "string"
+     },
+     "TrackingNum": {
+      "type": "string"
+     },
+     "GlobalTaxCalculation": {
+      "type": "string",
+      "enum": [
+       "TaxInclusive",
+       "TaxExcluded",
+       "NotApplicable"
+      ]
+     },
+     "TotalAmt": {
+      "type": "number"
+     },
+     "HomeTotalAmt": {
+      "type": "number"
+     },
+     "ApplyTaxAfterDiscount": {
+      "type": "boolean"
+     },
+     "ShippingTaxIncludedInTotalTax": {
+      "type": "boolean"
+     },
+     "TemplateRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "PrintStatus": {
+      "type": "string",
+      "enum": [
+       "NotSet",
+       "NeedToPrint",
+       "PrintComplete"
+      ]
+     },
+     "EmailStatus": {
+      "type": "string",
+      "enum": [
+       "NotSet",
+       "NeedToSend",
+       "EmailSent"
+      ]
+     },
+     "BillEmail": {
+      "$ref": "#/components/schemas/EmailAddress"
+     },
+     "BillEmailCc": {
+      "$ref": "#/components/schemas/EmailAddress"
+     },
+     "BillEmailBcc": {
+      "$ref": "#/components/schemas/EmailAddress"
+     },
+     "ARAccountRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "Balance": {
+      "type": "number"
+     },
+     "HomeBalance": {
+      "type": "number"
+     },
+     "FinanceCharge": {
+      "type": "boolean"
+     },
+     "PaymentMethodRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "PaymentRefNum": {
+      "type": "string"
+     },
+     "PaymentType": {
+      "type": "string",
+      "enum": [
+       "Cash",
+       "Check",
+       "CreditCard",
+       "Expense",
+       "Other"
+      ]
+     },
+     "CheckPayment": {
+      "$ref": "#/components/schemas/CheckPayment"
+     },
+     "CreditCardPayment": {
+      "$ref": "#/components/schemas/CreditCardPayment"
+     },
+     "DepositToAccountRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "DeliveryInfo": {
+      "$ref": "#/components/schemas/TransactionDeliveryInfo"
+     },
+     "DiscountRate": {
+      "type": "number"
+     },
+     "DiscountAmt": {
+      "type": "number"
+     },
+     "GovtTxnRefIdentifier": {
+      "type": "string"
+     },
+     "TaxExemptionRef": {
+      "$ref": "#/components/schemas/ReferenceType"
+     },
+     "RemainingCredit": {
+      "type": "number"
+     },
+     "RefundReceiptEx": {
+      "$ref": "#/components/schemas/IntuitAnyType"
      }
     },
     "additionalProperties": false

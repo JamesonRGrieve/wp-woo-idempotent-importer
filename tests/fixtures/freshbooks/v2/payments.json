@@ -68,12 +68,33 @@
             "overpaymentid": null,
             "orderid": null,
             "accounting_systemid": "fbAcc1"
+          },
+          {
+            "id": 504,
+            "logid": 504,
+            "invoiceid": 404,
+            "creditid": 601,
+            "amount": {
+              "amount": "15.00",
+              "code": "CAD"
+            },
+            "date": "2026-09-12",
+            "type": "Credit",
+            "note": "Applied from CN-0001",
+            "clientid": 302,
+            "vis_state": 0,
+            "updated": "2026-09-01 12:00:00",
+            "gateway": null,
+            "from_credit": true,
+            "overpaymentid": null,
+            "orderid": null,
+            "accounting_systemid": "fbAcc1"
           }
         ],
         "page": 1,
         "pages": 1,
         "per_page": 100,
-        "total": 3
+        "total": 4
       }
     }
   }

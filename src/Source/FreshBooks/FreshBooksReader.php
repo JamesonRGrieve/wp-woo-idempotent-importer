@@ -30,6 +30,9 @@ use IdempotentImporter\Source\SourceReader;
  * - Customers and contacts are clients; companies are the organizations clients name, gathered from every client.
  * - Orders are invoices with their lines (`include[]=lines`), the payments on each (every payment is read once
  *   per run) and the client they are to.
+ * - Returns are credit notes (`include[]=lines`) with the payments that applied them to invoices (a payment naming
+ *   the credit note, `creditid`) and their client; gift cards are each client's store credit: the credit notes it
+ *   has, each with its applications, gathered from every credit note (read once per run).
  *
  * Lists are read 100 a page (`per_page`, silently capped at 100: www.freshbooks.com/api/parameters). Deleted
  * records (`vis_state` 1) are left out, so a full pass retires them. Nothing is incremental (unchanged records are
@@ -56,6 +59,10 @@ final class FreshBooksReader implements SourceReader
     private ?array $clients = null;
     /** @var array<int, list<array<array-key, mixed>>>|null invoice id → its payments, oldest first */
     private ?array $payments = null;
+    /** @var array<int, list<array<array-key, mixed>>>|null credit note id → the payments that applied it, oldest first */
+    private ?array $applications = null;
+    /** @var list<Node>|null */
+    private ?array $creditNotes = null;
 
     public function __construct(private readonly RestClient $client, private readonly ?string $accountId) {}
 
@@ -79,6 +86,8 @@ final class FreshBooksReader implements SourceReader
             Kind::CrmCompany => new Page($this->organizations(), false, null),
             Kind::Contact => $this->clientPage($cursor, 'Contact'),
             Kind::Order => $this->invoices($cursor),
+            Kind::Return => new Page(array_map($this->creditNote(...), $this->allCreditNotes()), false, null),
+            Kind::GiftCard => new Page($this->storeCredit(), false, null),
             default => throw new SourceError("FreshBooks has no {$kind->value}."),
         };
     }
@@ -199,10 +208,28 @@ final class FreshBooksReader implements SourceReader
     /** @return array<int, list<array<array-key, mixed>>> invoice id → its live payments, oldest first */
     private function payments(): array
     {
-        if ($this->payments !== null) {
-            return $this->payments;
+        if ($this->payments === null) {
+            $this->readPayments();
         }
+
+        return $this->payments ?? [];
+    }
+
+    /** @return array<int, list<array<array-key, mixed>>> credit note id → the live payments that applied it, oldest first */
+    private function applications(): array
+    {
+        if ($this->applications === null) {
+            $this->readPayments();
+        }
+
+        return $this->applications ?? [];
+    }
+
+    /** Every live payment, once per run, by invoice and by the credit note it applied. */
+    private function readPayments(): void
+    {
         $byInvoice = [];
+        $byCredit = [];
         $page = 1;
         do {
             [$records, $pages] = $this->accounting('/payments/payments', 'payments', $page);
@@ -211,15 +238,91 @@ final class FreshBooksReader implements SourceReader
                 if ($invoice !== null) {
                     $byInvoice[$invoice][] = $payment->raw();
                 }
+                $credit = $payment->optionalInt('creditid');
+                if ($credit !== null && $invoice !== null) {
+                    $byCredit[$credit][] = $payment->raw();
+                }
             }
             ++$page;
         } while ($page <= $pages);
-        foreach ($byInvoice as &$payments) {
+        $this->payments = self::oldestFirst($byInvoice);
+        $this->applications = self::oldestFirst($byCredit);
+    }
+
+    /**
+     * @param array<int, list<array<array-key, mixed>>> $groups
+     *
+     * @return array<int, list<array<array-key, mixed>>> each group's payments, oldest first
+     */
+    private static function oldestFirst(array $groups): array
+    {
+        foreach ($groups as &$payments) {
             usort($payments, static fn(array $a, array $b): int => [$a['date'] ?? '', $a['id'] ?? 0] <=> [$b['date'] ?? '', $b['id'] ?? 0]);
         }
         unset($payments);
 
-        return $this->payments = $byInvoice;
+        return $groups;
+    }
+
+    /** @return list<Node> every live credit note with its lines, once per run */
+    private function allCreditNotes(): array
+    {
+        if ($this->creditNotes !== null) {
+            return $this->creditNotes;
+        }
+        $notes = [];
+        $page = 1;
+        do {
+            [$records, $pages] = $this->accounting('/credit_notes/credit_notes', 'credit_notes', $page, ['include[]' => 'lines']);
+            $notes = [...$notes, ...$records];
+            ++$page;
+        } while ($page <= $pages);
+
+        return $this->creditNotes = $notes;
+    }
+
+    /** A credit note with the payments that applied it and its client. */
+    private function creditNote(Node $note): Node
+    {
+        return self::identified('CreditNote', $note->int('creditid'), [
+            ...$note->raw(),
+            'applications' => $this->applications()[$note->int('creditid')] ?? [],
+            'client' => $this->client($note),
+        ]);
+    }
+
+    /** @return list<Node> each client's store credit: its credit notes with their applications */
+    private function storeCredit(): array
+    {
+        $clients = [];
+        $notes = [];
+        foreach ($this->allCreditNotes() as $note) {
+            $client = $this->client($note);
+            if ($client !== null) {
+                $id = (new Node($client))->int('id');
+                $clients[$id] = $client;
+                $notes[$id][] = $this->creditNote($note)->raw();
+            }
+        }
+        $credits = [];
+        foreach ($clients as $id => $client) {
+            $credits[] = self::identified('StoreCredit', $id, ['client' => $client, 'credit_notes' => $notes[$id] ?? []]);
+        }
+
+        return $credits;
+    }
+
+    /** @return array<array-key, mixed>|null the client a record names (`clientid`) */
+    private function client(Node $record): ?array
+    {
+        $id = $record->raw()['clientid'] ?? null;
+        foreach ($this->allClients() as $client) {
+            if (is_numeric($id) && $client->int('id') === (int) $id) {
+                return $client->raw();
+            }
+        }
+
+        return null;
     }
 
     /**

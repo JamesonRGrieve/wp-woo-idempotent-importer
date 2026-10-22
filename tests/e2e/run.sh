@@ -40,9 +40,9 @@ declare -A CHANGES=(
     [salesforce]="a custom account field, a new lead in a campaign with a note, a changed note, a price, a new draft order, a won and a new opportunity, a completed task and a new one"
     [pipedrive]="a removed label, a person leaving and one joining a filter, a custom organization field, a changed note, a price, a deleted stage, a won deal and an activity done"
     [zoho]="a custom account field, a new lead in a campaign with a note, a changed note, a price, a new sales order, a won deal and a completed task"
-    [freshbooks]="a price and stock count, a changed phone, a new client and organization, a payment settling an invoice, and a disputed invoice"
+    [freshbooks]="a price and stock count, a changed phone, a new client and organization, a payment settling an invoice, a disputed invoice, and a credit note applied to a new invoice"
     [wave]="a price, a changed phone, a payment settling a guest invoice, and a new partly paid invoice"
-    [quickbooks_online]="a price and quantity on hand, a changed phone, and a payment settling an invoice"
+    [quickbooks_online]="a price and quantity on hand, a changed phone, a payment settling an invoice with a credit memo, and a refund receipt"
 )
 # E2E_SOURCES (space-separated) runs only those sources, in the order above, for a quicker check while developing
 # one; the full suite (the default, and CI) runs them all, each beside the mirrors of the ones before it.

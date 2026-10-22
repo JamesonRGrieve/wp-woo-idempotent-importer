@@ -21,9 +21,11 @@ use IdempotentImporter\Source\OAuth2\OAuthConnection;
 use IdempotentImporter\Source\QuickBooksOnline\Mapping\CategoryMapper;
 use IdempotentImporter\Source\QuickBooksOnline\Mapping\CompanyMapper;
 use IdempotentImporter\Source\QuickBooksOnline\Mapping\ContactMapper;
+use IdempotentImporter\Source\QuickBooksOnline\Mapping\CreditMapper;
 use IdempotentImporter\Source\QuickBooksOnline\Mapping\CustomerMapper;
 use IdempotentImporter\Source\QuickBooksOnline\Mapping\ProductMapper;
 use IdempotentImporter\Source\QuickBooksOnline\Mapping\SaleMapper;
+use IdempotentImporter\Source\QuickBooksOnline\Mapping\StoreCreditMapper;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SourceReader;
 use IdempotentImporter\Source\WebhookReceiver;
@@ -31,7 +33,8 @@ use IdempotentImporter\Source\WebhookReceiver;
 /**
  * QuickBooks Online, through Intuit's Accounting API: item categories and items into WooCommerce, customers into
  * WooCommerce customers and FluentCRM contacts (with their companies), and invoices (with the payments applied to
- * them) and sales receipts into WooCommerce orders. The operator creates an app on developer.intuit.com and connects
+ * them) and sales receipts into WooCommerce orders, credit memos applied to invoices and refund receipts into refunds
+ * on them, and what is left of a customer's credit memos into their store credit (Square Gift Cards). The operator creates an app on developer.intuit.com and connects
  * the company (OAuth 2: HTTP Basic client authentication, the `com.intuit.quickbooks.accounting` scope, which is the
  * narrowest that reads the books; the redirect names the company's realm id, kept with the tokens).
  */
@@ -65,7 +68,7 @@ final class QuickBooksOnlineAdapter implements Adapter, ConnectsByOAuth
 
     public function kinds(): array
     {
-        return [Kind::Collection, Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::Contact, Kind::Order];
+        return [Kind::Collection, Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::Contact, Kind::Order, Kind::Return, Kind::GiftCard];
     }
 
     public function mappers(Settings $settings): array
@@ -77,6 +80,8 @@ final class QuickBooksOnlineAdapter implements Adapter, ConnectsByOAuth
             new CompanyMapper(),
             new ContactMapper(),
             new SaleMapper(),
+            new CreditMapper(),
+            new StoreCreditMapper($settings),
         ];
     }
 

@@ -1,0 +1,64 @@
+{
+  "request": {
+    "path": "/v3/company/9341453177/query",
+    "query": {
+      "minorversion": "75",
+      "query": "SELECT * FROM CreditMemo ORDERBY MetaData.CreateTime STARTPOSITION 1 MAXRESULTS 1000"
+    }
+  },
+  "response": {
+    "QueryResponse": {
+      "startPosition": 1,
+      "maxResults": 1,
+      "CreditMemo": [
+        {
+          "Id": "160",
+          "SyncToken": "0",
+          "domain": "QBO",
+          "sparse": false,
+          "MetaData": {
+            "CreateTime": "2026-08-25T10:00:00-07:00",
+            "LastUpdatedTime": "2026-08-25T10:00:00-07:00"
+          },
+          "DocNumber": "CM-1001",
+          "TxnDate": "2026-08-25",
+          "CurrencyRef": {
+            "value": "USD",
+            "name": "United States Dollar"
+          },
+          "Line": [
+            {
+              "Id": "1",
+              "LineNum": 1,
+              "Amount": 20,
+              "DetailType": "SalesItemLineDetail",
+              "SalesItemLineDetail": {
+                "ItemRef": {
+                  "value": "2",
+                  "name": "Celadon glaze, 1 L"
+                },
+                "UnitPrice": 20,
+                "Qty": 1,
+                "TaxCodeRef": {
+                  "value": "NON"
+                }
+              }
+            }
+          ],
+          "TxnTaxDetail": {
+            "TotalTax": 0
+          },
+          "CustomerRef": {
+            "value": "11",
+            "name": "Sam Ortiz"
+          },
+          "TotalAmt": 20,
+          "Balance": 20,
+          "RemainingCredit": 20,
+          "PrivateNote": "A chipped bottle"
+        }
+      ]
+    },
+    "time": "2026-10-21T17:00:00.000-07:00"
+  }
+}

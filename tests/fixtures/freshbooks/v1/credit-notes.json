@@ -1,0 +1,87 @@
+{
+  "request": {
+    "path": "/accounting/account/fbAcc1/credit_notes/credit_notes",
+    "query": {
+      "include[]": "lines"
+    }
+  },
+  "response": {
+    "response": {
+      "result": {
+        "credit_notes": [
+          {
+            "creditid": 601,
+            "id": 601,
+            "accounting_systemid": "fbAcc1",
+            "clientid": 302,
+            "credit_number": "CN-0001",
+            "credit_type": "goodwill",
+            "create_date": "2026-9-1",
+            "currency_code": "CAD",
+            "amount": {
+              "amount": "25.00",
+              "code": "CAD"
+            },
+            "paid": {
+              "amount": "0.00",
+              "code": "CAD"
+            },
+            "status": "created",
+            "display_status": "created",
+            "payment_status": "unpaid",
+            "dispute_status": null,
+            "description": "",
+            "notes": "A cracked glaze kit",
+            "terms": null,
+            "language": "en",
+            "template": "clean-grouped",
+            "fname": "Theo",
+            "lname": "Park",
+            "organization": "",
+            "current_organization": "",
+            "street": "",
+            "street2": "",
+            "city": "",
+            "province": "",
+            "code": "",
+            "country": "Canada",
+            "vat_name": null,
+            "vat_number": "",
+            "sentid": 1,
+            "ext_archive": 0,
+            "last_order_status": null,
+            "vis_state": 0,
+            "lines": [
+              {
+                "lineid": 1,
+                "name": "Glaze kit (cracked)",
+                "description": "Goodwill credit",
+                "qty": "1",
+                "unit_cost": {
+                  "amount": "25.00",
+                  "code": "CAD"
+                },
+                "amount": {
+                  "amount": "25.00",
+                  "code": "CAD"
+                },
+                "taxName1": null,
+                "taxAmount1": null,
+                "taxName2": null,
+                "taxAmount2": null,
+                "compounded_tax": false,
+                "credit_note": null,
+                "type": 0,
+                "updated": "2026-09-01 10:00:00"
+              }
+            ]
+          }
+        ],
+        "page": 1,
+        "pages": 1,
+        "per_page": 100,
+        "total": 1
+      }
+    }
+  }
+}

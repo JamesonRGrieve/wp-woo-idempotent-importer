@@ -43,6 +43,11 @@ return [
         $settled = order(Kind::Order, 'gid://quickbooks_online/Invoice/131');
         expect($settled->get_status() === 'completed' && $payments($settled) === 1, 'a payment settles the invoice');
         expect($payments(order(Kind::Order, 'gid://quickbooks_online/Invoice/130')) === 1, 'payments are not noted twice');
+        $credit = $settled->get_refunds();
+        expect(count($credit) === 1 && money($credit[0]->get_amount()) === '15.00' && $settled->get_status() === 'completed', 'a credit memo a payment applied to the invoice is a refund on its order');
+        $receipt = order(Kind::Order, 'gid://quickbooks_online/SalesReceipt/140');
+        $refunds = $receipt->get_refunds();
+        expect(count($refunds) === 1 && money($refunds[0]->get_amount()) === '3.00' && $receipt->get_status() === 'completed', "a refund receipt is a refund on its sale's order, which keeps its status");
     },
     'intact' => static function (): void {
         expect(FluentCrm::string(fluentContact('gid://quickbooks_online/Contact/10'), 'email') === 'maya@qbo.example', 'the QuickBooks contact is untouched');

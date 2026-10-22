@@ -13,6 +13,7 @@ use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SourceError;
+use IdempotentImporter\Tests\Support\TestSettings;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -96,22 +97,6 @@ final class AdaptersTest extends TestCase
 
     private static function settings(): Settings
     {
-        return new Settings(
-            source: Adapters::DEFAULT,
-            storeDomain: 'fixture.myshopify.com',
-            kinds: Kind::SYNC_ORDER,
-            filters: [],
-            intervalMinutes: 60,
-            fullReconcileHours: 24,
-            storeSettings: false,
-            shippingZones: false,
-            redirects: true,
-            localiseImages: true,
-            cleanHtml: false,
-            preserveOrderNumbers: true,
-            generateMissingSkus: false,
-            defaultAuthor: 0,
-            notifyEmail: '',
-        );
+        return TestSettings::all('fixture.myshopify.com');
     }
 }

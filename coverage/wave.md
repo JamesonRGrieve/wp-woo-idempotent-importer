@@ -3,7 +3,7 @@
 
 The single source of truth for what the Wave adapter mirrors. Wave is accounting software: what has a faithful
 home in a store (what it sells, who it sells to, what it invoiced and was paid) goes into WooCommerce, its customers
-also into **FluentCRM** (free, GPL); the books are operator decisions (below). Wave's API is GraphQL
+also into **FluentCRM** (free, GPL); the books go to ERPNext only (operator decision of 2026-10-21; below). Wave's API is GraphQL
 (gql.waveapps.com/graphql/public). Its schema is introspected from that endpoint (which answers introspection
 without a token) by `composer schema` and pinned by its SHA-256 (tools/WaveSchema.php, 2026-10-21);
 `tools/validate-wave.php` validates every operation (src/Source/Wave/Operations.php) against it and executes every
@@ -37,17 +37,17 @@ at one a second; a 429 is retried with capped backoff, then pauses the run.
 | Customers | FluentCRM contacts | Email, name, phone, address, created time, contact type customer, source "Wave", status transactional (Wave records no marketing consent), its business as company. A FluentCRM contact with the same email is adopted. |
 | Business customers | FluentCRM companies | Wave keeps one name per customer beside its contact person's first and last names; a name that is not the person's is the business's: a company with that name, phone, website, address and created time. |
 | Invoices | WooCommerce orders with Wave's amounts | Number, invoice date, currency, customer, the customer's name and address. Items: product, description, quantity (a fractional one is listed on the line), subtotal, and the taxes Wave computed on each, by sales tax abbreviation at its rate. Wave's discount total, tax total and total. Status: paid or overpaid → completed (on the last payment's date); anything else → pending payment. Each active payment is a private order note (amount, method, date, memo); the last one's method and transaction id are the order's; a removed payment is left out. Title, subhead, PO number, due date, memo, footer, discounts, exchange rate and amounts paid and due are meta. Mirroring an invoice reduces no stock. |
-| Customers without an email address | a WooCommerce customer and a FluentCRM contact with a placeholder address | WooCommerce and FluentCRM keep people by email, so one without gets `customer-<id>@wave.invalid` (operator decision of 2026-10-21): the same every run, under `.invalid`, which RFC 2606 reserves so it can never be delivered, and marked `_mirror_email_placeholder`. No mail is ever sent to it: every `.invalid` recipient is dropped before WordPress's mailer, whatever sends it, and password resets skip it. Status follows the source's consent as for anyone else. |
+| Customers without an email address | A WooCommerce customer and a FluentCRM contact with a placeholder address | WooCommerce and FluentCRM keep people by email, so one without gets `customer-<id>@wave.invalid` (operator decision of 2026-10-21): the same every run, under `.invalid`, which RFC 2606 reserves so it can never be delivered, and marked `_mirror_email_placeholder`. No mail is ever sent to it: every `.invalid` recipient is dropped before WordPress's mailer, whatever sends it, and password resets skip it. Status follows the source's consent as for anyone else. |
 
-## Planned (operator decisions)
+## Planned, ERPNext only and out of scope (operator decisions)
 
 | Wave | Why, and the candidate home |
 |---|---|
-| Chart of accounts | WordPress and WooCommerce have no ledger. Decision: a WordPress accounting plugin (not yet chosen), or keep the books in an ERP (the sibling frappe-idempotent-importer is the ERPNext route). |
-| Bills, expenses, receipts, bank and journal transactions | Wave's public API reads none of them (the schema has only `moneyTransactionCreate` and its kin, which write). Nothing to mirror until Wave publishes a read. |
-| Vendors | Suppliers have no WooCommerce or FluentCRM home; same decision as the ledger. |
+| Chart of accounts | ERPNext only (operator decision of 2026-10-21): the books are never written to WordPress; the sibling frappe-idempotent-importer mirrors them into ERPNext. |
+| Bills, expenses, receipts, bank and journal transactions | ERPNext only (operator decision of 2026-10-21): the books are never written to WordPress; the sibling frappe-idempotent-importer mirrors them into ERPNext. Wave's public API reads none of them anyway (the schema has only `moneyTransactionCreate` and its kin, which write). |
+| Vendors | ERPNext only (operator decision of 2026-10-21): the books are never written to WordPress; the sibling frappe-idempotent-importer mirrors them into ERPNext. |
 | Sales taxes | WooCommerce tax rates are the store's own (by location), not a document's: each order keeps the taxes Wave charged; mirroring Wave's rate table into WooCommerce's is a decision. |
-| Estimates | WooCommerce has no quotes; a quote plugin or draft orders are the candidates. |
+| Estimates | Planned: a `wp-woo-quotes` companion. No reputable GPL WooCommerce quote plugin holds an estimate faithfully (researched 2026-10-21): YITH Request a Quote (free, GPLv2+, 10,000+ installs) keeps no quote record in its free version (requests are emailed; stored quotes, statuses and order conversion are Premium); Quotes for WooCommerce (GPLv3, 4,000+ installs, updated 2026-06) makes a quote a WooCommerce order with a `_quote_status` of pending, sent or complete, so it has no accepted, declined or expired state and the quote and its invoice can't both exist; CatalogX (MultiVendorX, GPLv2+, 5,000+ installs) registers accepted, rejected and expired quote order statuses but its free version has no expiry or conversion to an order, and no PHP API; NP Quote Request (GPLv2, 8,000+ installs) has only requested and sent. None has an API for creating a quote idempotently. An estimate needs its lines, totals, expiry, accepted/declined state and its conversion to the invoice that is mirrored as an order. |
 | Payment refunds, estimate deposits, recurring invoices, reminders, attachments | Not read. |
 
 ## Unverified against a live business

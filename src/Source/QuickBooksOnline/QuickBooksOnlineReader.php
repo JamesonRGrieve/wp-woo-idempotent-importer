@@ -29,6 +29,9 @@ use IdempotentImporter\Source\SourceReader;
  * - Customers, contacts and companies (the customers with a company name) are its customers.
  * - Orders are its invoices, then its sales receipts, each with its customer, the company's tax rate names and home
  *   currency (`/preferences`), and an invoice with the payments applied to it (every payment is read once per run).
+ * - Returns are its credit memos, each with how payments applied it (`applications`: a payment line linking the
+ *   credit memo, with the one invoice the payment links, or every invoice when it links several), then its refund
+ *   receipts. Gift cards are each customer's store credit: their credit memos with those applications.
  *
  * Nothing is incremental (unchanged records are skipped by hash). Intuit allows 500 requests a minute and 10 a
  * second per company and app (developer.intuit.com, API call limits and throttles); requests are paced at 450 a
@@ -47,6 +50,7 @@ final class QuickBooksOnlineReader implements SourceReader
     private const SALES = ['Invoice', 'SalesReceipt'];
     private const CURSOR_SEPARATOR = ':';
     private const INVOICE = 'Invoice';
+    private const CREDIT_MEMO = 'CreditMemo';
 
     /** @var array<string, list<Node>> entity → every record, read once per run */
     private array $all = [];
@@ -80,6 +84,8 @@ final class QuickBooksOnlineReader implements SourceReader
             Kind::CrmCompany => new Page(self::identified('Company', array_values(array_filter($this->every('Customer'), static fn(Node $customer): bool => Fields::text($customer, 'CompanyName') !== null))), false, null),
             Kind::Contact => new Page(self::identified('Contact', $this->every('Customer')), false, null),
             Kind::Order => $this->sales($cursor),
+            Kind::Return => new Page([...self::identified('CreditMemo', $this->creditMemos()), ...self::identified('RefundReceipt', $this->withHomeCurrency($this->every('RefundReceipt')))], false, null),
+            Kind::GiftCard => new Page($this->storeCredit(), false, null),
             default => throw new SourceError("QuickBooks Online has no {$kind->value}."),
         };
     }
@@ -172,6 +178,72 @@ final class QuickBooksOnlineReader implements SourceReader
         unset($payments);
 
         return $this->payments = $byInvoice;
+    }
+
+    /** @return list<Node> every credit memo, with how payments applied it and the home currency */
+    private function creditMemos(): array
+    {
+        $applications = [];
+        foreach ($this->every('Payment') as $payment) {
+            $invoices = [];
+            $credits = [];
+            foreach (is_array($payment->raw()['Line'] ?? null) ? $payment->list('Line') : [] as $line) {
+                foreach (is_array($line->raw()['LinkedTxn'] ?? null) ? $line->list('LinkedTxn') : [] as $linked) {
+                    match ($linked->optionalString('TxnType')) {
+                        self::INVOICE => $invoices[] = $linked->string('TxnId'),
+                        self::CREDIT_MEMO => $credits[] = [$linked->string('TxnId'), $line->optionalDecimal('Amount') ?? '0'],
+                        default => null,
+                    };
+                }
+            }
+            foreach ($credits as [$creditMemo, $amount]) {
+                $applications[$creditMemo][] = [
+                    'payment_id' => $payment->string('Id'),
+                    'date' => $payment->optionalString('TxnDate'),
+                    'amount' => $amount,
+                    'invoice_ids' => array_values(array_unique($invoices)),
+                ];
+            }
+        }
+
+        return array_map(
+            static fn(Node $memo): Node => new Node([...$memo->raw(), 'applications' => $applications[$memo->string('Id')] ?? []]),
+            $this->withHomeCurrency($this->every('CreditMemo')),
+        );
+    }
+
+    /** @return list<Node> each customer's store credit: their credit memos, with how they were applied */
+    private function storeCredit(): array
+    {
+        $customers = [];
+        foreach ($this->every('Customer') as $customer) {
+            $customers[$customer->string('Id')] = $customer->raw();
+        }
+        $memos = [];
+        foreach (self::identified('CreditMemo', $this->creditMemos()) as $memo) {
+            $customer = Fields::ref($memo, 'CustomerRef');
+            if ($customer !== null && isset($customers[$customer])) {
+                $memos[$customer][] = $memo->raw();
+            }
+        }
+        $credits = [];
+        foreach ($memos as $customer => $list) {
+            $credits[] = new Node(['Id' => (string) $customer, 'customer' => $customers[$customer], 'credit_memos' => $list, 'home_currency' => $this->homeCurrency()]);
+        }
+
+        return self::identified('StoreCredit', $credits);
+    }
+
+    /**
+     * @param list<Node> $records
+     *
+     * @return list<Node> the records with the company's home currency, for one that names none
+     */
+    private function withHomeCurrency(array $records): array
+    {
+        $currency = $this->homeCurrency();
+
+        return array_map(static fn(Node $record): Node => new Node([...$record->raw(), 'home_currency' => $currency]), $records);
     }
 
     /** @return list<Node> every record of an entity, read once per run */

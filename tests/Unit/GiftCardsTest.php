@@ -10,7 +10,6 @@ use IdempotentImporter\Config\Settings;
 use IdempotentImporter\Mapping\GiftCardContract;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
-use IdempotentImporter\Source\Adapters;
 use IdempotentImporter\Source\BigCommerce\BigCommerceReader;
 use IdempotentImporter\Source\BigCommerce\Mapping\GiftCertificateMapper;
 use IdempotentImporter\Source\Node;
@@ -20,6 +19,7 @@ use IdempotentImporter\Support\Currency;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
 use IdempotentImporter\Tests\Support\ScriptedTransport;
+use IdempotentImporter\Tests\Support\TestSettings;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -140,22 +140,6 @@ final class GiftCardsTest extends TestCase
 
     private static function settings(): Settings
     {
-        return new Settings(
-            source: Adapters::DEFAULT,
-            storeDomain: '',
-            kinds: Kind::SYNC_ORDER,
-            filters: [],
-            intervalMinutes: 60,
-            fullReconcileHours: 24,
-            storeSettings: false,
-            shippingZones: false,
-            redirects: true,
-            localiseImages: true,
-            cleanHtml: false,
-            preserveOrderNumbers: true,
-            generateMissingSkus: false,
-            defaultAuthor: 0,
-            notifyEmail: '',
-        );
+        return TestSettings::all();
     }
 }

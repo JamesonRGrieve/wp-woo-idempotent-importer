@@ -18,8 +18,9 @@ use WC_Order_Item_Tax;
 use WC_Order_Refund;
 
 /**
- * Return orders → WooCommerce refunds on the mirrored sales they return from: the returned lines (pointing at
- * the sale's line items, with their tax) and the return's total. No money moves and nothing is restocked.
+ * Return orders (and accounting credits applied to invoices, and refund receipts) → WooCommerce refunds on the
+ * mirrored sales they return from: the returned lines (pointing at the sale's line items, with their tax) and the
+ * return's total; a credit's own lines, which name no line of the sale, are kept on the refund. No money moves and nothing is restocked.
  * Each refund carries the return's identity (OrderWriter::RETURN_META), so rebuilding the sale order keeps
  * it, and is rebuilt here whenever the return changes. Money a refund on the sale order itself already
  * mirrors (the same Square refund) isn't counted again: the return then refunds its lines at no amount. The
@@ -29,6 +30,8 @@ final class ReturnWriter implements Writer
 {
     private const CHARGES_META = '_mirror_returned_charges';
     private const SOURCE_META = '_mirror_return_source';
+    /** A credit's own lines (an accounting credit note's), which name no line of the order it is applied to. */
+    private const CREDIT_LINES_META = '_mirror_credit_lines';
 
     public function __construct(private readonly Targets $targets) {}
 
@@ -133,9 +136,11 @@ final class ReturnWriter implements Writer
             'location_id' => $f->nullableString('location_id'),
             'refunds' => $entry->strings('refund_gids'),
         ], static fn(mixed $value): bool => $value !== null && $value !== []));
-        $charges = $entry->raw('charges');
-        if (is_array($charges) && $charges !== []) {
-            $meta->set(self::CHARGES_META, $charges);
+        foreach ([self::CHARGES_META => 'charges', self::CREDIT_LINES_META => 'credit_lines'] as $key => $field) {
+            $value = $entry->raw($field);
+            if (is_array($value) && $value !== []) {
+                $meta->set($key, $value);
+            }
         }
         $refund->save();
         foreach ($refund->get_items() as $item) {

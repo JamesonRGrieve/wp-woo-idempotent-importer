@@ -51,6 +51,10 @@ return [
         $walkIn = get_user_by('id', $disputed->get_customer_id());
         expect($walkIn instanceof WP_User && str_ends_with($walkIn->user_email, '@freshbooks.invalid') && $disputed->get_billing_first_name() === 'Walk', 'a client without an email is a customer by a placeholder address, and the invoice is theirs');
         expect(count(array_filter($notes(order(Kind::Order, 'gid://freshbooks/Invoice/401')), static fn(string $note): bool => str_contains($note, 'Payment of'))) === 2, 'payments are not noted twice');
+        $credited = order(Kind::Order, 'gid://freshbooks/Invoice/404');
+        $refunds = $credited->get_refunds();
+        expect(count($refunds) === 1 && money($refunds[0]->get_amount()) === '15.00' && $refunds[0]->get_reason() === 'Credit note CN-0001 applied', 'a credit note applied to an invoice is a refund of what was applied, on its order');
+        expect(is_array($refunds[0]->get_meta('_mirror_credit_lines')) && $credited->get_status() === 'completed', "with the credit note's lines, the invoice keeps its status");
     },
     'intact' => static function (): void {
         expect(FluentCrm::string(fluentContact('gid://freshbooks/Contact/301'), 'email') === 'mira@freshbooks.example', 'the FreshBooks contact is untouched');

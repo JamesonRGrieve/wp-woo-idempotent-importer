@@ -14,10 +14,12 @@ use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Adapter;
 use IdempotentImporter\Source\ConnectsByOAuth;
 use IdempotentImporter\Source\FreshBooks\Mapping\ContactMapper;
+use IdempotentImporter\Source\FreshBooks\Mapping\CreditNoteMapper;
 use IdempotentImporter\Source\FreshBooks\Mapping\CustomerMapper;
 use IdempotentImporter\Source\FreshBooks\Mapping\InvoiceMapper;
 use IdempotentImporter\Source\FreshBooks\Mapping\OrganizationMapper;
 use IdempotentImporter\Source\FreshBooks\Mapping\ProductMapper;
+use IdempotentImporter\Source\FreshBooks\Mapping\StoreCreditMapper;
 use IdempotentImporter\Source\OAuth2\BearerAuthorizer;
 use IdempotentImporter\Source\OAuth2\ClientAuth;
 use IdempotentImporter\Source\OAuth2\OAuthApp;
@@ -27,8 +29,9 @@ use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * FreshBooks, through its API: items and services into WooCommerce products, clients into WooCommerce customers
- * and FluentCRM contacts (with the organizations they name as FluentCRM companies), and invoices with their
- * payments into WooCommerce orders. The operator creates an app in FreshBooks' developer portal and connects the
+ * and FluentCRM contacts (with the organizations they name as FluentCRM companies), invoices with their
+ * payments into WooCommerce orders, credit notes applied to invoices into refunds on them, and what is left of a
+ * client's credit notes into their store credit (Square Gift Cards). The operator creates an app in FreshBooks' developer portal and connects the
  * login (OAuth 2: JSON token requests that name the redirect URI, refresh tokens used once each).
  */
 final class FreshBooksAdapter implements Adapter, ConnectsByOAuth
@@ -59,7 +62,7 @@ final class FreshBooksAdapter implements Adapter, ConnectsByOAuth
 
     public function kinds(): array
     {
-        return [Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::Contact, Kind::Order];
+        return [Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::Contact, Kind::Order, Kind::Return, Kind::GiftCard];
     }
 
     public function mappers(Settings $settings): array
@@ -70,6 +73,8 @@ final class FreshBooksAdapter implements Adapter, ConnectsByOAuth
             new OrganizationMapper(),
             new ContactMapper(),
             new InvoiceMapper(),
+            new CreditNoteMapper(),
+            new StoreCreditMapper($settings),
         ];
     }
 
