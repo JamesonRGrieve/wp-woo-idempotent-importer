@@ -18,6 +18,7 @@ use IdempotentImporter\Source\Salesforce\SalesforceAdapter;
 use IdempotentImporter\Source\Shopify\ShopifyAdapter;
 use IdempotentImporter\Source\SquareOnline\SquareOnlineAdapter;
 use IdempotentImporter\Source\Squarespace\SquarespaceAdapter;
+use IdempotentImporter\Source\Wave\WaveAdapter;
 use IdempotentImporter\Source\Webflow\WebflowAdapter;
 use IdempotentImporter\Source\Wix\WixAdapter;
 use IdempotentImporter\Source\Zoho\ZohoAdapter;
@@ -47,6 +48,7 @@ final class Adapters
             new PipedriveAdapter(),
             new ZohoAdapter(),
             new FreshBooksAdapter(),
+            new WaveAdapter(),
         ] as $adapter) {
             $byId[$adapter->id()] = $adapter;
         }

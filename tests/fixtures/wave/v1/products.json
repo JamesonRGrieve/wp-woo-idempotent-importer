@@ -1,0 +1,102 @@
+{
+  "request": {
+    "path": "/graphql/public",
+    "method": "POST",
+    "body": {
+      "operationName": "Products",
+      "variables": {
+        "businessId": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "page": 1,
+        "pageSize": 45,
+        "isArchived": false
+      }
+    }
+  },
+  "response": {
+    "data": {
+      "business": {
+        "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "products": {
+          "pageInfo": {
+            "currentPage": 1,
+            "totalPages": 1,
+            "totalCount": 3
+          },
+          "edges": [
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAx",
+                "name": "Bisque mug blank",
+                "description": "Ready to glaze.",
+                "unitPrice": "8.50",
+                "isSold": true,
+                "isBought": false,
+                "isArchived": false,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "defaultSalesTaxes": [
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjE=",
+                    "name": "Goods and Services Tax",
+                    "abbreviation": "GST"
+                  }
+                ],
+                "incomeAccount": {
+                  "name": "Sales"
+                },
+                "expenseAccount": null
+              }
+            },
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAy",
+                "name": "Studio cleaning service",
+                "description": null,
+                "unitPrice": "120.00",
+                "isSold": true,
+                "isBought": false,
+                "isArchived": false,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "defaultSalesTaxes": [
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjE=",
+                    "name": "Goods and Services Tax",
+                    "abbreviation": "GST"
+                  },
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjI=",
+                    "name": "BC Provincial Sales Tax",
+                    "abbreviation": "PST"
+                  }
+                ],
+                "incomeAccount": {
+                  "name": "Sales"
+                },
+                "expenseAccount": null
+              }
+            },
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAz",
+                "name": "Clay supply",
+                "description": null,
+                "unitPrice": "30.00",
+                "isSold": false,
+                "isBought": true,
+                "isArchived": false,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "defaultSalesTaxes": [],
+                "incomeAccount": null,
+                "expenseAccount": {
+                  "name": "Cost of Goods Sold"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

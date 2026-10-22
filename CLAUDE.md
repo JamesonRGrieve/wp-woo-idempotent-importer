@@ -2,7 +2,7 @@
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent store → WooCommerce mirror kept current until
 cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce, Squarespace, Wix,
-Magento, Lightspeed eCom, Ecwid and Webflow), and of CRMs (HubSpot, Salesforce, Pipedrive, Zoho CRM) into FluentCRM, and of accounting software (FreshBooks) into both. README.md is the user-facing contract; `coverage/<source>.md`
+Magento, Lightspeed eCom, Ecwid and Webflow), and of CRMs (HubSpot, Salesforce, Pipedrive, Zoho CRM) into FluentCRM, and of accounting software (FreshBooks, Wave) into both. README.md is the user-facing contract; `coverage/<source>.md`
 is the single source of truth for what each source mirrors and what is a gap. PHP rules:
 `/home/jameson/Source/ai-prompts/php.md`.
 
@@ -17,6 +17,7 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 - `src/Source/<Platform>/` — one adapter: its API client, reader and `Mapping/` (pure source → desired
   state, one mapper per kind). Shopify's GraphQL lives in `graphql/`; list, by-id and nested-page
   operations are generated per `EntityQuery` by `QueryLibrary`, never hand-written.
+  Wave's GraphQL is its `Operations` (hand-written: a few lists), sent through the REST client's JSON POST.
 - `src/Mapping/` — the source-neutral contract: `Desired`, `Mapper`, `Values`, `Hasher`, `Unsupported`.
 - `src/Sync/` — `ObjectSync` (the one map → hash → write path), `Runner` (stepped runs), cursors, lock.
 - `src/Store/` — the plugin's own tables (links, redirects, seen, runs) through `Sql` (`%i` identifiers).
@@ -63,6 +64,9 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 - New Shopify GraphQL: add the fragment/operation, run `composer validate-graphql`, add or extend
   fixtures in `tests/fixtures/shopify/<state>/` (they must execute against the real schema). Etsy
   fixtures in `tests/fixtures/etsy/<state>/` must validate against Etsy's OpenAPI spec.
+- New Wave GraphQL: change `Source/Wave/Operations`, run `composer validate-graphql` (which runs
+  `tools/validate-wave.php` against Wave's schema, pinned by SHA-256 in `tools/WaveSchema.php` and fetched by
+  `composer schema`), and add or extend `tests/fixtures/wave/<state>/` (each executes back through its operation).
 
 ## Testing
 

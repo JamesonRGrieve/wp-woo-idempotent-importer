@@ -44,7 +44,7 @@ them. Nothing is incremental (unchanged records are skipped by hash). Amounts ar
 
 | FreshBooks | Why, and the candidate home |
 |---|---|
-| Chart of accounts, general ledger, manual journal entries | WordPress and WooCommerce have no ledger. Decision: a WordPress accounting plugin (not yet chosen), or keep the books in an ERP (the sibling frappe-idempotent-importer mirrors FreshBooks' books into ERPNext). |
+| Chart of accounts, general ledger, manual journal entries | WordPress and WooCommerce have no ledger. Decision: a WordPress accounting plugin (not yet chosen), or keep the books in an ERP (the sibling frappe-idempotent-importer is the ERPNext route). |
 | Expenses, bills, bill vendors, bill payments, other income | Purchases and income outside sales have no WooCommerce home; same decision as the ledger. |
 | Credit notes | A credit note is to a client, not an invoice; WooCommerce refunds belong to an order. Decision: refunds on the invoice a credit is applied to, or keep them as client meta. |
 | Estimates | WooCommerce has no quotes; a quote plugin or draft orders are the candidates. |

@@ -56,6 +56,7 @@ const REST_SOURCES = [
     'pipedrive' => ['#^/api/v[12]/#', [ApiTokenAuthorizer::HEADER => 'e2e-pipedrive-token']],
     'zoho' => ['#^/crm/v8/#', ['Authorization' => ZohoAdapter::SCHEME . ' e2e-zoho-token']],
     'freshbooks' => ['#^/(auth/api|accounting|comments)/#', ['Authorization' => 'Bearer e2e-freshbooks-token']],
+    'wave' => ['#^/graphql/public$#', ['Authorization' => 'Bearer e2e-wave-token']],
 ];
 const FAKE_HOST_SUFFIX = '-fake';
 /** Written by the lockout checks (assert.php): `throttle` or `reject`; absent normally. */

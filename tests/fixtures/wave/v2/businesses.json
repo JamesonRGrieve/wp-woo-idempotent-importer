@@ -1,0 +1,36 @@
+{
+  "request": {
+    "path": "/graphql/public",
+    "method": "POST",
+    "body": {
+      "operationName": "Businesses",
+      "variables": {
+        "page": 1,
+        "pageSize": 45
+      }
+    }
+  },
+  "response": {
+    "data": {
+      "businesses": {
+        "pageInfo": {
+          "currentPage": 1,
+          "totalPages": 1,
+          "totalCount": 1
+        },
+        "edges": [
+          {
+            "node": {
+              "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+              "name": "Fernhill Pottery",
+              "isArchived": false,
+              "currency": {
+                "code": "CAD"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -25,6 +25,7 @@ Each source platform is an adapter over the same engine:
 | Pipedrive | Built | Into FluentCRM: organizations, person filters (as lists), labels (as tags), persons with their custom fields, and their notes and done activities. Into WooCommerce: product categories and products with their variations. Deals and pending activities are planned — [coverage/pipedrive.md](coverage/pipedrive.md) |
 | Zoho CRM | Built | Into FluentCRM: accounts, campaigns (as lists), tags, contacts and unconverted leads with their custom fields, and their notes, calls and meetings. Into WooCommerce: product categories, products, the contacts sales orders name, and sales orders with their items. Deals and tasks are planned — [coverage/zoho.md](coverage/zoho.md) |
 | FreshBooks | Built | Items and services as products, clients as WooCommerce customers and FluentCRM contacts (their organizations as companies), and invoices with their payments as orders. The books (ledger, journals, expenses, bills), credit notes and estimates are operator decisions — [coverage/freshbooks.md](coverage/freshbooks.md) |
+| Wave | Built | Products and services, customers as WooCommerce customers and FluentCRM contacts (business customers as companies), and invoices with their items, taxes and payments as orders. The books (accounts, vendors, sales tax rates) and estimates are operator decisions; Wave's API reads no bills or transactions — [coverage/wave.md](coverage/wave.md) |
 
 Each coverage page lists everything the source has, and what WordPress can't hold.
 
@@ -153,6 +154,10 @@ site's 301 redirects.
      callback URL shown on the settings page as its redirect URI, enter its client ID and secret (and the
      account ID, if your login has several businesses), save and click **Connect to FreshBooks**. Requests are
      paced at two a second.
+   - **Wave:** create an application in Wave's developer portal with the callback URL shown on the settings
+     page as its redirect URI, enter its client ID and secret (and the business ID, if the connection opens
+     several businesses), save and click **Connect to Wave**. Wave opens its API only to businesses on a paid
+     plan. Requests are paced at one a second.
 3. Choose what to mirror and save. Secrets can instead be set in `wp-config.php` or the environment
    (`IIM_SHOPIFY_CLIENT_ID`, `IIM_SHOPIFY_CLIENT_SECRET`, or a legacy app's `IIM_SHOPIFY_ACCESS_TOKEN` and
    `IIM_SHOPIFY_WEBHOOK_SECRET`; `IIM_ETSY_KEYSTRING`,
@@ -165,7 +170,7 @@ site's 301 redirects.
    `IIM_SALESFORCE_LOGIN_URL`, or a token issued elsewhere as `IIM_SALESFORCE_ACCESS_TOKEN` with `IIM_SALESFORCE_INSTANCE_URL`,
    `IIM_PIPEDRIVE_API_TOKEN`, `IIM_PIPEDRIVE_CLIENT_ID`, `IIM_PIPEDRIVE_CLIENT_SECRET`, `IIM_ZOHO_CLIENT_ID`,
    `IIM_ZOHO_CLIENT_SECRET`, `IIM_ZOHO_ACCOUNTS_URL`, `IIM_FRESHBOOKS_CLIENT_ID`, `IIM_FRESHBOOKS_CLIENT_SECRET`,
-   `IIM_FRESHBOOKS_ACCOUNT_ID`); tokens from a connect flow (Etsy's refresh
+   `IIM_FRESHBOOKS_ACCOUNT_ID`, `IIM_WAVE_CLIENT_ID`, `IIM_WAVE_CLIENT_SECRET`, `IIM_WAVE_BUSINESS_ID`); tokens from a connect flow (Etsy's refresh
    token, which Etsy replaces on every use, and every OAuth source's tokens) are kept by the plugin.
 4. Run a dry run, then a full run, from that page or `wp idempotent-import run --full`.
 

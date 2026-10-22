@@ -1,0 +1,133 @@
+{
+  "request": {
+    "path": "/graphql/public",
+    "method": "POST",
+    "body": {
+      "operationName": "Customers",
+      "variables": {
+        "businessId": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "page": 1,
+        "pageSize": 45
+      }
+    }
+  },
+  "response": {
+    "data": {
+      "business": {
+        "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "customers": {
+          "pageInfo": {
+            "currentPage": 1,
+            "totalPages": 1,
+            "totalCount": 3
+          },
+          "edges": [
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0N1c3RvbWVyOjIwMQ==",
+                "name": "Harbour Cafe",
+                "firstName": "Lena",
+                "lastName": "Ward",
+                "displayId": null,
+                "email": "Lena@Wave.example",
+                "mobile": null,
+                "phone": "+1 250 555 0201",
+                "fax": null,
+                "tollFree": null,
+                "website": "https://harbour-cafe.example",
+                "internalNotes": null,
+                "isArchived": false,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "currency": {
+                  "code": "CAD"
+                },
+                "address": {
+                  "addressLine1": "5 Wharf Street",
+                  "addressLine2": null,
+                  "city": "Victoria",
+                  "postalCode": "V8W 1T3",
+                  "province": {
+                    "code": "CA-BC",
+                    "name": "British Columbia"
+                  },
+                  "country": {
+                    "code": "CA",
+                    "name": "Canada"
+                  }
+                },
+                "shippingDetails": {
+                  "name": "Harbour Cafe kitchen",
+                  "phone": null,
+                  "instructions": "Back door",
+                  "address": {
+                    "addressLine1": "5 Wharf Street",
+                    "addressLine2": null,
+                    "city": "Victoria",
+                    "postalCode": "V8W 1T3",
+                    "province": {
+                      "code": "CA-BC",
+                      "name": "British Columbia"
+                    },
+                    "country": {
+                      "code": "CA",
+                      "name": "Canada"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0N1c3RvbWVyOjIwMg==",
+                "name": "Omar Haddad",
+                "firstName": "Omar",
+                "lastName": "Haddad",
+                "displayId": null,
+                "email": "omar@wave.example",
+                "mobile": null,
+                "phone": null,
+                "fax": null,
+                "tollFree": null,
+                "website": null,
+                "internalNotes": null,
+                "isArchived": false,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "currency": {
+                  "code": "CAD"
+                },
+                "address": null,
+                "shippingDetails": null
+              }
+            },
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0N1c3RvbWVyOjIwMw==",
+                "name": "Cash Sale",
+                "firstName": null,
+                "lastName": null,
+                "displayId": null,
+                "email": null,
+                "mobile": null,
+                "phone": null,
+                "fax": null,
+                "tollFree": null,
+                "website": null,
+                "internalNotes": null,
+                "isArchived": false,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "currency": {
+                  "code": "CAD"
+                },
+                "address": null,
+                "shippingDetails": null
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

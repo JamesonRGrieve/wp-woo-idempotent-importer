@@ -40,6 +40,8 @@ define('IIM_ZOHO_API_DOMAIN', 'http://zoho-fake:8080');
 define('IIM_ZOHO_ACCESS_TOKEN', 'e2e-zoho-token');
 define('IIM_FRESHBOOKS_ENDPOINT', 'http://freshbooks-fake:8080');
 define('IIM_FRESHBOOKS_ACCESS_TOKEN', 'e2e-freshbooks-token');
+define('IIM_WAVE_ENDPOINT', 'http://wave-fake:8080');
+define('IIM_WAVE_ACCESS_TOKEN', 'e2e-wave-token');
 define('IIM_SQUARE_STORED_VALUE_ENDPOINT', 'http://square_stored_value-fake:8080');
 define('IIM_SQUARE_STORED_VALUE_ACCESS_TOKEN', 'e2e-square-token');
 define('IIM_SQUARE_STORED_VALUE_LOCATION_ID', 'LOCMAIN1');

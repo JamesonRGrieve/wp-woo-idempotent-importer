@@ -1,0 +1,49 @@
+{
+  "request": {
+    "path": "/graphql/public",
+    "method": "POST",
+    "body": {
+      "operationName": "Products",
+      "variables": {
+        "businessId": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "page": 1,
+        "pageSize": 45,
+        "isArchived": true
+      }
+    }
+  },
+  "response": {
+    "data": {
+      "business": {
+        "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "products": {
+          "pageInfo": {
+            "currentPage": 1,
+            "totalPages": 1,
+            "totalCount": 1
+          },
+          "edges": [
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTA0",
+                "name": "Retired vase",
+                "description": null,
+                "unitPrice": "45.00",
+                "isSold": true,
+                "isBought": false,
+                "isArchived": true,
+                "createdAt": "2026-08-01T16:00:00.000Z",
+                "modifiedAt": "2026-08-01T16:00:00.000Z",
+                "defaultSalesTaxes": [],
+                "incomeAccount": {
+                  "name": "Sales"
+                },
+                "expenseAccount": null
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

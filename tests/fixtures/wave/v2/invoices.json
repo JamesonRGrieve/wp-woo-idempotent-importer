@@ -1,0 +1,366 @@
+{
+  "request": {
+    "path": "/graphql/public",
+    "method": "POST",
+    "body": {
+      "operationName": "Invoices",
+      "variables": {
+        "businessId": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "page": 1,
+        "pageSize": 45
+      }
+    }
+  },
+  "response": {
+    "data": {
+      "business": {
+        "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFi",
+        "invoices": {
+          "pageInfo": {
+            "currentPage": 1,
+            "totalPages": 1,
+            "totalCount": 3
+          },
+          "edges": [
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2U6MzAx",
+                "createdAt": "2026-08-03T17:00:00.000Z",
+                "modifiedAt": "2026-08-03T17:00:00.000Z",
+                "status": "PAID",
+                "title": "Invoice",
+                "subhead": null,
+                "invoiceNumber": "1001",
+                "poNumber": "HC-7",
+                "invoiceDate": "2026-08-03",
+                "dueDate": "2026-08-03",
+                "memo": null,
+                "footer": null,
+                "exchangeRate": "1",
+                "currency": {
+                  "code": "CAD"
+                },
+                "customer": {
+                  "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0N1c3RvbWVyOjIwMQ==",
+                  "name": "Harbour Cafe",
+                  "firstName": "Lena",
+                  "lastName": "Ward",
+                  "email": "Lena@Wave.example",
+                  "phone": "+1 250 555 0201",
+                  "address": {
+                    "addressLine1": "5 Wharf Street",
+                    "addressLine2": null,
+                    "city": "Victoria",
+                    "postalCode": "V8W 1T3",
+                    "province": {
+                      "code": "CA-BC",
+                      "name": "British Columbia"
+                    },
+                    "country": {
+                      "code": "CA",
+                      "name": "Canada"
+                    }
+                  }
+                },
+                "subtotal": {
+                  "value": "205.00"
+                },
+                "discountTotal": {
+                  "value": "5.00"
+                },
+                "taxTotal": {
+                  "value": "18.65"
+                },
+                "total": {
+                  "value": "218.65"
+                },
+                "amountPaid": {
+                  "value": "218.65"
+                },
+                "amountDue": {
+                  "value": "0.00"
+                },
+                "discounts": [
+                  {
+                    "__typename": "FixedInvoiceDiscount",
+                    "name": "Regular",
+                    "amount": "5.00"
+                  }
+                ],
+                "items": [
+                  {
+                    "description": null,
+                    "quantity": "10",
+                    "unitPrice": "8.50",
+                    "subtotal": {
+                      "value": "85.00"
+                    },
+                    "total": {
+                      "value": "85.00"
+                    },
+                    "product": {
+                      "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAx",
+                      "name": "Bisque mug blank"
+                    },
+                    "taxes": [
+                      {
+                        "amount": {
+                          "value": "4.25"
+                        },
+                        "salesTax": {
+                          "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjE=",
+                          "name": "Goods and Services Tax",
+                          "abbreviation": "GST",
+                          "rate": "0.05"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "description": "Monthly clean",
+                    "quantity": "1",
+                    "unitPrice": "120.00",
+                    "subtotal": {
+                      "value": "120.00"
+                    },
+                    "total": {
+                      "value": "120.00"
+                    },
+                    "product": {
+                      "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAy",
+                      "name": "Studio cleaning service"
+                    },
+                    "taxes": [
+                      {
+                        "amount": {
+                          "value": "6.00"
+                        },
+                        "salesTax": {
+                          "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjE=",
+                          "name": "Goods and Services Tax",
+                          "abbreviation": "GST",
+                          "rate": "0.05"
+                        }
+                      },
+                      {
+                        "amount": {
+                          "value": "8.40"
+                        },
+                        "salesTax": {
+                          "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjI=",
+                          "name": "BC Provincial Sales Tax",
+                          "abbreviation": "PST",
+                          "rate": "0.07"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "payments": [
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2VQYXltZW50OjQwMQ==",
+                    "paymentDate": "2026-08-04",
+                    "amount": "100.00",
+                    "paymentMethod": "CASH",
+                    "memo": null,
+                    "active": true,
+                    "transactionId": null,
+                    "createdAt": "2026-08-04T18:00:00.000Z"
+                  },
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2VQYXltZW50OjQwMg==",
+                    "paymentDate": "2026-08-09",
+                    "amount": "118.65",
+                    "paymentMethod": "CREDIT_CARD",
+                    "memo": null,
+                    "active": true,
+                    "transactionId": "ch_3Q",
+                    "createdAt": "2026-08-09T18:00:00.000Z"
+                  },
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2VQYXltZW50OjQwMw==",
+                    "paymentDate": "2026-08-05",
+                    "amount": "50.00",
+                    "paymentMethod": "CASH",
+                    "memo": "Entered twice",
+                    "active": false,
+                    "transactionId": null,
+                    "createdAt": "2026-08-05T18:00:00.000Z"
+                  }
+                ]
+              }
+            },
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2U6MzAy",
+                "createdAt": "2026-08-20T17:00:00.000Z",
+                "modifiedAt": "2026-08-20T17:00:00.000Z",
+                "status": "PAID",
+                "title": "Invoice",
+                "subhead": null,
+                "invoiceNumber": "1002",
+                "poNumber": null,
+                "invoiceDate": "2026-08-20",
+                "dueDate": "2026-08-20",
+                "memo": null,
+                "footer": null,
+                "exchangeRate": "1",
+                "currency": {
+                  "code": "CAD"
+                },
+                "customer": {
+                  "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0N1c3RvbWVyOjIwMw==",
+                  "name": "Cash Sale",
+                  "firstName": null,
+                  "lastName": null,
+                  "email": null,
+                  "phone": null,
+                  "address": null
+                },
+                "subtotal": {
+                  "value": "17.00"
+                },
+                "discountTotal": {
+                  "value": "0.00"
+                },
+                "taxTotal": {
+                  "value": "0.00"
+                },
+                "total": {
+                  "value": "17.00"
+                },
+                "amountPaid": {
+                  "value": "17.00"
+                },
+                "amountDue": {
+                  "value": "0.00"
+                },
+                "discounts": [],
+                "items": [
+                  {
+                    "description": null,
+                    "quantity": "2",
+                    "unitPrice": "8.50",
+                    "subtotal": {
+                      "value": "17.00"
+                    },
+                    "total": {
+                      "value": "17.00"
+                    },
+                    "product": {
+                      "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAx",
+                      "name": "Bisque mug blank"
+                    },
+                    "taxes": []
+                  }
+                ],
+                "payments": [
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2VQYXltZW50OjQwNA==",
+                    "paymentDate": "2026-09-01",
+                    "amount": "17.00",
+                    "paymentMethod": "BANK_TRANSFER",
+                    "memo": "e-Transfer",
+                    "active": true,
+                    "transactionId": null,
+                    "createdAt": "2026-09-01T18:00:00.000Z"
+                  }
+                ]
+              }
+            },
+            {
+              "node": {
+                "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2U6MzAz",
+                "createdAt": "2026-09-02T17:00:00.000Z",
+                "modifiedAt": "2026-09-02T17:00:00.000Z",
+                "status": "PARTIAL",
+                "title": "Invoice",
+                "subhead": null,
+                "invoiceNumber": "1003",
+                "poNumber": null,
+                "invoiceDate": "2026-09-02",
+                "dueDate": "2026-09-02",
+                "memo": null,
+                "footer": null,
+                "exchangeRate": "1",
+                "currency": {
+                  "code": "CAD"
+                },
+                "customer": {
+                  "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0N1c3RvbWVyOjIwMg==",
+                  "name": "Omar Haddad",
+                  "firstName": "Omar",
+                  "lastName": "Haddad",
+                  "email": "omar@wave.example",
+                  "phone": "+1 250 555 0202",
+                  "address": null
+                },
+                "subtotal": {
+                  "value": "13.50"
+                },
+                "discountTotal": {
+                  "value": "0.00"
+                },
+                "taxTotal": {
+                  "value": "0.68"
+                },
+                "total": {
+                  "value": "14.18"
+                },
+                "amountPaid": {
+                  "value": "5.00"
+                },
+                "amountDue": {
+                  "value": "9.18"
+                },
+                "discounts": [],
+                "items": [
+                  {
+                    "description": null,
+                    "quantity": "1.5",
+                    "unitPrice": "9.00",
+                    "subtotal": {
+                      "value": "13.50"
+                    },
+                    "total": {
+                      "value": "13.50"
+                    },
+                    "product": {
+                      "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1Byb2R1Y3Q6MTAx",
+                      "name": "Bisque mug blank"
+                    },
+                    "taxes": [
+                      {
+                        "amount": {
+                          "value": "0.68"
+                        },
+                        "salesTax": {
+                          "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO1NhbGVzVGF4OjE=",
+                          "name": "Goods and Services Tax",
+                          "abbreviation": "GST",
+                          "rate": "0.05"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "payments": [
+                  {
+                    "id": "QnVzaW5lc3M6NWZiMWMwZGUtMWQyZS00YzNiLThhOWYtMDEyMzQ1Njc4OWFiO0ludm9pY2VQYXltZW50OjQwNQ==",
+                    "paymentDate": "2026-09-03",
+                    "amount": "5.00",
+                    "paymentMethod": "CASH",
+                    "memo": null,
+                    "active": true,
+                    "transactionId": null,
+                    "createdAt": "2026-09-03T18:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
