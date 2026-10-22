@@ -1,0 +1,64 @@
+{
+  "request": {
+    "path": "/crm/v8/settings/pipeline",
+    "query": {
+      "layout_id": "5725767000000091055"
+    }
+  },
+  "response": {
+    "pipeline": [
+      {
+        "display_value": "Standard",
+        "default": true,
+        "actual_value": "Standard",
+        "id": "5725767000000135001",
+        "maps": [
+          {
+            "display_value": "Qualification",
+            "sequence_number": 1,
+            "forecast_category": {
+              "name": "Pipeline",
+              "id": "5725767000000007091"
+            },
+            "actual_value": "Qualification",
+            "id": "5725767000000135101",
+            "forecast_type": "Open"
+          },
+          {
+            "display_value": "Negotiation",
+            "sequence_number": 2,
+            "forecast_category": {
+              "name": "Pipeline",
+              "id": "5725767000000007092"
+            },
+            "actual_value": "Negotiation/Review",
+            "id": "5725767000000135102",
+            "forecast_type": "Open"
+          },
+          {
+            "display_value": "Closed Won",
+            "sequence_number": 3,
+            "forecast_category": {
+              "name": "Closed",
+              "id": "5725767000000007093"
+            },
+            "actual_value": "Closed Won",
+            "id": "5725767000000135103",
+            "forecast_type": "Closed Won"
+          },
+          {
+            "display_value": "Closed Lost",
+            "sequence_number": 4,
+            "forecast_category": {
+              "name": "Omitted",
+              "id": "5725767000000007094"
+            },
+            "actual_value": "Closed Lost",
+            "id": "5725767000000135104",
+            "forecast_type": "Closed Lost"
+          }
+        ]
+      }
+    ]
+  }
+}

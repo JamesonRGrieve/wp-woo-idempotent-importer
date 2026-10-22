@@ -22,17 +22,21 @@ use IdempotentImporter\Source\SourceReader;
 use IdempotentImporter\Source\WebhookReceiver;
 use IdempotentImporter\Source\Zoho\Mapping\AccountMapper;
 use IdempotentImporter\Source\Zoho\Mapping\ActivityMapper;
+use IdempotentImporter\Source\Zoho\Mapping\BoardMapper;
 use IdempotentImporter\Source\Zoho\Mapping\CampaignMapper;
 use IdempotentImporter\Source\Zoho\Mapping\CategoryMapper;
 use IdempotentImporter\Source\Zoho\Mapping\ContactMapper;
 use IdempotentImporter\Source\Zoho\Mapping\CustomerMapper;
+use IdempotentImporter\Source\Zoho\Mapping\DealMapper;
 use IdempotentImporter\Source\Zoho\Mapping\OrderMapper;
 use IdempotentImporter\Source\Zoho\Mapping\ProductMapper;
 use IdempotentImporter\Source\Zoho\Mapping\TagMapper;
+use IdempotentImporter\Source\Zoho\Mapping\TaskMapper;
 
 /**
  * Zoho CRM, through its API v8: accounts, campaigns (as lists), tags, contacts and leads with their custom fields,
- * and their notes, calls and meetings, into FluentCRM; product categories, products, the contacts sales orders
+ * and their notes, calls and meetings, into FluentCRM; deal pipelines with their stages, deals and tasks into
+ * FluentBoards; product categories, products, the contacts sales orders
  * name, and sales orders with their items, into WooCommerce. The operator registers a server-based client in
  * the Zoho API console and connects the org (OAuth with offline access); the redirect names the data centre's
  * accounts server, which tokens are traded and refreshed at, and the token response names the API domain.
@@ -54,7 +58,10 @@ final class ZohoAdapter implements Adapter, ConnectsByOAuth
     /** The authorization header's scheme (zoho.com/crm/developer/docs/api/v8/access-refresh.html). */
     public const SCHEME = 'Zoho-oauthtoken';
     /** Read access to every module, field metadata, tags and the org (the published documents' scopes). */
-    public const SCOPES = ['ZohoCRM.modules.READ', 'ZohoCRM.modules.notes.READ', 'ZohoCRM.settings.fields.READ', 'ZohoCRM.settings.tags.READ', 'ZohoCRM.org.READ'];
+    public const SCOPES = [
+        'ZohoCRM.modules.READ', 'ZohoCRM.modules.notes.READ', 'ZohoCRM.settings.fields.READ', 'ZohoCRM.settings.tags.READ', 'ZohoCRM.org.READ',
+        'ZohoCRM.settings.layouts.READ', 'ZohoCRM.settings.pipeline.READ',
+    ];
     /** The redirect parameter naming the data centre's accounts server, and the token response field naming the API domain. */
     public const ACCOUNTS_SERVER = 'accounts-server';
     public const API_DOMAIN_FIELD = 'api_domain';
@@ -71,7 +78,7 @@ final class ZohoAdapter implements Adapter, ConnectsByOAuth
 
     public function kinds(): array
     {
-        return [Kind::Collection, Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::CrmList, Kind::CrmTag, Kind::Contact, Kind::CrmNote, Kind::Order];
+        return [Kind::Collection, Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::CrmList, Kind::CrmTag, Kind::Contact, Kind::CrmNote, Kind::CrmPipeline, Kind::CrmDeal, Kind::CrmTask, Kind::Order];
     }
 
     public function mappers(Settings $settings): array
@@ -85,6 +92,9 @@ final class ZohoAdapter implements Adapter, ConnectsByOAuth
             new TagMapper(),
             new ContactMapper(),
             new ActivityMapper(),
+            new BoardMapper(),
+            new DealMapper(),
+            new TaskMapper(),
             new OrderMapper(),
         ];
     }

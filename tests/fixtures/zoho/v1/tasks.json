@@ -1,0 +1,43 @@
+{
+  "request": {
+    "path": "/crm/v8/Tasks",
+    "query": {
+      "fields": "id,Subject,Description,Status,Priority,Due_Date,Closed_Time,Who_Id,What_Id,Created_Time,Owner"
+    }
+  },
+  "response": {
+    "data": [
+      {
+        "id": "5725767000011391001",
+        "Created_Time": "2026-08-20T09:00:00-07:00",
+        "Owner": {
+          "name": "Isla Fenn",
+          "id": "5725767000000411001",
+          "email": "e2e@example.com"
+        },
+        "Subject": "Visit the studio",
+        "Description": "Bring the glaze samples.",
+        "Status": "Not Started",
+        "Priority": "High",
+        "Due_Date": "2026-10-30",
+        "Closed_Time": null,
+        "Who_Id": {
+          "name": "Ada Thorne",
+          "id": "5725767000011356001"
+        },
+        "What_Id": null
+      }
+    ],
+    "info": {
+      "page": 1,
+      "per_page": 200,
+      "count": 1,
+      "more_records": false,
+      "sort_by": "id",
+      "sort_order": "desc",
+      "next_page_token": null,
+      "previous_page_token": null,
+      "page_token_expiry": null
+    }
+  }
+}

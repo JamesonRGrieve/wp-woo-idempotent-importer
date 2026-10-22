@@ -1,0 +1,81 @@
+{
+  "request": {
+    "path": "/api/v2/deals"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 401,
+        "title": "Wholesale mugs",
+        "owner_id": 9,
+        "person_id": 201,
+        "org_id": 101,
+        "pipeline_id": 1,
+        "stage_id": 12,
+        "value": 1500.5,
+        "currency": "CAD",
+        "add_time": "2026-08-10T16:00:00Z",
+        "update_time": "2026-08-01T16:00:00Z",
+        "stage_change_time": null,
+        "is_deleted": false,
+        "is_archived": false,
+        "status": "won",
+        "probability": null,
+        "lost_reason": null,
+        "visible_to": 3,
+        "close_time": "2026-10-20T16:00:00Z",
+        "won_time": "2026-10-20T16:00:00Z",
+        "lost_time": null,
+        "expected_close_date": "2026-10-15",
+        "label_ids": [],
+        "origin": "ManuallyCreated",
+        "origin_id": null,
+        "channel": null,
+        "channel_id": null,
+        "source_lead_id": null,
+        "arr": null,
+        "mrr": null,
+        "acv": null,
+        "custom_fields": {}
+      },
+      {
+        "id": 402,
+        "title": "Kiln service plan",
+        "owner_id": 10,
+        "person_id": 202,
+        "org_id": null,
+        "pipeline_id": 1,
+        "stage_id": 11,
+        "value": 250,
+        "currency": "CAD",
+        "add_time": "2026-08-10T16:00:00Z",
+        "update_time": "2026-08-01T16:00:00Z",
+        "stage_change_time": null,
+        "is_deleted": false,
+        "is_archived": false,
+        "status": "lost",
+        "probability": null,
+        "lost_reason": "Went with a local supplier",
+        "visible_to": 3,
+        "close_time": "2026-09-20T16:00:00Z",
+        "won_time": null,
+        "lost_time": "2026-09-20T16:00:00Z",
+        "expected_close_date": "2026-10-15",
+        "label_ids": [],
+        "origin": "ManuallyCreated",
+        "origin_id": null,
+        "channel": null,
+        "channel_id": null,
+        "source_lead_id": null,
+        "arr": null,
+        "mrr": null,
+        "acv": null,
+        "custom_fields": {}
+      }
+    ],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

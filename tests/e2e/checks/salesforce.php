@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Wp\Fluent\FluentBoards;
 use IdempotentImporter\Wp\Fluent\FluentCrm;
 
 $adaGid = 'gid://salesforce/Contact/003Fh00000Ada001AAA';
@@ -34,6 +35,15 @@ return [
         $order = order(Kind::Order, 'gid://salesforce/Order/801Fh00000Ord01AAA');
         expect($order->get_order_number() === '00000101' && money($order->get_total()) === '100.00' && $order->get_status() === 'processing', 'an activated order, with its total');
         expect($order->get_customer_id() === user('gid://salesforce/Customer/003Fh00000Ada001AAA')->ID, 'billed to its contact, a WooCommerce customer');
+
+        $opportunities = board('gid://salesforce/Board/Opportunity');
+        expect(stageTitles($opportunities) === ['Prospecting', 'Negotiation', 'Closed Won', 'Closed Lost'] && FluentBoards::string($opportunities, 'currency') === 'CAD', 'the opportunity stages are a FluentBoards board, in the org currency');
+        $mugs = boardTask(Kind::CrmDeal, 'gid://salesforce/Opportunity/006Fh00000Mugs1AAA');
+        expect(stageTitle($mugs) === 'Negotiation' && FluentBoards::string($mugs, 'lead_value') === '1500.50' && FluentBoards::string($mugs, 'due_at') === '2026-10-15 00:00:00', 'an opportunity is a task in its stage, with its amount and close date');
+        expect(FluentBoards::string($mugs, 'crm_contact_id') === (string) FluentCrm::id($ada) && assignees($mugs) === [1], 'linked to its primary contact, assigned to its owner');
+        expect(assignees(boardTask(Kind::CrmDeal, 'gid://salesforce/Opportunity/006Fh00000Kiln1AAA')) === [], 'an owner with no WordPress user leaves it unassigned');
+        $visit = boardTask(Kind::CrmTask, 'gid://salesforce/Task/00TFh00000Todo1AAA');
+        expect(stageTitle($visit) === 'Not Started' && FluentBoards::string($visit, 'priority') === 'high', 'a task is a FluentBoards task in the stage of its status');
     },
     'v2' => static function () use ($adaGid): void {
         expect(fluentCompanyField(fluentCompany('gid://salesforce/Account/001Fh00000Fern01AAA'), 'salesforce_wholesale_tier_c') === 'Silver', 'a changed custom account field');
@@ -43,9 +53,16 @@ return [
         expect(product('gid://salesforce/Product2/01tFh00000Clay1AAA')->get_regular_price() === '44', 'price updated');
         $draft = order(Kind::Order, 'gid://salesforce/Order/801Fh00000Ord02AAA');
         expect($draft->get_status() === 'pending' && $draft->get_customer_id() === user('gid://salesforce/Customer/003Fh00000Bo0001AAA')->ID, 'a new draft order for a new customer');
+
+        $mugs = boardTask(Kind::CrmDeal, 'gid://salesforce/Opportunity/006Fh00000Mugs1AAA');
+        expect(stageTitle($mugs) === 'Closed Won' && FluentBoards::string($mugs, 'status') === 'closed', 'a won opportunity is closed in its stage');
+        expect(stageTitle(boardTask(Kind::CrmDeal, 'gid://salesforce/Opportunity/006Fh00000Work1AAA')) === 'Prospecting', 'a new opportunity');
+        expect(FluentBoards::string(boardTask(Kind::CrmTask, 'gid://salesforce/Task/00TFh00000Todo1AAA'), 'status') === 'closed', 'a completed task is closed');
+        expect(FluentBoards::string(boardTask(Kind::CrmTask, 'gid://salesforce/Task/00TFh00000Todo2AAA'), 'crm_contact_id') === (string) FluentCrm::id($cy), "a lead's task is linked to the lead's contact");
     },
     'intact' => static function () use ($adaGid): void {
         expect(FluentCrm::string(fluentContact($adaGid), 'email') === 'ada@fernhill.example', 'the Salesforce contact is untouched');
         expect(order(Kind::Order, 'gid://salesforce/Order/801Fh00000Ord01AAA')->get_order_number() === '00000101', 'the Salesforce order is untouched');
+        expect(FluentBoards::string(boardTask(Kind::CrmDeal, 'gid://salesforce/Opportunity/006Fh00000Mugs1AAA'), 'archived_at') === '', 'the Salesforce opportunity is untouched');
     },
 ];

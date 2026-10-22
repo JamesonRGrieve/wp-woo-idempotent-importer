@@ -1,0 +1,67 @@
+{
+  "request": {
+    "path": "/crm/v3/pipelines/deals"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "default",
+        "label": "Wholesale",
+        "displayOrder": 0,
+        "stages": [
+          {
+            "id": "appointmentscheduled",
+            "label": "Appointment scheduled",
+            "displayOrder": 0,
+            "metadata": {
+              "probability": "0.2",
+              "isClosed": "false"
+            },
+            "createdAt": "2026-08-01T16:00:00.000Z",
+            "updatedAt": "2026-09-01T16:00:00.000Z",
+            "archived": false
+          },
+          {
+            "id": "qualifiedtobuy",
+            "label": "Qualified to buy",
+            "displayOrder": 1,
+            "metadata": {
+              "probability": "0.4",
+              "isClosed": "false"
+            },
+            "createdAt": "2026-08-01T16:00:00.000Z",
+            "updatedAt": "2026-09-01T16:00:00.000Z",
+            "archived": false
+          },
+          {
+            "id": "closedwon",
+            "label": "Closed won",
+            "displayOrder": 3,
+            "metadata": {
+              "probability": "1.0",
+              "isClosed": "true"
+            },
+            "createdAt": "2026-08-01T16:00:00.000Z",
+            "updatedAt": "2026-09-01T16:00:00.000Z",
+            "archived": false
+          },
+          {
+            "id": "closedlost",
+            "label": "Closed lost",
+            "displayOrder": 4,
+            "metadata": {
+              "probability": "0.0",
+              "isClosed": "true"
+            },
+            "createdAt": "2026-08-01T16:00:00.000Z",
+            "updatedAt": "2026-09-01T16:00:00.000Z",
+            "archived": false
+          }
+        ],
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

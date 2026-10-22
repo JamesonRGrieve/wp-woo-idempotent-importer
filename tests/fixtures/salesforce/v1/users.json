@@ -1,0 +1,34 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, Name, Email, IsActive FROM User ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "User",
+          "url": "/services/data/v62.0/sobjects/User/005Fh00000Own01AAA"
+        },
+        "Id": "005Fh00000Own01AAA",
+        "Name": "Eve Two",
+        "Email": "e2e@example.com",
+        "IsActive": true
+      },
+      {
+        "attributes": {
+          "type": "User",
+          "url": "/services/data/v62.0/sobjects/User/005Fh00000Old01AAA"
+        },
+        "Id": "005Fh00000Old01AAA",
+        "Name": "Fen Ash",
+        "Email": "former.potter@example.com",
+        "IsActive": false
+      }
+    ]
+  }
+}

@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Source\Salesforce\Mapping;
 
+use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Source\Identity;
@@ -175,5 +176,36 @@ final class Fields
             'postcode' => $address['postal_code'] ?? null,
             'country' => $address['country'] ?? null,
         ], static fn(?string $value): bool => $value !== null);
+    }
+
+    /**
+     * The values of the org's own fields (`custom_fields`) by name, for a record FluentBoards keeps them on as meta
+     * (it has no custom fields in its free version).
+     *
+     * @return array<string, string>
+     */
+    public static function customValues(Node $record): array
+    {
+        $values = [];
+        foreach ($record->list('custom_fields') as $definition) {
+            $value = self::text($record, $definition->string('name'));
+            if ($value !== null) {
+                $values[$definition->string('name')] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * The org user a record belongs to (`owner`, which the reader adds from every User), else its owner id.
+     *
+     * @return array{id: string, email: ?string, name: ?string}|null
+     */
+    public static function owner(Node $record): ?array
+    {
+        $user = $record->child('owner');
+
+        return BoardContract::owner($user?->optionalString('Id') ?? self::text($record, 'OwnerId'), $user?->optionalString('Email'), $user?->optionalString('Name'));
     }
 }

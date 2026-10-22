@@ -18,20 +18,23 @@ use IdempotentImporter\Source\OAuth2\ClientAuth;
 use IdempotentImporter\Source\OAuth2\OAuthApp;
 use IdempotentImporter\Source\OAuth2\OAuthConnection;
 use IdempotentImporter\Source\Pipedrive\Mapping\ActivityMapper;
+use IdempotentImporter\Source\Pipedrive\Mapping\BoardMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\CategoryMapper;
+use IdempotentImporter\Source\Pipedrive\Mapping\DealMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\FilterMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\LabelMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\OrganizationMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\PersonMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\ProductMapper;
+use IdempotentImporter\Source\Pipedrive\Mapping\TaskMapper;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SourceReader;
 use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Pipedrive, through its API v1 and v2: organizations, person filters (as lists), person labels (as tags),
- * persons with their custom fields, and notes and done activities, into FluentCRM; product categories and
- * products with their variations, into WooCommerce. The operator enters a personal API token, or connects a
+ * persons with their custom fields, and notes and done activities, into FluentCRM; pipelines with their stages,
+ * deals and activities into FluentBoards; product categories and products with their variations, into WooCommerce. The operator enters a personal API token, or connects a
  * Pipedrive app (OAuth; the token response names the company's API domain). Scheduled runs keep the mirror
  * current.
  */
@@ -62,7 +65,7 @@ final class PipedriveAdapter implements Adapter, ConnectsByOAuth
 
     public function kinds(): array
     {
-        return [Kind::Collection, Kind::Product, Kind::CrmCompany, Kind::CrmList, Kind::CrmTag, Kind::Contact, Kind::CrmNote];
+        return [Kind::Collection, Kind::Product, Kind::CrmCompany, Kind::CrmList, Kind::CrmTag, Kind::Contact, Kind::CrmNote, Kind::CrmPipeline, Kind::CrmDeal, Kind::CrmTask];
     }
 
     public function mappers(Settings $settings): array
@@ -75,6 +78,9 @@ final class PipedriveAdapter implements Adapter, ConnectsByOAuth
             new LabelMapper(),
             new PersonMapper(),
             new ActivityMapper(),
+            new BoardMapper(),
+            new DealMapper(),
+            new TaskMapper(),
         ];
     }
 

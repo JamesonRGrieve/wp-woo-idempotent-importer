@@ -1,0 +1,276 @@
+{
+  "request": {
+    "path": "/crm/v3/properties/tasks"
+  },
+  "response": {
+    "results": [
+      {
+        "name": "hs_task_subject",
+        "label": "Task title",
+        "type": "string",
+        "fieldType": "text",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_task_body",
+        "label": "Notes",
+        "type": "string",
+        "fieldType": "html",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_task_status",
+        "label": "Task status",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [
+          {
+            "label": "Not started",
+            "value": "NOT_STARTED",
+            "hidden": false,
+            "displayOrder": 0
+          },
+          {
+            "label": "In progress",
+            "value": "IN_PROGRESS",
+            "hidden": false,
+            "displayOrder": 1
+          },
+          {
+            "label": "Waiting",
+            "value": "WAITING",
+            "hidden": false,
+            "displayOrder": 2
+          },
+          {
+            "label": "Completed",
+            "value": "COMPLETED",
+            "hidden": false,
+            "displayOrder": 3
+          },
+          {
+            "label": "Deferred",
+            "value": "DEFERRED",
+            "hidden": false,
+            "displayOrder": 4
+          }
+        ],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_task_priority",
+        "label": "Priority",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [
+          {
+            "label": "None",
+            "value": "NONE",
+            "hidden": false,
+            "displayOrder": 0
+          },
+          {
+            "label": "Low",
+            "value": "LOW",
+            "hidden": false,
+            "displayOrder": 1
+          },
+          {
+            "label": "Medium",
+            "value": "MEDIUM",
+            "hidden": false,
+            "displayOrder": 2
+          },
+          {
+            "label": "High",
+            "value": "HIGH",
+            "hidden": false,
+            "displayOrder": 3
+          }
+        ],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_timestamp",
+        "label": "Due date",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_task_completion_date",
+        "label": "Completed at",
+        "type": "datetime",
+        "fieldType": "date",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": true
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hs_task_type",
+        "label": "Task type",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [
+          {
+            "label": "Call",
+            "value": "CALL",
+            "hidden": false,
+            "displayOrder": 0
+          },
+          {
+            "label": "Email",
+            "value": "EMAIL",
+            "hidden": false,
+            "displayOrder": 1
+          },
+          {
+            "label": "To-do",
+            "value": "TODO",
+            "hidden": false,
+            "displayOrder": 2
+          }
+        ],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      },
+      {
+        "name": "hubspot_owner_id",
+        "label": "Assigned to",
+        "type": "enumeration",
+        "fieldType": "select",
+        "description": "",
+        "groupName": "dealinformation",
+        "options": [],
+        "displayOrder": -1,
+        "calculated": false,
+        "externalOptions": false,
+        "hasUniqueValue": false,
+        "hidden": false,
+        "hubspotDefined": true,
+        "modificationMetadata": {
+          "archivable": false,
+          "readOnlyDefinition": true,
+          "readOnlyValue": false
+        },
+        "formField": false,
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false
+      }
+    ]
+  }
+}

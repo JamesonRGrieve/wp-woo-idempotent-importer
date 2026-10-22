@@ -1,0 +1,22 @@
+{
+  "request": {
+    "path": "/api/v2/pipelines"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 1,
+        "name": "Wholesale",
+        "order_nr": 1,
+        "is_deleted": false,
+        "is_deal_probability_enabled": true,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-08-01T16:00:00Z"
+      }
+    ],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

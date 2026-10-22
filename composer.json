@@ -20,6 +20,7 @@
         "symfony/yaml": "^7.3",
         "szepeviktor/phpstan-wordpress": "^2.0",
         "webonyx/graphql-php": "^15.20",
+        "wpackagist-plugin/fluent-boards": "2.2.2",
         "wpackagist-plugin/fluent-crm": "3.2.6"
     },
     "autoload": {

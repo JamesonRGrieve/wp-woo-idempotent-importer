@@ -14,12 +14,15 @@ use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\Pipedrive\ApiTokenAuthorizer;
 use IdempotentImporter\Source\Pipedrive\Mapping\ActivityMapper;
+use IdempotentImporter\Source\Pipedrive\Mapping\BoardMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\CategoryMapper;
+use IdempotentImporter\Source\Pipedrive\Mapping\DealMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\FilterMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\LabelMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\OrganizationMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\PersonMapper;
 use IdempotentImporter\Source\Pipedrive\Mapping\ProductMapper;
+use IdempotentImporter\Source\Pipedrive\Mapping\TaskMapper;
 use IdempotentImporter\Source\Pipedrive\PipedriveReader;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
@@ -106,6 +109,69 @@ final class PipedriveMapperTest extends TestCase
         self::assertSame(['gid://pipedrive/Variation/3021', ['Variation' => 'Evenings'], '160'], [$evenings->string('gid'), $evenings->stringMap('options'), $evenings->string('regular_price')]);
         self::assertSame('180', $weekends->string('regular_price'), "a variation's own price");
         self::assertNotEmpty($desired[1]->warnings, 'billed monthly');
+    }
+
+    public function testBoards(): void
+    {
+        [$wholesale, $activities] = array_map(Values::of(...), $this->desired('v1', Kind::CrmPipeline, new BoardMapper()));
+
+        self::assertSame('Wholesale', $wholesale->string('title'));
+        self::assertSame([
+            ['key' => '11', 'title' => 'Qualified', 'closed' => false, 'outcome' => null, 'probability' => '20'],
+            ['key' => '12', 'title' => 'Proposal made', 'closed' => false, 'outcome' => null, 'probability' => '60'],
+            ['key' => '13', 'title' => 'Negotiations', 'closed' => false, 'outcome' => null, 'probability' => '90'],
+        ], $wholesale->raw('stages'), 'in order; won and lost are a deal\'s status, not stages');
+        self::assertSame(['todo', 'done'], array_map(static fn(Values $stage): string => $stage->string('key'), $activities->records('stages')));
+        self::assertCount(2, Values::of($this->desired('v2', Kind::CrmPipeline, new BoardMapper())[0])->records('stages'), 'a deleted stage leaves the board');
+    }
+
+    public function testDeals(): void
+    {
+        [$mugs, $kiln] = array_map(Values::of(...), $this->desired('v1', Kind::CrmDeal, new DealMapper()));
+
+        self::assertSame(['gid://pipedrive/Pipeline/1', '13', 'open', '1500.50', 'CAD'], [$mugs->string('board_gid'), $mugs->string('stage_key'), $mugs->string('status'), $mugs->nullableString('lead_value'), $mugs->nullableString('currency')]);
+        self::assertSame(['gid://pipedrive/Person/201'], $mugs->strings('contact_gids'));
+        self::assertSame(['gid://pipedrive/Organization/101'], $mugs->strings('company_gids'));
+        self::assertSame(['id' => '9', 'email' => 'e2e@example.com', 'name' => 'Isla Fenn'], $mugs->raw('owner'));
+        self::assertSame('2026-10-15', $mugs->nullableString('due_at'), 'the expected close date, a date');
+        self::assertSame(['is_archived' => false, 'visible_to' => 3, 'origin' => 'ManuallyCreated'], $mugs->raw('deal'));
+        self::assertSame(['closed', 'lost', '2026-09-20T16:00:00Z'], [$kiln->string('status'), $kiln->nullableString('outcome'), $kiln->nullableString('completed_at')]);
+        self::assertSame('Went with a local supplier', $kiln->record('deal')?->string('lost_reason'));
+
+        $won = Values::of($this->desired('v2', Kind::CrmDeal, new DealMapper())[0]);
+        self::assertSame(['12', 'closed', 'won', '2026-10-20T16:00:00Z'], [$won->string('stage_key'), $won->string('status'), $won->nullableString('outcome'), $won->nullableString('completed_at')]);
+    }
+
+    public function testActivitiesAreTasks(): void
+    {
+        $tasks = array_map(static fn(Node $node): Values => Values::of((new TaskMapper())->map($node) ?? throw new \LogicException('no task')), $this->every('v1', Kind::CrmTask));
+        [$visit, $call] = $tasks;
+
+        self::assertSame(['gid://pipedrive/ActivityBoard/activities', 'todo', 'open'], [$visit->string('board_gid'), $visit->string('stage_key'), $visit->string('status')]);
+        self::assertSame(['Visit the studio', '2026-10-30T17:00:00Z'], [$visit->string('title'), $visit->nullableString('due_at')], 'its due date and time (UTC)');
+        self::assertStringStartsWith('<p>Bring the glaze samples.</p><dl><dt>Type</dt><dd>task</dd>', $visit->string('description_html'));
+        self::assertSame(['type' => 'task', 'deal_id' => 401, 'duration' => '00:30', 'busy' => false], $visit->raw('activity'));
+        self::assertSame(['done', 'closed', '2026-08-16T17:15:00Z'], [$call->string('stage_key'), $call->string('status'), $call->nullableString('completed_at')], 'a done activity is a done task');
+        self::assertSame(['gid://pipedrive/Person/201', 'gid://pipedrive/Person/202'], $call->strings('contact_gids'), 'its person first, then its participants');
+    }
+
+    /**
+     * Every node of a kind, following the reader's pages.
+     *
+     * @return list<Node>
+     */
+    private function every(string $state, Kind $kind): array
+    {
+        $reader = $this->reader($state);
+        $nodes = [];
+        $cursor = null;
+        do {
+            $page = $reader->page($kind, $cursor, null, '');
+            $nodes = [...$nodes, ...$page->nodes];
+            $cursor = $page->endCursor;
+        } while ($page->hasNextPage);
+
+        return $nodes;
     }
 
     /** @return list<Desired> */

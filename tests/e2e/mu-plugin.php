@@ -24,9 +24,12 @@ add_action('phpmailer_init', static function (): void {
 });
 
 // Counts every FluentCRM contact, list and tag event (they start automations and email sequences, which a mirror
-// must never do).
+// must never do), and every FluentBoards board and task event (they notify members and log activity).
 const IIM_E2E_FLUENT_EVENTS = 'iim_e2e_fluent_events';
-foreach (['fluent_crm/contact_created', 'fluent_crm/contact_updated', 'fluent_crm/contact_added_to_lists', 'fluent_crm/contact_added_to_tags', 'fluent_crm/contact_removed_from_lists', 'fluent_crm/contact_custom_data_updated', 'fluent_crm/company_created'] as $iimE2eEvent) {
+foreach ([
+    'fluent_crm/contact_created', 'fluent_crm/contact_updated', 'fluent_crm/contact_added_to_lists', 'fluent_crm/contact_added_to_tags', 'fluent_crm/contact_removed_from_lists', 'fluent_crm/contact_custom_data_updated', 'fluent_crm/company_created',
+    'fluent_boards/board_created', 'fluent_boards/task_created', 'fluent_boards/task_closed', 'fluent_boards/contact_added_to_task', 'fluent_boards/board_member_added', 'fluent_boards/task_assignee_added',
+] as $iimE2eEvent) {
     add_action($iimE2eEvent, static function (): void {
         $count = get_option(IIM_E2E_FLUENT_EVENTS, 0);
         update_option(IIM_E2E_FLUENT_EVENTS, (is_numeric($count) ? (int) $count : 0) + 1, false);

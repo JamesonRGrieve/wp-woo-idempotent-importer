@@ -1,0 +1,84 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, MasterLabel, ApiName, IsActive, IsClosed, IsWon, SortOrder, DefaultProbability, ForecastCategoryName FROM OpportunityStage ORDER BY SortOrder"
+    }
+  },
+  "response": {
+    "totalSize": 5,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "OpportunityStage"
+        },
+        "Id": "01J000000000000001",
+        "MasterLabel": "Prospecting",
+        "ApiName": "Prospecting",
+        "IsActive": true,
+        "IsClosed": false,
+        "IsWon": false,
+        "SortOrder": 1,
+        "DefaultProbability": 10,
+        "ForecastCategoryName": "Pipeline"
+      },
+      {
+        "attributes": {
+          "type": "OpportunityStage"
+        },
+        "Id": "01J000000000000002",
+        "MasterLabel": "Negotiation",
+        "ApiName": "Negotiation/Review",
+        "IsActive": true,
+        "IsClosed": false,
+        "IsWon": false,
+        "SortOrder": 2,
+        "DefaultProbability": 90,
+        "ForecastCategoryName": "Best Case"
+      },
+      {
+        "attributes": {
+          "type": "OpportunityStage"
+        },
+        "Id": "01J000000000000003",
+        "MasterLabel": "Closed Won",
+        "ApiName": "Closed Won",
+        "IsActive": true,
+        "IsClosed": true,
+        "IsWon": true,
+        "SortOrder": 3,
+        "DefaultProbability": 100,
+        "ForecastCategoryName": "Closed"
+      },
+      {
+        "attributes": {
+          "type": "OpportunityStage"
+        },
+        "Id": "01J000000000000004",
+        "MasterLabel": "Closed Lost",
+        "ApiName": "Closed Lost",
+        "IsActive": true,
+        "IsClosed": true,
+        "IsWon": false,
+        "SortOrder": 4,
+        "DefaultProbability": 0,
+        "ForecastCategoryName": "Omitted"
+      },
+      {
+        "attributes": {
+          "type": "OpportunityStage"
+        },
+        "Id": "01J000000000000005",
+        "MasterLabel": "Legacy",
+        "ApiName": "Legacy",
+        "IsActive": false,
+        "IsClosed": false,
+        "IsWon": false,
+        "SortOrder": 5,
+        "DefaultProbability": 50,
+        "ForecastCategoryName": "Pipeline"
+      }
+    ]
+  }
+}

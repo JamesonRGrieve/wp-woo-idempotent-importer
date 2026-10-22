@@ -1,0 +1,40 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, WhoId, WhatId, Subject, ActivityDate, Status, Priority, OwnerId, Description, TaskSubtype, CallDurationInSeconds, CallType, CallDisposition, IsClosed, AccountId, CompletedDateTime FROM Task WHERE (TaskSubtype = null OR TaskSubtype NOT IN ('Call', 'Email', 'ListEmail')) ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 1,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Task",
+          "url": "/services/data/v62.0/sobjects/Task/00TFh00000Todo1AAA"
+        },
+        "Id": "00TFh00000Todo1AAA",
+        "IsDeleted": false,
+        "CreatedDate": "2026-08-20T16:00:00.000+0000",
+        "LastModifiedDate": null,
+        "SystemModstamp": null,
+        "WhoId": "003Fh00000Ada001AAA",
+        "WhatId": null,
+        "Subject": "Visit the studio",
+        "ActivityDate": "2026-10-30",
+        "Status": "Not Started",
+        "Priority": "High",
+        "OwnerId": "005Fh00000Own01AAA",
+        "Description": "Bring the glaze samples.",
+        "TaskSubtype": "Task",
+        "CallDurationInSeconds": null,
+        "CallType": null,
+        "CallDisposition": null,
+        "IsClosed": false,
+        "AccountId": "001Fh00000Fern01AAA",
+        "CompletedDateTime": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/0-3"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "7101",
+        "properties": {
+          "dealname": "Wholesale mugs",
+          "description": "Two hundred mugs for the spring market.",
+          "pipeline": "default",
+          "dealstage": "qualifiedtobuy",
+          "amount": "1500.5",
+          "deal_currency_code": "CAD",
+          "closedate": "2026-10-15T17:00:00.000Z",
+          "hs_priority": "HIGH",
+          "createdate": "2026-08-10T16:00:00.000Z",
+          "hubspot_owner_id": "77",
+          "dealtype": "newbusiness",
+          "hs_is_closed": "false",
+          "hs_is_closed_won": "false",
+          "kiln_count": "2"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "501",
+                "type": "deal_to_contact"
+              },
+              {
+                "id": "502",
+                "type": "deal_to_contact"
+              }
+            ]
+          },
+          "companies": {
+            "results": [
+              {
+                "id": "9001",
+                "type": "deal_to_company"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "7102",
+        "properties": {
+          "dealname": "Kiln service plan",
+          "pipeline": "default",
+          "dealstage": "closedlost",
+          "amount": "250",
+          "deal_currency_code": "CAD",
+          "closedate": "2026-09-20T17:00:00.000Z",
+          "createdate": "2026-08-12T16:00:00.000Z",
+          "hubspot_owner_id": "78",
+          "hs_is_closed": "true",
+          "hs_is_closed_won": "false"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "502",
+                "type": "deal_to_contact"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

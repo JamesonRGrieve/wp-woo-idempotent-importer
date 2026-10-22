@@ -1,0 +1,24 @@
+{
+  "request": {
+    "path": "/crm/v3/owners",
+    "query": {
+      "archived": "false"
+    }
+  },
+  "response": {
+    "results": [
+      {
+        "id": "77",
+        "email": "e2e@example.com",
+        "firstName": "Eve",
+        "lastName": "Two",
+        "userId": 1077,
+        "type": "PERSON",
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "teams": []
+      }
+    ]
+  }
+}

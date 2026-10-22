@@ -9,6 +9,7 @@ namespace IdempotentImporter\Source\Zoho;
 use DateTimeImmutable;
 use IdempotentImporter\Http\HttpTransport;
 use IdempotentImporter\Http\Sleeper;
+use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Node;
@@ -36,6 +37,10 @@ use IdempotentImporter\Source\Zoho\Mapping\Fields;
  *   picklist.
  * - Sales orders are read one by one too (their ordered items come only with a single record), with the org's
  *   home currency; customers are the contacts they name.
+ * - Boards are the deal pipelines (`/settings/pipeline` of every Deals layout, from `/settings/layouts` trimmed to
+ *   their ids), each with its stages, and the task board, whose stages are the options of the tasks' status. Deals
+ *   arrive with the id of the pipeline their Pipeline value names (the default pipeline when they name none);
+ *   tasks are the Tasks module. Every record names its owner (`Owner`, with the user's email).
  *
  * Nothing is incremental (unchanged records are skipped by hash). Zoho counts API credits per org per day and
  * limits concurrent calls, not calls per minute (zoho.com/crm/developer/docs/api/v8/api-limits.html): the reader
@@ -56,8 +61,12 @@ final class ZohoReader implements SourceReader
     private const OWNER_MODULES = ['Contacts' => 'Contact', 'Leads' => 'Lead', 'Accounts' => 'Account'];
     private const TYPES = [
         'Accounts' => 'Account', 'Campaigns' => 'Campaign', 'Contacts' => 'Contact', 'Leads' => 'Lead', 'Notes' => 'Note', 'Calls' => 'Call',
-        'Events' => 'Event', 'Products' => 'Product', 'Sales_Orders' => 'SalesOrder',
+        'Events' => 'Event', 'Products' => 'Product', 'Sales_Orders' => 'SalesOrder', 'Deals' => 'Deal', 'Tasks' => 'Task',
     ];
+    /** A stage's forecast type → how the deals in it ended. */
+    public const OUTCOMES = ['Closed Won' => BoardContract::WON, 'Closed Lost' => BoardContract::LOST];
+    /** The tasks' status field, whose options are the task board's stages. */
+    public const TASK_STATUS = 'Status';
     private const CATEGORY_FIELD = 'Product_Category';
 
     /** @var array<string, list<Node>> module → its field metadata */
@@ -65,6 +74,8 @@ final class ZohoReader implements SourceReader
     /** @var array<string, list<string>>|null record id → the ids of the campaigns it is a member of */
     private ?array $campaignMembers = null;
     private ?string $orgCurrency = null;
+    /** @var array<array-key, array<array-key, mixed>>|null pipeline id → the pipeline, of every Deals layout */
+    private ?array $pipelines = null;
 
     public function __construct(private readonly RestClient $client) {}
 
@@ -94,6 +105,9 @@ final class ZohoReader implements SourceReader
             Kind::Contact => $this->people($cursor),
             Kind::CrmNote => $this->activities($cursor),
             Kind::Order => $this->orders($cursor),
+            Kind::CrmPipeline => new Page($this->boards(), false, null),
+            Kind::CrmDeal => $this->deals($cursor),
+            Kind::CrmTask => $this->records('Tasks', $cursor),
             default => throw new SourceError("Zoho CRM has no {$kind->value}."),
         };
     }
@@ -206,6 +220,80 @@ final class ZohoReader implements SourceReader
         }
 
         return new Page($nodes, $page->hasNextPage, $page->endCursor);
+    }
+
+    /**
+     * The deal pipelines, then the task board.
+     *
+     * @return list<Node>
+     */
+    private function boards(): array
+    {
+        $boards = [];
+        foreach ($this->pipelines() as $id => $pipeline) {
+            $boards[] = self::identified('Pipeline', (string) $id, $pipeline);
+        }
+        foreach ($this->metadata('Tasks') as $field) {
+            if ($field->string('api_name') === self::TASK_STATUS) {
+                $boards[] = self::identified('TaskBoard', 'tasks', ['status_field' => $field->raw()]);
+            }
+        }
+
+        return $boards;
+    }
+
+    /**
+     * One page of deals, each with the id of its pipeline, whether its stage closes it won or lost
+     * (`stage_outcome`, from the stage's forecast type), and the org's home currency.
+     */
+    private function deals(?string $cursor): Page
+    {
+        $page = $this->records('Deals', $cursor);
+        $byValue = [];
+        $default = null;
+        $outcomes = [];
+        foreach ($this->pipelines() as $id => $pipeline) {
+            // Zoho's ids are digits, which PHP turns into integer keys.
+            $id = (string) $id;
+            $pipeline = new Node($pipeline);
+            $byValue[$pipeline->string('actual_value')] = $id;
+            if (($pipeline->raw()['default'] ?? false) === true) {
+                $default = $id;
+            }
+            foreach ($pipeline->list('maps') as $stage) {
+                $outcomes[$id][$stage->string('actual_value')] = self::OUTCOMES[$stage->string('forecast_type')] ?? null;
+            }
+        }
+        $currency = $this->orgCurrency();
+        $nodes = array_map(static function (Node $deal) use ($byValue, $default, $outcomes, $currency): Node {
+            $value = Fields::text($deal, 'Pipeline');
+            $pipeline = ($value === null ? null : $byValue[$value] ?? null) ?? $default ?? throw new SourceError('Zoho CRM has no deal pipeline.');
+
+            return new Node([
+                ...$deal->raw(),
+                'pipeline_id' => $pipeline,
+                'stage_outcome' => $outcomes[$pipeline][Fields::text($deal, 'Stage') ?? ''] ?? null,
+                'org_currency' => $currency,
+            ], $deal->id());
+        }, $page->nodes);
+
+        return new Page($nodes, $page->hasNextPage, $page->endCursor);
+    }
+
+    /** @return array<array-key, array<array-key, mixed>> pipeline id → the pipeline with its stages, of every Deals layout, read once per run */
+    private function pipelines(): array
+    {
+        if ($this->pipelines !== null) {
+            return $this->pipelines;
+        }
+        $pipelines = [];
+        foreach ($this->required('/settings/layouts', ['module' => 'Deals', 'fields' => 'id,name'])->list('layouts') as $layout) {
+            foreach ($this->required('/settings/pipeline', ['layout_id' => $layout->string('id')])->list('pipeline') as $pipeline) {
+                $pipelines[$pipeline->string('id')] ??= $pipeline->raw();
+            }
+        }
+
+        return $this->pipelines = $pipelines;
     }
 
     /** One page of sales orders' contacts, as customers. */

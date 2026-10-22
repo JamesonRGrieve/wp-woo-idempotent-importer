@@ -30,8 +30,10 @@ use IdempotentImporter\Sync\Runner;
 use IdempotentImporter\Wp\ContentHtml;
 use IdempotentImporter\Wp\Log;
 use IdempotentImporter\Wp\MediaLibrary;
+use IdempotentImporter\Wp\OwnerUsers;
 use IdempotentImporter\Wp\WpHttpTransport;
 use IdempotentImporter\Wp\Writer\ArticleWriter;
+use IdempotentImporter\Wp\Writer\BoardTaskWriter;
 use IdempotentImporter\Wp\Writer\CommentWriter;
 use IdempotentImporter\Wp\Writer\ContactWriter;
 use IdempotentImporter\Wp\Writer\ContentItemWriter;
@@ -39,6 +41,7 @@ use IdempotentImporter\Wp\Writer\ContentTypeWriter;
 use IdempotentImporter\Wp\Writer\CrmCompanyWriter;
 use IdempotentImporter\Wp\Writer\CrmGroupWriter;
 use IdempotentImporter\Wp\Writer\CrmNoteWriter;
+use IdempotentImporter\Wp\Writer\CrmPipelineWriter;
 use IdempotentImporter\Wp\Writer\CustomerWriter;
 use IdempotentImporter\Wp\Writer\DeliveryProfileWriter;
 use IdempotentImporter\Wp\Writer\DiscountWriter;
@@ -218,6 +221,7 @@ final class Services
             $this->settings,
             $this->log(),
         );
+        $owners = new OwnerUsers();
         $writers = [
             new ShopWriter($targets, $this->redirects),
             new FileWriter($targets),
@@ -229,6 +233,9 @@ final class Services
             new CrmGroupWriter(Kind::CrmTag, Tag::class),
             new ContactWriter($targets),
             new CrmNoteWriter($targets),
+            new CrmPipelineWriter(),
+            new BoardTaskWriter(Kind::CrmDeal, $targets, $owners),
+            new BoardTaskWriter(Kind::CrmTask, $targets, $owners),
             new DiscountWriter($targets),
             new OrderWriter(Kind::Order, $targets),
             new ReturnWriter($targets),

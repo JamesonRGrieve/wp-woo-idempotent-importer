@@ -11,11 +11,15 @@ parameters:
         - uninstall.php
     excludePaths:
         - tests/e2e/wordpress (?)
-    # FluentCRM (a dev dependency from wpackagist), the WordPress home of CRM data: its models are scanned, not analysed.
+    # FluentCRM and FluentBoards (dev dependencies from wpackagist): their models are scanned, not analysed.
     scanDirectories:
         - vendor/wpackagist-plugin/fluent-crm/app/Models
         - vendor/wpackagist-plugin/fluent-crm/database/migrations
         - vendor/wpackagist-plugin/fluent-crm/vendor/wpfluent/framework/src
+        # FluentBoards (a dev dependency from wpackagist), the WordPress home of CRM pipelines, deals and tasks.
+        - vendor/wpackagist-plugin/fluent-boards/app/Models
+        - vendor/wpackagist-plugin/fluent-boards/app/Services
+        - vendor/wpackagist-plugin/fluent-boards/vendor/wpfluent/framework/src
     bootstrapFiles:
         - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
         - vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php

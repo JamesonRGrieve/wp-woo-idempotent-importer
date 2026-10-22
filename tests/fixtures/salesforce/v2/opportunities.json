@@ -1,0 +1,105 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, IsDeleted, AccountId, Name, Description, StageName, Amount, Probability, CloseDate, Type, NextStep, LeadSource, IsClosed, IsWon, OwnerId, CreatedDate, Kiln_Count__c, (SELECT ContactId, IsPrimary FROM OpportunityContactRoles) FROM Opportunity ORDER BY Id"
+    }
+  },
+  "response": {
+    "totalSize": 3,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "Opportunity",
+          "url": "/services/data/v62.0/sobjects/Opportunity/006Fh00000Mugs1AAA"
+        },
+        "Id": "006Fh00000Mugs1AAA",
+        "IsDeleted": false,
+        "AccountId": "001Fh00000Fern01AAA",
+        "Name": "Wholesale mugs",
+        "Description": null,
+        "StageName": "Closed Won",
+        "Amount": 1500.5,
+        "Probability": null,
+        "CloseDate": "2026-10-15",
+        "Type": "New Customer",
+        "NextStep": null,
+        "LeadSource": "Web",
+        "IsClosed": true,
+        "IsWon": true,
+        "OwnerId": "005Fh00000Own01AAA",
+        "CreatedDate": "2026-08-10T16:00:00.000+0000",
+        "Kiln_Count__c": 2,
+        "OpportunityContactRoles": {
+          "totalSize": 2,
+          "done": true,
+          "records": [
+            {
+              "attributes": {
+                "type": "OpportunityContactRole"
+              },
+              "ContactId": "003Fh00000Bo0001AAA",
+              "IsPrimary": false
+            },
+            {
+              "attributes": {
+                "type": "OpportunityContactRole"
+              },
+              "ContactId": "003Fh00000Ada001AAA",
+              "IsPrimary": true
+            }
+          ]
+        }
+      },
+      {
+        "attributes": {
+          "type": "Opportunity",
+          "url": "/services/data/v62.0/sobjects/Opportunity/006Fh00000Kiln1AAA"
+        },
+        "Id": "006Fh00000Kiln1AAA",
+        "IsDeleted": false,
+        "AccountId": null,
+        "Name": "Kiln service plan",
+        "Description": null,
+        "StageName": "Closed Lost",
+        "Amount": 250,
+        "Probability": null,
+        "CloseDate": "2026-09-20",
+        "Type": "New Customer",
+        "NextStep": null,
+        "LeadSource": "Web",
+        "IsClosed": true,
+        "IsWon": false,
+        "OwnerId": "005Fh00000Old01AAA",
+        "CreatedDate": "2026-08-10T16:00:00.000+0000",
+        "Kiln_Count__c": null,
+        "OpportunityContactRoles": null
+      },
+      {
+        "attributes": {
+          "type": "Opportunity",
+          "url": "/services/data/v62.0/sobjects/Opportunity/006Fh00000Work1AAA"
+        },
+        "Id": "006Fh00000Work1AAA",
+        "IsDeleted": false,
+        "AccountId": null,
+        "Name": "Glaze workshop",
+        "Description": null,
+        "StageName": "Prospecting",
+        "Amount": 480,
+        "Probability": null,
+        "CloseDate": "2026-11-20",
+        "Type": "New Customer",
+        "NextStep": null,
+        "LeadSource": "Web",
+        "IsClosed": false,
+        "IsWon": false,
+        "OwnerId": "005Fh00000Own01AAA",
+        "CreatedDate": "2026-08-10T16:00:00.000+0000",
+        "Kiln_Count__c": null,
+        "OpportunityContactRoles": null
+      }
+    ]
+  }
+}

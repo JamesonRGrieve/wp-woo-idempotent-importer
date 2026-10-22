@@ -2,7 +2,7 @@
 
 AGPL-3.0-or-later WordPress plugin: a one-way, idempotent store → WooCommerce mirror kept current until
 cutover, with one adapter per source platform (Shopify, Etsy, Square Online, BigCommerce, Squarespace, Wix,
-Magento, Lightspeed eCom, Ecwid and Webflow), and of CRMs (HubSpot, Salesforce, Pipedrive, Zoho CRM) into FluentCRM, and of accounting software (FreshBooks, Wave, QuickBooks Online) into both. README.md is the user-facing contract; `coverage/<source>.md`
+Magento, Lightspeed eCom, Ecwid and Webflow), and of CRMs (HubSpot, Salesforce, Pipedrive, Zoho CRM) into FluentCRM and FluentBoards, and of accounting software (FreshBooks, Wave, QuickBooks Online) into both. README.md is the user-facing contract; `coverage/<source>.md`
 is the single source of truth for what each source mirrors and what is a gap. PHP rules:
 `/home/jameson/Source/ai-prompts/php.md`.
 
@@ -25,7 +25,10 @@ is the single source of truth for what each source mirrors and what is a gap. PH
   (`MetaSync`, `MediaLibrary`, `Posts`, `Comments`, `Terms`, `Quiet`, `Retirement`), scheduler,
   webhooks, storefront, admin, CLI. CRM data is written into FluentCRM through `Wp/Fluent/` (`FluentCrm`, the
   typed gateway to its models; `CustomFields`; `FluentMeta`): only its models, never its API helpers, so no
-  FluentCRM event (automations, emails) fires; mappers speak `Mapping/CrmContract`. `ContentTypes` registers the custom post type of each mirrored CMS
+  FluentCRM event (automations, emails) fires; mappers speak `Mapping/CrmContract`. CRM pipelines, deals and tasks
+  go into FluentBoards the same way (`FluentBoards`, `FluentBoardsMeta`; models saved quietly, so no FluentBoards
+  notification or activity fires); mappers speak `Mapping/BoardContract`, and an owner is an assignee only when
+  `OwnerUsers` finds exactly one WordPress user with the owner's email. `ContentTypes` registers the custom post type of each mirrored CMS
   collection (kept as an `iim_content_type` post).
 - `src/StoredValue/` — the Square account gift cards and store credit are written to (`SquareStoredValue`),
   their numbers (`GiftCardNumber`) and how a balance change is applied (`GiftCardPlan`, pure); the

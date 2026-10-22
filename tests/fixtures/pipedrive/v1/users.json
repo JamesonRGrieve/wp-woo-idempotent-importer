@@ -1,0 +1,54 @@
+{
+  "request": {
+    "path": "/api/v1/users"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 9,
+        "name": "Isla Fenn",
+        "default_currency": "CAD",
+        "locale": "en_CA",
+        "lang": 1,
+        "email": "e2e@example.com",
+        "phone": null,
+        "activated": true,
+        "last_login": "2026-10-01 16:00:00",
+        "created": "2025-01-01 16:00:00",
+        "modified": null,
+        "has_created_company": true,
+        "access": [],
+        "active_flag": true,
+        "timezone_name": "America/Vancouver",
+        "timezone_offset": "-07:00",
+        "role_id": 1,
+        "icon_url": null,
+        "is_you": true,
+        "is_deleted": false
+      },
+      {
+        "id": 10,
+        "name": "Fen Ash",
+        "default_currency": "CAD",
+        "locale": "en_CA",
+        "lang": 1,
+        "email": "former.potter@example.com",
+        "phone": null,
+        "activated": false,
+        "last_login": "2026-10-01 16:00:00",
+        "created": "2025-01-01 16:00:00",
+        "modified": null,
+        "has_created_company": false,
+        "access": [],
+        "active_flag": false,
+        "timezone_name": "America/Vancouver",
+        "timezone_offset": "-07:00",
+        "role_id": 1,
+        "icon_url": null,
+        "is_you": false,
+        "is_deleted": false
+      }
+    ]
+  }
+}

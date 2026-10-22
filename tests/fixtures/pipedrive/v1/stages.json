@@ -1,0 +1,49 @@
+{
+  "request": {
+    "path": "/api/v2/stages"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": 11,
+        "order_nr": 1,
+        "name": "Qualified",
+        "is_deleted": false,
+        "deal_probability": 20,
+        "pipeline_id": 1,
+        "is_deal_rot_enabled": false,
+        "days_to_rotten": null,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-08-01T16:00:00Z"
+      },
+      {
+        "id": 12,
+        "order_nr": 2,
+        "name": "Proposal made",
+        "is_deleted": false,
+        "deal_probability": 60,
+        "pipeline_id": 1,
+        "is_deal_rot_enabled": false,
+        "days_to_rotten": null,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-08-01T16:00:00Z"
+      },
+      {
+        "id": 13,
+        "order_nr": 3,
+        "name": "Negotiations",
+        "is_deleted": false,
+        "deal_probability": 90,
+        "pipeline_id": 1,
+        "is_deal_rot_enabled": false,
+        "days_to_rotten": null,
+        "add_time": "2026-08-01T16:00:00Z",
+        "update_time": "2026-08-01T16:00:00Z"
+      }
+    ],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

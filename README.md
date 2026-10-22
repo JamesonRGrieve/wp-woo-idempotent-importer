@@ -2,7 +2,7 @@
 # wp-woo-idempotent-importer
 
 A WordPress plugin that keeps a WooCommerce store an exact, one-way copy of another store until you cut
-over, and does the same for a CRM (into FluentCRM) or an accounting system. Run it as often as you like:
+over, and does the same for a CRM (into FluentCRM, with its deals and tasks in FluentBoards) or an accounting system. Run it as often as you like:
 what's new at the source is created, what changed is updated, what was deleted is moved to the trash, and
 what didn't change isn't touched. A re-run against an unchanged source writes nothing at all.
 
@@ -20,10 +20,10 @@ Each source platform is an adapter over the same engine:
 | Lightspeed eCom (C-Series) | Built | Shop settings, categories, products with variants, images, stock and brands, customers, discount codes, orders with taxes, credit notes and shipments, text pages, blogs and their articles, redirects, and product reviews — [coverage/lightspeed.md](coverage/lightspeed.md) |
 | Ecwid (Lightspeed) | Built | Store settings and legal pages, categories, products with variations, images, stock and brands, customers, discount coupons, orders with taxes, refunds and tracking, Instant Site redirects, and product reviews — [coverage/ecwid.md](coverage/ecwid.md) |
 | Webflow | Built | Site settings, assets, e-commerce categories, products with their SKUs and inventory, buyers, orders with refunds, static pages, the blog collection and its posts, every other CMS collection as a custom post type with its items, and 301 redirects — [coverage/webflow.md](coverage/webflow.md) |
-| HubSpot | Built | Into FluentCRM: companies, contact lists and segments, contacts with their companies, lists and custom properties, and their notes, calls, emails and meetings. Into WooCommerce: the product library, buyers and commerce orders. Deals, pipelines and tasks are planned — [coverage/hubspot.md](coverage/hubspot.md) |
-| Salesforce | Built | Into FluentCRM: accounts, campaigns (as lists), topics (as tags), contacts and leads with their custom fields, and their logged calls, emails, events and notes. Into WooCommerce: products at their standard price, buyers and orders. Opportunities and tasks are planned — [coverage/salesforce.md](coverage/salesforce.md) |
-| Pipedrive | Built | Into FluentCRM: organizations, person filters (as lists), labels (as tags), persons with their custom fields, and their notes and done activities. Into WooCommerce: product categories and products with their variations. Deals and pending activities are planned — [coverage/pipedrive.md](coverage/pipedrive.md) |
-| Zoho CRM | Built | Into FluentCRM: accounts, campaigns (as lists), tags, contacts and unconverted leads with their custom fields, and their notes, calls and meetings. Into WooCommerce: product categories, products, the contacts sales orders name, and sales orders with their items. Deals and tasks are planned — [coverage/zoho.md](coverage/zoho.md) |
+| HubSpot | Built | Into FluentCRM: companies, contact lists and segments, contacts with their companies, lists and custom properties, and their notes, calls, emails and meetings. Into FluentBoards: deal pipelines, deals and tasks, assigned to their owner's WordPress user. Into WooCommerce: the product library, buyers and commerce orders — [coverage/hubspot.md](coverage/hubspot.md) |
+| Salesforce | Built | Into FluentCRM: accounts, campaigns (as lists), topics (as tags), contacts and leads with their custom fields, and their logged calls, emails, events and notes. Into FluentBoards: opportunities on their stages, and tasks. Into WooCommerce: products at their standard price, buyers and orders — [coverage/salesforce.md](coverage/salesforce.md) |
+| Pipedrive | Built | Into FluentCRM: organizations, person filters (as lists), labels (as tags), persons with their custom fields, and their notes and done activities. Into FluentBoards: pipelines, deals and activities. Into WooCommerce: product categories and products with their variations — [coverage/pipedrive.md](coverage/pipedrive.md) |
+| Zoho CRM | Built | Into FluentCRM: accounts, campaigns (as lists), tags, contacts and unconverted leads with their custom fields, and their notes, calls and meetings. Into FluentBoards: deal pipelines, deals and tasks. Into WooCommerce: product categories, products, the contacts sales orders name, and sales orders with their items — [coverage/zoho.md](coverage/zoho.md) |
 | FreshBooks | Built | Items and services as products, clients as WooCommerce customers and FluentCRM contacts (their organizations as companies), and invoices with their payments as orders. The books (ledger, journals, expenses, bills), credit notes and estimates are operator decisions — [coverage/freshbooks.md](coverage/freshbooks.md) |
 | Wave | Built | Products and services, customers as WooCommerce customers and FluentCRM contacts (business customers as companies), and invoices with their items, taxes and payments as orders. The books (accounts, vendors, sales tax rates) and estimates are operator decisions; Wave's API reads no bills or transactions — [coverage/wave.md](coverage/wave.md) |
 | QuickBooks Online | Built | Item categories and items as products, customers as WooCommerce customers and FluentCRM contacts (with their companies), and invoices (with their payments) and sales receipts as orders. The books, bundles, credit memos and estimates are operator decisions; QuickBooks Desktop has no cloud API (Web Connector only) — [coverage/quickbooks_online.md](coverage/quickbooks_online.md) |
@@ -77,7 +77,9 @@ site's 301 redirects.
 1. Install and activate WooCommerce (9.6 or later), then this plugin (a release zip includes `vendor/`;
    from source, run `composer install --no-dev`). To mirror a CRM, or an accounting system's clients, also
    install and activate FluentCRM (free, wordpress.org/plugins/fluent-crm); its writes never start a FluentCRM
-   automation or email.
+   automation or email. To mirror a CRM's pipelines, deals and tasks, also install and activate FluentBoards (free,
+   wordpress.org/plugins/fluent-boards, by the FluentCRM team); its writes send no FluentBoards notification. A deal's
+   or task's owner becomes its assignee only when exactly one WordPress user has the owner's email.
 2. In WooCommerce → Store import, choose the source and save, then connect it:
    - **Shopify:** in Shopify's Dev Dashboard (dev.shopify.com, signed in to the store's organization),
      create an app with these access scopes (paste the line into the version's scopes):
@@ -143,7 +145,7 @@ site's 301 redirects.
      sandbox or My Domain, if not `login.salesforce.com`), save and click **Connect to Salesforce**. Salesforce
      counts requests per day, so a spent daily allowance pauses the run until it frees up.
    - **Pipedrive:** enter a personal API token, or register a Pipedrive app (scopes `contacts:read`,
-     `activities:read`, `products:read`) with the callback URL shown on the settings page, enter its client ID
+     `activities:read`, `products:read`, `deals:read`, `users:read`) with the callback URL shown on the settings page, enter its client ID
      and secret and click **Connect to Pipedrive**. Requests are paced at ten a second, under the lowest plan's
      burst limit.
    - **Zoho CRM:** register a server-based client in the Zoho API console with the callback URL shown on the

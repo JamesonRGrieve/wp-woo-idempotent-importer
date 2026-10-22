@@ -9,6 +9,8 @@ declare(strict_types=1);
  * product catalogue in WooCommerce. The fake company takes an API token (wp-config-extra.php).
  */
 
+use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Wp\Fluent\FluentBoards;
 use IdempotentImporter\Wp\Fluent\FluentCrm;
 
 $adaGid = 'gid://pipedrive/Person/201';
@@ -28,14 +30,30 @@ return [
         expect(wp_get_post_terms($clay->get_id(), 'product_cat', ['fields' => 'names']) === ['Clay'], 'its category');
         $class = product('gid://pipedrive/Product/302');
         expect($class instanceof WC_Product_Variable && count($class->get_children()) === 2, 'a product with variations is variable');
+
+        $wholesale = board('gid://pipedrive/Pipeline/1');
+        expect(stageTitles($wholesale) === ['Qualified', 'Proposal made', 'Negotiations'], 'a pipeline is a FluentBoards board with its stages');
+        $mugs = boardTask(Kind::CrmDeal, 'gid://pipedrive/Deal/401');
+        expect(stageTitle($mugs) === 'Negotiations' && FluentBoards::string($mugs, 'lead_value') === '1500.50' && FluentBoards::string($mugs, 'crm_contact_id') === (string) FluentCrm::id($ada), 'a deal is a task in its stage, with its value and person');
+        expect(assignees($mugs) === [1] && assignees(boardTask(Kind::CrmDeal, 'gid://pipedrive/Deal/402')) === [], 'assigned to its owner only on a clean email match');
+        expect(FluentBoards::string(boardTask(Kind::CrmDeal, 'gid://pipedrive/Deal/402'), 'status') === 'closed', 'a lost deal is closed');
+        $visit = boardTask(Kind::CrmTask, 'gid://pipedrive/Activity/601');
+        expect(stageTitle($visit) === 'To do' && FluentBoards::string($visit, 'status') === 'open', 'an activity to do is an open task');
+        expect(stageTitle(boardTask(Kind::CrmTask, 'gid://pipedrive/Activity/501')) === 'Done', 'a done activity is a done task');
     },
     'v2' => static function () use ($adaGid): void {
         expect(fluentTags(fluentContact('gid://pipedrive/Person/202')) === [] && fluentLists(fluentContact('gid://pipedrive/Person/202')) === [], 'a removed label and a filter left');
         $cy = fluentContact('gid://pipedrive/Person/204');
         expect(fluentLists($cy) === ['Glaze lovers'] && fluentTags($cy) === ['Studio member'], 'a new person, in the filter, with its label');
         expect(fluentCompanyField(fluentCompany('gid://pipedrive/Organization/101'), 'pipedrive_f0e1d2c3b4a5968778695a4b3c2d1e0f9a8b7c6d') === 'Silver', 'a changed organization field');
-        expect(fluentNoteTypes(fluentContact($adaGid)) === ['call', 'note'], 'a changed note is updated, not added again');
+        expect(fluentNoteTypes(fluentContact($adaGid)) === ['call', 'note', 'note'], 'a changed note is updated, not added again; an activity done since is logged');
         expect(product('gid://pipedrive/Product/301')->get_regular_price() === '44', 'price updated');
+
+        expect(stageTitles(board('gid://pipedrive/Pipeline/1')) === ['Qualified', 'Proposal made'], 'a deleted stage is archived');
+        $mugs = boardTask(Kind::CrmDeal, 'gid://pipedrive/Deal/401');
+        expect(stageTitle($mugs) === 'Proposal made' && FluentBoards::string($mugs, 'status') === 'closed', 'a won deal is closed, in its stage');
+        $visit = boardTask(Kind::CrmTask, 'gid://pipedrive/Activity/601');
+        expect(stageTitle($visit) === 'Done' && FluentBoards::string($visit, 'status') === 'closed', 'an activity marked done is done');
     },
     'intact' => static function () use ($adaGid): void {
         expect(FluentCrm::string(fluentContact($adaGid), 'email') === 'ada.thorne@pipedrive.example', 'the Pipedrive person is untouched');

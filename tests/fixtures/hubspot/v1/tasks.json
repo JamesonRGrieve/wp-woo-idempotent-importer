@@ -1,0 +1,66 @@
+{
+  "request": {
+    "path": "/crm/v3/objects/tasks"
+  },
+  "response": {
+    "results": [
+      {
+        "id": "7201",
+        "properties": {
+          "hs_task_subject": "Call Ada about the glaze order",
+          "hs_task_body": "<p>Confirm colours.</p>",
+          "hs_task_status": "NOT_STARTED",
+          "hs_task_priority": "HIGH",
+          "hs_timestamp": "2026-10-30T16:00:00.000Z",
+          "hs_task_type": "CALL",
+          "hubspot_owner_id": "77"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "501",
+                "type": "deal_to_contact"
+              }
+            ]
+          },
+          "companies": {
+            "results": [
+              {
+                "id": "9001",
+                "type": "deal_to_company"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "7202",
+        "properties": {
+          "hs_task_subject": "Send the kiln quote",
+          "hs_task_status": "WAITING",
+          "hs_task_priority": "NONE",
+          "hs_timestamp": "2026-11-02T16:00:00.000Z",
+          "hs_task_type": "TODO",
+          "hubspot_owner_id": "78"
+        },
+        "createdAt": "2026-08-01T16:00:00.000Z",
+        "updatedAt": "2026-09-01T16:00:00.000Z",
+        "archived": false,
+        "associations": {
+          "contacts": {
+            "results": [
+              {
+                "id": "502",
+                "type": "deal_to_contact"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

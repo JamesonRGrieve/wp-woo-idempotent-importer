@@ -18,11 +18,14 @@ use IdempotentImporter\Source\OAuth2\OAuthApp;
 use IdempotentImporter\Source\OAuth2\OAuthConnection;
 use IdempotentImporter\Source\Salesforce\Mapping\AccountMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\ActivityMapper;
+use IdempotentImporter\Source\Salesforce\Mapping\BoardMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\CampaignMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\ContactMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\CustomerMapper;
+use IdempotentImporter\Source\Salesforce\Mapping\OpportunityMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\OrderMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\ProductMapper;
+use IdempotentImporter\Source\Salesforce\Mapping\TaskMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\TopicMapper;
 use IdempotentImporter\Source\SourceError;
 use IdempotentImporter\Source\SourceReader;
@@ -30,7 +33,8 @@ use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * Salesforce, through its REST API: accounts, campaigns (as lists), topics (as tags), contacts and leads, and
- * their logged calls, emails, events and notes, into FluentCRM; products with their standard prices, the
+ * their logged calls, emails, events and notes, into FluentCRM; opportunities with their stages, and tasks, into
+ * FluentBoards; products with their standard prices, the
  * contacts orders are billed to, and orders with their items, into WooCommerce. The operator creates a
  * connected app (OAuth web server flow with PKCE, scopes `api refresh_token`) and connects the org; the token
  * response names the org's instance URL. Scheduled runs keep the mirror current.
@@ -65,7 +69,7 @@ final class SalesforceAdapter implements Adapter, ConnectsByOAuth
 
     public function kinds(): array
     {
-        return [Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::CrmList, Kind::CrmTag, Kind::Contact, Kind::CrmNote, Kind::Order];
+        return [Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::CrmList, Kind::CrmTag, Kind::Contact, Kind::CrmNote, Kind::CrmPipeline, Kind::CrmDeal, Kind::CrmTask, Kind::Order];
     }
 
     public function mappers(Settings $settings): array
@@ -78,6 +82,9 @@ final class SalesforceAdapter implements Adapter, ConnectsByOAuth
             new TopicMapper(),
             new ContactMapper(),
             new ActivityMapper(),
+            new BoardMapper(),
+            new OpportunityMapper(),
+            new TaskMapper(),
             new OrderMapper(),
         ];
     }

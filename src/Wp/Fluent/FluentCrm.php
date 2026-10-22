@@ -138,13 +138,7 @@ final class FluentCrm
      */
     public static function fill(Model $model, array $attributes): void
     {
-        $changes = [];
-        foreach ($attributes as $name => $value) {
-            $current = $model->getAttribute($name);
-            if ((is_scalar($current) ? (string) $current : null) !== ($value === null ? null : (string) $value)) {
-                $changes[$name] = $value;
-            }
-        }
+        $changes = Attributes::changes($model->getAttribute(...), $attributes);
         if ($changes !== [] || self::id($model) === 0) {
             $model->fill($changes);
             $model->save();

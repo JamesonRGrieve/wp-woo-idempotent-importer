@@ -15,14 +15,17 @@ use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\OAuth2\BearerAuthorizer;
 use IdempotentImporter\Source\Zoho\Mapping\AccountMapper;
 use IdempotentImporter\Source\Zoho\Mapping\ActivityMapper;
+use IdempotentImporter\Source\Zoho\Mapping\BoardMapper;
 use IdempotentImporter\Source\Zoho\Mapping\CampaignMapper;
 use IdempotentImporter\Source\Zoho\Mapping\CategoryMapper;
 use IdempotentImporter\Source\Zoho\Mapping\ContactMapper;
 use IdempotentImporter\Source\Zoho\Mapping\CustomerMapper;
+use IdempotentImporter\Source\Zoho\Mapping\DealMapper;
 use IdempotentImporter\Source\Zoho\Mapping\Fields;
 use IdempotentImporter\Source\Zoho\Mapping\OrderMapper;
 use IdempotentImporter\Source\Zoho\Mapping\ProductMapper;
 use IdempotentImporter\Source\Zoho\Mapping\TagMapper;
+use IdempotentImporter\Source\Zoho\Mapping\TaskMapper;
 use IdempotentImporter\Source\Zoho\ZohoReader;
 use IdempotentImporter\Tests\Support\FixtureResponder;
 use IdempotentImporter\Tests\Support\RecordingSleeper;
@@ -128,6 +131,49 @@ final class ZohoMapperTest extends TestCase
         self::assertSame(['Line taxes' => 'GST 5%'], $clay->stringMap('attributes'));
         self::assertSame('15', $kit->string('total'));
         self::assertSame('FedEx', $order->record('order')?->string('Carrier'));
+    }
+
+    public function testBoards(): void
+    {
+        [$standard, $tasks] = array_map(Values::of(...), $this->desired('v1', Kind::CrmPipeline, new BoardMapper()));
+
+        self::assertSame('Standard', $standard->string('title'));
+        self::assertSame([
+            ['key' => 'Qualification', 'title' => 'Qualification', 'closed' => false, 'outcome' => null, 'probability' => null],
+            ['key' => 'Negotiation/Review', 'title' => 'Negotiation', 'closed' => false, 'outcome' => null, 'probability' => null],
+            ['key' => 'Closed Won', 'title' => 'Closed Won', 'closed' => true, 'outcome' => 'won', 'probability' => null],
+            ['key' => 'Closed Lost', 'title' => 'Closed Lost', 'closed' => true, 'outcome' => 'lost', 'probability' => null],
+        ], $standard->raw('stages'), 'in sequence; the forecast type says which close their deals, won or lost');
+        self::assertSame('Omitted', $standard->stringMap('forecast_categories')['Closed Lost']);
+        self::assertSame(['Not Started', 'Deferred', 'In Progress', 'Completed', 'Waiting for input'], array_map(static fn(Values $stage): string => $stage->string('key'), $tasks->records('stages')));
+        self::assertTrue($tasks->records('stages')[3]->bool('closed'));
+    }
+
+    public function testDeals(): void
+    {
+        [$mugs, $kiln] = array_map(Values::of(...), $this->desired('v1', Kind::CrmDeal, new DealMapper()));
+
+        self::assertSame(['gid://zoho/Pipeline/5725767000000135001', 'Negotiation/Review', 'open'], [$mugs->string('board_gid'), $mugs->string('stage_key'), $mugs->string('status')]);
+        self::assertSame(['1500.50', 'CAD', '2026-10-15'], [$mugs->nullableString('lead_value'), $mugs->nullableString('currency'), $mugs->nullableString('due_at')], "in the org's currency; the closing date a date");
+        self::assertSame(['gid://zoho/Contact/5725767000011356001'], $mugs->strings('contact_gids'));
+        self::assertSame(['gid://zoho/Account/5725767000011373001'], $mugs->strings('company_gids'));
+        self::assertSame(['id' => '5725767000000411001', 'email' => 'e2e@example.com', 'name' => 'Isla Fenn'], $mugs->raw('owner'));
+        self::assertSame(['Kiln_Count' => 2], $mugs->raw('custom'));
+        self::assertSame(['Type' => 'New Business'], $mugs->raw('deal'));
+        self::assertSame(['closed', 'lost', '2026-09-20'], [$kiln->string('status'), $kiln->nullableString('outcome'), $kiln->nullableString('completed_at')]);
+
+        $won = Values::of($this->desired('v2', Kind::CrmDeal, new DealMapper())[0]);
+        self::assertSame(['Closed Won', 'closed', 'won'], [$won->string('stage_key'), $won->string('status'), $won->nullableString('outcome')]);
+    }
+
+    public function testTasks(): void
+    {
+        $visit = Values::of($this->desired('v1', Kind::CrmTask, new TaskMapper())[0]);
+
+        self::assertSame(['gid://zoho/TaskBoard/tasks', 'Not Started', 'open', 'high', '2026-10-30'], [$visit->string('board_gid'), $visit->string('stage_key'), $visit->string('status'), $visit->nullableString('priority'), $visit->nullableString('due_at')]);
+        self::assertSame(['gid://zoho/Contact/5725767000011356001'], $visit->strings('contact_gids'));
+        $done = Values::of($this->desired('v2', Kind::CrmTask, new TaskMapper())[0]);
+        self::assertSame(['closed', '2026-10-20T18:00:00Z'], [$done->string('status'), $done->nullableString('completed_at')]);
     }
 
     /** @return list<Desired> */

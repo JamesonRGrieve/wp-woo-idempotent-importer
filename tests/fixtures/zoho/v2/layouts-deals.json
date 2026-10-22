@@ -1,0 +1,17 @@
+{
+  "request": {
+    "path": "/crm/v8/settings/layouts",
+    "query": {
+      "module": "Deals",
+      "fields": "id,name"
+    }
+  },
+  "response": {
+    "layouts": [
+      {
+        "id": "5725767000000091055",
+        "name": "Standard"
+      }
+    ]
+  }
+}

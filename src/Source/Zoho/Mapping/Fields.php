@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Source\Zoho\Mapping;
 
+use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Source\Identity;
@@ -172,5 +173,36 @@ final class Fields
             'postcode' => $address['postal_code'] ?? null,
             'country' => $address['country'] ?? null,
         ], static fn(?string $value): bool => $value !== null);
+    }
+
+    /**
+     * The values of the org's own fields (`custom_fields`) by API name, for a record FluentBoards keeps them on as
+     * meta (it has no custom fields in its free version).
+     *
+     * @return array<string, mixed>
+     */
+    public static function customValues(Node $record): array
+    {
+        $values = [];
+        foreach ($record->list('custom_fields') as $definition) {
+            $value = $record->raw()[$definition->string('api_name')] ?? null;
+            if ($value !== null && $value !== '' && $value !== []) {
+                $values[$definition->string('api_name')] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * The user a record belongs to (its `Owner` lookup, which carries the user's email).
+     *
+     * @return array{id: string, email: ?string, name: ?string}|null
+     */
+    public static function owner(Node $record): ?array
+    {
+        $owner = is_array($record->raw()['Owner'] ?? null) ? $record->requiredChild('Owner') : null;
+
+        return BoardContract::owner($owner?->optionalString('id'), $owner?->optionalString('email'), $owner?->optionalString('name'));
     }
 }

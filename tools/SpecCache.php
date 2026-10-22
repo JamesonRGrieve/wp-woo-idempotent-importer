@@ -61,6 +61,10 @@ final class SpecCache
         'orders' => 'PublicApiSpecs/CRM/Orders/Rollouts/424/v3/orders.json',
         'lists' => 'PublicApiSpecs/CRM/Lists/Rollouts/144891/v3/lists.json',
         'properties' => 'PublicApiSpecs/CRM/Properties/Rollouts/145899/v3/properties.json',
+        'deals' => 'PublicApiSpecs/CRM/Deals/Rollouts/424/v3/deals.json',
+        'tasks' => 'PublicApiSpecs/CRM/Tasks/Rollouts/424/v3/tasks.json',
+        'pipelines' => 'PublicApiSpecs/CRM/Pipelines/Rollouts/145896/v3/pipelines.json',
+        'owners' => 'PublicApiSpecs/CRM/Crm Owners/Rollouts/146888/v3/crmOwners.json',
     ];
 
     /** @return list<SpecDocument> */
@@ -176,7 +180,7 @@ final class SpecCache
      * stripped.
      */
     private const ZOHO_COMMIT = 'a6687fc961acdaa52592d39c5c7e4385e5b4c289';
-    private const ZOHO_DOCUMENTS = ['fields', 'tags', 'org', 'notes', 'related_records', 'record'];
+    private const ZOHO_DOCUMENTS = ['fields', 'tags', 'org', 'layouts', 'pipeline', 'notes', 'related_records', 'record'];
 
     /** @return list<SpecDocument> */
     private static function zoho(): array

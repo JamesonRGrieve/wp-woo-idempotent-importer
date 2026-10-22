@@ -50,6 +50,12 @@ enum Kind: string
     case Contact = 'crm_contact';
     /** A note or logged activity (call, email, meeting, task) on a contact: a FluentCRM contact note. */
     case CrmNote = 'crm_note';
+    /** A CRM pipeline (with its stages), or a source's task list: a FluentBoards board with its stages. */
+    case CrmPipeline = 'crm_pipeline';
+    /** A CRM deal or opportunity: a FluentBoards task on its pipeline's board, linked to its FluentCRM contact. */
+    case CrmDeal = 'crm_deal';
+    /** A CRM task (a to-do with a due date and status): a FluentBoards task on its source's task board. */
+    case CrmTask = 'crm_task';
     /** A CMS collection (a content type): a custom post type the plugin registers. */
     case ContentType = 'content_type';
     /** An item of a CMS collection: a post of its collection's post type. */
@@ -67,6 +73,9 @@ enum Kind: string
         self::CrmTag,
         self::Contact,
         self::CrmNote,
+        self::CrmPipeline,
+        self::CrmDeal,
+        self::CrmTask,
         self::Discount,
         self::Order,
         self::Return,

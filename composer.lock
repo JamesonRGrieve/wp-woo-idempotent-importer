@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "405befbdf8a29fa7095cd49a3fc35c58",
+    "content-hash": "9545df3422606a45a453a79d2fb29dae",
     "packages": [],
     "packages-dev": [
         {
@@ -5050,6 +5050,24 @@
                 }
             ],
             "time": "2026-10-12T14:31:33+00:00"
+        },
+        {
+            "name": "wpackagist-plugin/fluent-boards",
+            "version": "2.2.2",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/fluent-boards/",
+                "reference": "tags/2.2.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/fluent-boards.2.2.2.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/fluent-boards/"
         },
         {
             "name": "wpackagist-plugin/fluent-crm",

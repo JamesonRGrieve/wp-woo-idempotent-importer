@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Zoho\Mapping\Fields;
+use IdempotentImporter\Wp\Fluent\FluentBoards;
 use IdempotentImporter\Wp\Fluent\FluentCrm;
 
 $adaGid = 'gid://zoho/Contact/5725767000011356001';
@@ -33,6 +34,12 @@ return [
         expect($order->get_customer_id() === user('gid://zoho/Customer/5725767000011356001')->ID, 'its contact, a WooCommerce customer');
         expect(product('gid://zoho/Product/5725767000011358001')->get_stock_quantity() === 30, 'mirroring orders did not reduce stock');
         expect(term(Kind::Collection, Fields::categoryId('Glaze Kits'), 'product_cat')->name === 'Glaze kits', 'a category picklist value');
+
+        expect(stageTitles(board('gid://zoho/Pipeline/5725767000000135001')) === ['Qualification', 'Negotiation', 'Closed Won', 'Closed Lost'], 'a deal pipeline is a FluentBoards board with its stages');
+        $mugs = boardTask(Kind::CrmDeal, 'gid://zoho/Deal/5725767000011390001');
+        expect(stageTitle($mugs) === 'Negotiation' && FluentBoards::string($mugs, 'lead_value') === '1500.50' && FluentBoards::string($mugs, 'crm_contact_id') === (string) FluentCrm::id($ada), 'a deal is a task in its stage, with its amount and contact');
+        expect(assignees($mugs) === [1] && assignees(boardTask(Kind::CrmDeal, 'gid://zoho/Deal/5725767000011390002')) === [], 'assigned to its owner only on a clean email match');
+        expect(stageTitle(boardTask(Kind::CrmTask, 'gid://zoho/Task/5725767000011391001')) === 'Not Started', 'a task is a FluentBoards task in the stage of its status');
     },
     'v2' => static function () use ($adaGid): void {
         expect(fluentCompanyField(fluentCompany('gid://zoho/Account/5725767000011373001'), 'zoho_wholesale_tier') === 'Silver', 'a changed custom account field');
@@ -42,6 +49,10 @@ return [
         expect(product('gid://zoho/Product/5725767000011358001')->get_regular_price() === '44', 'price updated');
         $new = order(Kind::Order, 'gid://zoho/SalesOrder/5725767000011355002');
         expect($new->get_status() === 'processing' && $new->get_customer_id() === user('gid://zoho/Customer/5725767000011356002')->ID, 'a new sales order for a new customer');
+
+        $mugs = boardTask(Kind::CrmDeal, 'gid://zoho/Deal/5725767000011390001');
+        expect(stageTitle($mugs) === 'Closed Won' && FluentBoards::string($mugs, 'status') === 'closed', 'a won deal is closed in its stage');
+        expect(FluentBoards::string(boardTask(Kind::CrmTask, 'gid://zoho/Task/5725767000011391001'), 'status') === 'closed', 'a completed task is closed');
     },
     'intact' => static function () use ($adaGid): void {
         expect(FluentCrm::string(fluentContact($adaGid), 'email') === 'ada@zoho.example', 'the Zoho contact is untouched');

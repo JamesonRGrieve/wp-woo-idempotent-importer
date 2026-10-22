@@ -6,9 +6,11 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Source\HubSpot\Mapping;
 
+use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Source\HubSpot\HubSpotAdapter;
+use IdempotentImporter\Source\HubSpot\HubSpotReader;
 use IdempotentImporter\Source\Identity;
 use IdempotentImporter\Source\Node;
 
@@ -30,6 +32,8 @@ final class Fields
         'checkbox' => CrmContract::MULTI_SELECT,
     ];
     private const TYPES = ['number' => CrmContract::NUMBER, 'date' => CrmContract::DATE, 'datetime' => CrmContract::DATE_TIME];
+    /** HubSpot's priorities (deals' `hs_priority`, tasks' `hs_task_priority`) → FluentBoards'; NONE is none. */
+    private const PRIORITIES = ['LOW' => BoardContract::LOW, 'MEDIUM' => BoardContract::MEDIUM, 'HIGH' => BoardContract::HIGH];
     /** A multi-select (checkbox) property's values are separated by semicolons. */
     private const MULTIPLE_SEPARATOR = ';';
 
@@ -75,6 +79,25 @@ final class Fields
     }
 
     /**
+     * The values of the account's own properties (`custom_properties`) by name, for an object FluentBoards keeps
+     * them on as meta (it has no custom fields in its free version).
+     *
+     * @return array<string, string>
+     */
+    public static function customValues(Node $object): array
+    {
+        $values = [];
+        foreach ($object->list('custom_properties') as $definition) {
+            $value = self::property($object, $definition->string('name'));
+            if ($value !== null && $value !== '') {
+                $values[$definition->string('name')] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
      * The ids of an association (`associations.<type>.results[].id`), in HubSpot's order.
      *
      * @return list<string>
@@ -113,5 +136,24 @@ final class Fields
         }
 
         return $fields;
+    }
+
+    public static function priority(?string $value): ?string
+    {
+        return $value === null ? null : self::PRIORITIES[strtoupper($value)] ?? null;
+    }
+
+    /**
+     * The HubSpot user a record belongs to (`owner`, which the reader adds from the Owners API), else its owner id.
+     *
+     * @return array{id: string, email: ?string, name: ?string}|null
+     */
+    public static function owner(Node $object): ?array
+    {
+        $owner = $object->child('owner');
+        $id = $owner?->optionalString('id') ?? self::property($object, HubSpotReader::OWNER_PROPERTY);
+        $name = trim(($owner?->optionalString('firstName') ?? '') . ' ' . ($owner?->optionalString('lastName') ?? ''));
+
+        return BoardContract::owner($id, $owner?->optionalString('email'), $name);
     }
 }

@@ -1,0 +1,15 @@
+{
+  "request": {
+    "path": "/api/v2/activities",
+    "query": {
+      "done": "false"
+    }
+  },
+  "response": {
+    "success": true,
+    "data": [],
+    "additional_data": {
+      "next_cursor": null
+    }
+  }
+}

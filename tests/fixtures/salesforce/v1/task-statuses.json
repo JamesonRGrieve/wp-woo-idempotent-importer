@@ -1,0 +1,47 @@
+{
+  "request": {
+    "path": "/services/data/v62.0/query",
+    "query": {
+      "q": "SELECT Id, MasterLabel, ApiName, IsClosed, IsDefault, SortOrder FROM TaskStatus ORDER BY SortOrder"
+    }
+  },
+  "response": {
+    "totalSize": 3,
+    "done": true,
+    "records": [
+      {
+        "attributes": {
+          "type": "TaskStatus"
+        },
+        "Id": "01K000000000000001",
+        "MasterLabel": "Not Started",
+        "ApiName": "Not Started",
+        "IsClosed": false,
+        "IsDefault": true,
+        "SortOrder": 1
+      },
+      {
+        "attributes": {
+          "type": "TaskStatus"
+        },
+        "Id": "01K000000000000002",
+        "MasterLabel": "In Progress",
+        "ApiName": "In Progress",
+        "IsClosed": false,
+        "IsDefault": false,
+        "SortOrder": 2
+      },
+      {
+        "attributes": {
+          "type": "TaskStatus"
+        },
+        "Id": "01K000000000000003",
+        "MasterLabel": "Completed",
+        "ApiName": "Completed",
+        "IsClosed": true,
+        "IsDefault": false,
+        "SortOrder": 3
+      }
+    ]
+  }
+}

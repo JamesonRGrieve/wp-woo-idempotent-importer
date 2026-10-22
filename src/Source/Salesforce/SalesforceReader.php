@@ -35,6 +35,10 @@ use IdempotentImporter\Source\SourceReader;
  *   the contact, lead or account it belongs to (`owner_type`, `owner_id`); one with none of those is left out.
  * - Products arrive with their standard price book entry; orders with their items and the org's default
  *   currency; customers are the contacts orders are billed to.
+ * - Boards are the opportunity board, whose stages are the org's opportunity stages (`OpportunityStage`), and the
+ *   task board, whose stages are its task statuses (`TaskStatus`). Deals are opportunities with their contact roles;
+ *   tasks are the tasks that aren't logged calls or emails. Both arrive with their owner (`owner`: the org's user,
+ *   from every User, read once per run) and the org's default currency.
  *
  * Nothing is incremental (every run reads in full; unchanged records are skipped by hash). Salesforce limits API
  * requests per org per rolling 24 hours rather than per second, and answers a spent allowance with a 403
@@ -51,6 +55,12 @@ final class SalesforceReader implements SourceReader
     private const UNSELECTED_TYPES = ['address', 'location', 'base64'];
     /** The activity objects read as notes, in order, with the condition each is read under. */
     private const ACTIVITIES = ['Task' => "TaskSubtype IN ('Call', 'Email', 'ListEmail')", 'Event' => '', 'Note' => ''];
+    /** The tasks read as tasks (not logged calls or emails, which are notes). */
+    public const OPEN_TASKS = "(TaskSubtype = null OR TaskSubtype NOT IN ('Call', 'Email', 'ListEmail'))";
+    public const STAGES_SOQL = 'SELECT Id, MasterLabel, ApiName, IsActive, IsClosed, IsWon, SortOrder, DefaultProbability, ForecastCategoryName FROM OpportunityStage ORDER BY SortOrder';
+    public const STATUSES_SOQL = 'SELECT Id, MasterLabel, ApiName, IsClosed, IsDefault, SortOrder FROM TaskStatus ORDER BY SortOrder';
+    public const USERS_SOQL = 'SELECT Id, Name, Email, IsActive FROM User ORDER BY Id';
+    public const CONTACT_ROLES = ', (SELECT ContactId, IsPrimary FROM OpportunityContactRoles)';
     /** The person objects read as contacts, in order, with the condition each is read under. */
     private const PEOPLE = ['Contact' => '', 'Lead' => 'IsConverted = false'];
 
@@ -59,6 +69,8 @@ final class SalesforceReader implements SourceReader
     /** @var array<string, array<string, list<string>>> membership kind → record id → the ids it belongs to */
     private array $memberships = [];
     private ?string $orgCurrency = null;
+    /** @var array<string, array<array-key, mixed>>|null user id → the user */
+    private ?array $users = null;
 
     public function __construct(private readonly RestClient $client) {}
 
@@ -95,6 +107,9 @@ final class SalesforceReader implements SourceReader
                 null,
                 fn(Node $order): Node => new Node([...$order->raw(), 'org_currency' => $this->orgCurrency()]),
             ),
+            Kind::CrmPipeline => new Page($this->boards(), false, null),
+            Kind::CrmDeal => $this->records('Opportunity', '', $cursor, self::CONTACT_ROLES, null, $this->owned(...)),
+            Kind::CrmTask => $this->records('Task', self::OPEN_TASKS, $cursor, '', null, $this->owned(...)),
             default => throw new SourceError("Salesforce has no {$kind->value}."),
         };
     }
@@ -197,22 +212,15 @@ final class SalesforceReader implements SourceReader
             ? 'SELECT CampaignId, ContactId, LeadId FROM CampaignMember ORDER BY Id'
             : "SELECT TopicId, EntityId FROM TopicAssignment WHERE EntityType IN ('Contact', 'Lead') ORDER BY Id";
         $members = [];
-        $response = $this->required(self::API_PATH . '/query', ['q' => $soql]);
-        while (true) {
-            foreach ($response->list('records') as $row) {
-                $group = $row->optionalString('CampaignId') ?? $row->string('TopicId');
-                foreach (['ContactId', 'LeadId', 'EntityId'] as $field) {
-                    $member = $row->optionalString($field);
-                    if ($member !== null) {
-                        $members[$member][] = $group;
-                    }
+        foreach ($this->all($soql) as $row) {
+            $row = new Node($row);
+            $group = $row->optionalString('CampaignId') ?? $row->string('TopicId');
+            foreach (['ContactId', 'LeadId', 'EntityId'] as $field) {
+                $member = $row->optionalString($field);
+                if ($member !== null) {
+                    $members[$member][] = $group;
                 }
             }
-            $next = ($response->raw()['done'] ?? true) === true ? null : $response->optionalString('nextRecordsUrl');
-            if ($next === null) {
-                break;
-            }
-            $response = $this->required($next);
         }
 
         return $this->memberships[$object] = $members;
@@ -248,6 +256,59 @@ final class SalesforceReader implements SourceReader
         }
 
         return $this->describes[$object];
+    }
+
+    /**
+     * The opportunity board (the org's opportunity stages) and the task board (its task statuses).
+     *
+     * @return list<Node>
+     */
+    private function boards(): array
+    {
+        return [
+            self::identified('Board', 'Opportunity', ['stages' => $this->all(self::STAGES_SOQL), 'org_currency' => $this->orgCurrency()]),
+            self::identified('Board', 'Task', ['stages' => $this->all(self::STATUSES_SOQL)]),
+        ];
+    }
+
+    /** An opportunity or task with its owner and the org's default currency. */
+    private function owned(Node $record): Node
+    {
+        return new Node([...$record->raw(), 'owner' => $this->users()[$record->optionalString('OwnerId') ?? ''] ?? null, 'org_currency' => $this->orgCurrency()]);
+    }
+
+    /** @return array<string, array<array-key, mixed>> user id → the user, every one, read once per run */
+    private function users(): array
+    {
+        if ($this->users === null) {
+            $this->users = [];
+            foreach ($this->all(self::USERS_SOQL) as $user) {
+                $this->users[(new Node($user))->string('Id')] = $user;
+            }
+        }
+
+        return $this->users;
+    }
+
+    /**
+     * Every row of a query, following its batches.
+     *
+     * @return list<array<array-key, mixed>>
+     */
+    private function all(string $soql): array
+    {
+        $rows = [];
+        $response = $this->required(self::API_PATH . '/query', ['q' => $soql]);
+        while (true) {
+            foreach ($response->list('records') as $row) {
+                $rows[] = $row->raw();
+            }
+            $next = ($response->raw()['done'] ?? true) === true ? null : $response->optionalString('nextRecordsUrl');
+            if ($next === null) {
+                return $rows;
+            }
+            $response = $this->required($next);
+        }
     }
 
     /** The org's default currency, for orders in an org without multiple currencies. */

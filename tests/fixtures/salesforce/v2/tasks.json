@@ -2,7 +2,7 @@
   "request": {
     "path": "/services/data/v62.0/query",
     "query": {
-      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, WhoId, WhatId, Subject, ActivityDate, Status, Priority, OwnerId, Description, TaskSubtype, CallDurationInSeconds, CallType, CallDisposition FROM Task WHERE TaskSubtype IN ('Call', 'Email', 'ListEmail') ORDER BY Id"
+      "q": "SELECT Id, IsDeleted, CreatedDate, LastModifiedDate, SystemModstamp, WhoId, WhatId, Subject, ActivityDate, Status, Priority, OwnerId, Description, TaskSubtype, CallDurationInSeconds, CallType, CallDisposition, IsClosed, AccountId, CompletedDateTime FROM Task WHERE TaskSubtype IN ('Call', 'Email', 'ListEmail') ORDER BY Id"
     }
   },
   "response": {
@@ -30,7 +30,10 @@
         "TaskSubtype": "Call",
         "CallDurationInSeconds": 754,
         "CallType": "Outbound",
-        "CallDisposition": "Left message"
+        "CallDisposition": "Left message",
+        "IsClosed": true,
+        "AccountId": null,
+        "CompletedDateTime": null
       },
       {
         "attributes": {
@@ -53,7 +56,10 @@
         "TaskSubtype": "Email",
         "CallDurationInSeconds": null,
         "CallType": null,
-        "CallDisposition": null
+        "CallDisposition": null,
+        "IsClosed": true,
+        "AccountId": null,
+        "CompletedDateTime": null
       }
     ]
   }

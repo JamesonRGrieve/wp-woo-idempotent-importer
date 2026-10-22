@@ -32,11 +32,13 @@ use IdempotentImporter\Source\SourceReader;
  * - Labels are the options of the person label field; product categories the options of the product category
  *   field.
  * - Notes, then done activities, are read one after the other (the cursor names which), each as one node per
- *   person and organization it belongs to (`<id>-person-<person id>`, `<id>-org-<organization id>`). Activities
- *   still to do are tasks (planned).
+ *   person and organization it belongs to (`<id>-person-<person id>`, `<id>-org-<organization id>`).
+ * - Boards are the pipelines, each with its stages (every stage read once per run), and the activity board. Deals,
+ *   and activities as tasks (those to do, then those done: the cursor names which), arrive with their owner
+ *   (`owner`: the company's user, from every user, read once per run).
  *
- * Persons, organizations, products and activities are incremental (`updated_since`); everything else is read in
- * full, and unchanged objects are skipped by hash.
+ * Persons, organizations, products, deals and activities are incremental (`updated_since`); everything else is
+ * read in full, and unchanged objects are skipped by hash.
  */
 final class PipedriveReader implements SourceReader
 {
@@ -61,13 +63,17 @@ final class PipedriveReader implements SourceReader
     private const LABEL_FIELDS = ['label_ids', 'label'];
     private const CATEGORY_FIELD = 'category';
     private const INDUSTRY_FIELD = 'industry';
-    private const INCREMENTAL = [Kind::Contact, Kind::CrmCompany, Kind::Product];
+    private const INCREMENTAL = [Kind::Contact, Kind::CrmCompany, Kind::Product, Kind::CrmDeal, Kind::CrmTask];
+    /** The activities read as tasks, in order: those still to do, then those done. */
+    private const ACTIVITY_PHASES = ['false', 'true'];
 
     /** @var array<string, list<Node>> field kind → its field definitions */
     private array $fieldDefinitions = [];
     /** @var array<int, list<int>>|null person id → the ids of the filters it matches */
     private ?array $filterMembers = null;
     private ?string $currency = null;
+    /** @var array<int, array<array-key, mixed>>|null user id → the user */
+    private ?array $users = null;
 
     public function __construct(private readonly RestClient $client) {}
 
@@ -100,6 +106,9 @@ final class PipedriveReader implements SourceReader
             Kind::Contact => $this->v2('/persons', $cursor, [...$updated, 'include_fields' => 'marketing_status'], $this->person(...)),
             Kind::CrmNote => $this->notes($cursor),
             Kind::Product => $this->v2('/products', $cursor, $updated, $this->product(...)),
+            Kind::CrmPipeline => new Page($this->boards(), false, null),
+            Kind::CrmDeal => $this->v2('/deals', $cursor, $updated, fn(Node $deal): Node => $this->owned('Deal', $deal)),
+            Kind::CrmTask => $this->activities($cursor, $updated),
             default => throw new SourceError("Pipedrive has no {$kind->value}."),
         };
     }
@@ -200,15 +209,7 @@ final class PipedriveReader implements SourceReader
 
     private function product(Node $product): Node
     {
-        $variations = [];
-        $cursor = null;
-        do {
-            $response = $this->required(self::V2 . '/products/' . $product->int('id') . '/variations', ['limit' => self::PAGE_SIZE, ...($cursor === null ? [] : ['cursor' => $cursor])]);
-            foreach (is_array($response->raw()['data'] ?? null) ? $response->list('data') : [] as $variation) {
-                $variations[] = $variation->raw();
-            }
-            $cursor = $response->child('additional_data')?->optionalString('next_cursor');
-        } while ($cursor !== null);
+        $variations = array_map(static fn(Node $variation): array => $variation->raw(), $this->v2All('/products/' . $product->int('id') . '/variations'));
 
         return self::identified('Product', $product->int('id'), [
             ...$product->raw(),
@@ -246,6 +247,87 @@ final class PipedriveReader implements SourceReader
     }
 
     /**
+     * The pipelines, each with its stages in order, then the activity board.
+     *
+     * @return list<Node>
+     */
+    private function boards(): array
+    {
+        $stages = [];
+        foreach ($this->v2All('/stages') as $stage) {
+            $stages[$stage->int('pipeline_id')][] = $stage->raw();
+        }
+        $boards = array_map(
+            static fn(Node $pipeline): Node => self::identified('Pipeline', $pipeline->int('id'), [...$pipeline->raw(), 'stages' => $stages[$pipeline->int('id')] ?? []]),
+            $this->v2All('/pipelines'),
+        );
+        $boards[] = self::identified('ActivityBoard', 'activities', []);
+
+        return $boards;
+    }
+
+    /**
+     * Activities as tasks: those to do, then those done (`<phase>:<their cursor>`).
+     *
+     * @param array<string, scalar> $updated
+     */
+    private function activities(?string $cursor, array $updated): Page
+    {
+        [$phase, $inner] = array_pad(explode(self::CURSOR_SEPARATOR, $cursor ?? '', 2), 2, '');
+        $phase = (int) $phase;
+        $done = self::ACTIVITY_PHASES[$phase] ?? null;
+        if ($done === null) {
+            return new Page([], false, null);
+        }
+        $page = $this->v2('/activities', $inner === '' ? null : $inner, [...$updated, 'done' => $done], fn(Node $activity): Node => $this->owned('Activity', $activity));
+        if ($page->hasNextPage) {
+            return new Page($page->nodes, true, $phase . self::CURSOR_SEPARATOR . $page->endCursor);
+        }
+        $more = isset(self::ACTIVITY_PHASES[$phase + 1]);
+
+        return new Page($page->nodes, $more, $more ? ($phase + 1) . self::CURSOR_SEPARATOR : null);
+    }
+
+    /** A deal or activity with its identity and its owner. */
+    private function owned(string $type, Node $item): Node
+    {
+        return self::identified($type, $item->int('id'), [...$item->raw(), 'owner' => $this->users()[$item->optionalInt('owner_id') ?? 0] ?? null]);
+    }
+
+    /** @return array<int, array<array-key, mixed>> user id → the user, every one, read once per run */
+    private function users(): array
+    {
+        if ($this->users === null) {
+            $this->users = [];
+            foreach ($this->required(self::V1 . '/users')->list('data') as $user) {
+                $this->users[$user->int('id')] = $user->raw();
+            }
+        }
+
+        return $this->users;
+    }
+
+    /**
+     * Every item of an API v2 list.
+     *
+     * @param array<string, scalar> $query
+     *
+     * @return list<Node>
+     */
+    private function v2All(string $path, array $query = []): array
+    {
+        $items = [];
+        $cursor = null;
+        do {
+            $page = $this->v2($path, $cursor, $query, static fn(Node $item): Node => $item);
+            $items = [...$items, ...$page->nodes];
+            $cursor = $page->endCursor;
+        } while ($page->hasNextPage);
+
+        return $items;
+    }
+
+    /**
      * A note or activity as one node per person and per organization it belongs to.
      *
      * @param list<?int> $people
@@ -279,14 +361,9 @@ final class PipedriveReader implements SourceReader
         }
         $members = [];
         foreach ($this->filters() as $filter) {
-            $cursor = null;
-            do {
-                $page = $this->v2('/persons', $cursor, ['filter_id' => $filter->int('id')], static fn(Node $person): Node => $person);
-                foreach ($page->nodes as $person) {
-                    $members[$person->int('id')][] = $filter->int('id');
-                }
-                $cursor = $page->endCursor;
-            } while ($page->hasNextPage);
+            foreach ($this->v2All('/persons', ['filter_id' => $filter->int('id')]) as $person) {
+                $members[$person->int('id')][] = $filter->int('id');
+            }
         }
 
         return $this->filterMembers = $members;

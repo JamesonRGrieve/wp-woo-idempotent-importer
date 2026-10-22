@@ -15,26 +15,29 @@ final readonly class ApiSpec
 {
     public const OPENAPI_REF_PREFIX = '#/components/schemas/';
     public const SWAGGER_REF_PREFIX = '#/definitions/';
+    /** Where an OpenAPI 3 document keeps responses its operations share by reference. */
+    public const RESPONSE_REF_PREFIX = '#/components/responses/';
 
     /**
      * @param array<string, array<string, mixed>> $schemas by name
      * @param array<string, array<string, mixed>> $paths path template → operations
+     * @param array<string, array<string, mixed>> $responses shared responses by name
      */
-    private function __construct(public array $schemas, public string $refPrefix, private array $paths, private string $prefixPattern) {}
+    private function __construct(public array $schemas, public string $refPrefix, private array $paths, private string $prefixPattern, private array $responses) {}
 
     public static function decode(mixed $document, string $prefixPattern): self
     {
         $document = Json::object($document, 'the document');
         $swagger = isset($document['swagger']);
-        $schemas = $swagger
-            ? $document['definitions'] ?? []
-            : Json::object($document['components'] ?? [], 'components')['schemas'] ?? [];
+        $components = $swagger ? [] : Json::object($document['components'] ?? [], 'components');
+        $schemas = $swagger ? $document['definitions'] ?? [] : $components['schemas'] ?? [];
 
         return new self(
             self::objects($schemas, 'schemas'),
             $swagger ? self::SWAGGER_REF_PREFIX : self::OPENAPI_REF_PREFIX,
             self::objects($document['paths'] ?? null, 'paths'),
             $prefixPattern,
+            self::objects($components['responses'] ?? [], 'responses'),
         );
     }
 
@@ -50,8 +53,12 @@ final readonly class ApiSpec
         if ($operation === null) {
             return null;
         }
-        $schema = self::at($operation, ['responses', '200', 'content', 'application/json', 'schema'])
-            ?? self::at($operation, ['responses', '200', 'schema']);
+        $response = self::at($operation, ['responses', '200']);
+        $reference = self::at($response, ['$ref']);
+        if (is_string($reference) && str_starts_with($reference, self::RESPONSE_REF_PREFIX)) {
+            $response = $this->responses[substr($reference, strlen(self::RESPONSE_REF_PREFIX))] ?? null;
+        }
+        $schema = self::at($response, ['content', 'application/json', 'schema']) ?? self::at($response, ['schema']);
 
         return $schema === null ? null : Json::object($schema, "{$method} {$template} 200 schema");
     }

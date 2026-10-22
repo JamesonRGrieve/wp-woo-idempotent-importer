@@ -10,6 +10,10 @@ declare(strict_types=1);
  * it verified. A source's own checks live in checks/<source>.php.
  */
 
+use FluentBoards\App\Models\Board;
+use FluentBoards\App\Models\Relation;
+use FluentBoards\App\Models\Stage;
+use FluentBoards\App\Models\Task;
 use FluentCrm\App\Models\Company;
 use FluentCrm\App\Models\Subscriber;
 use FluentCrm\App\Models\SubscriberMeta;
@@ -27,6 +31,7 @@ use IdempotentImporter\Store\RunRecord;
 use IdempotentImporter\Sync\Mode;
 use IdempotentImporter\Sync\Runner;
 use IdempotentImporter\Sync\RunState;
+use IdempotentImporter\Wp\Fluent\FluentBoards;
 use IdempotentImporter\Wp\Fluent\FluentCrm;
 use IdempotentImporter\Wp\Options;
 use IdempotentImporter\Wp\Scheduler;
@@ -42,6 +47,8 @@ const CONTENT_TABLES = [
     // FluentCRM, the home of CRM data.
     'fc_subscribers', 'fc_subscriber_meta', 'fc_subscriber_pivot', 'fc_subscriber_notes', 'fc_lists', 'fc_tags', 'fc_companies',
     'fc_meta',
+    // FluentBoards, the home of CRM pipelines, deals and tasks.
+    'fbs_boards', 'fbs_board_terms', 'fbs_tasks', 'fbs_relations', 'fbs_metas',
 ];
 const WEBHOOK_SECRET = 'e2e-webhook-secret';
 /** The Shopify app's client secret, as wp-config-extra.php defines it (Dev Dashboard apps sign webhooks with it). */
@@ -179,6 +186,38 @@ function fluentNoteTypes(Subscriber $contact): array
     return $types;
 }
 
+/** A mirrored FluentBoards task (a deal or a task). */
+function boardTask(Kind $kind, string $gid): Task
+{
+    return FluentBoards::task(target($kind, $gid)) ?? throw new RuntimeException("FAILED: {$gid} is not a FluentBoards task");
+}
+
+/** The FluentBoards board a mirrored pipeline is. */
+function board(string $gid): Board
+{
+    return FluentBoards::board(target(Kind::CrmPipeline, $gid)) ?? throw new RuntimeException("FAILED: {$gid} is not a FluentBoards board");
+}
+
+/** The title of a task's stage. */
+function stageTitle(Task $task): string
+{
+    $stage = FluentBoards::stage((int) FluentBoards::string($task, 'stage_id'));
+
+    return $stage === null ? '' : FluentBoards::string($stage, 'title');
+}
+
+/** @return list<string> the titles of a board's live stages, in order */
+function stageTitles(Board $board): array
+{
+    return array_values(array_map(static fn(mixed $title): string => is_string($title) ? $title : '', (new Stage())->newQuery()->where('board_id', FluentBoards::id($board))->whereNull('archived_at')->orderBy('position')->pluck('title')->all()));
+}
+
+/** @return list<int> the WordPress users a task is assigned to */
+function assignees(Task $task): array
+{
+    return array_values(array_map(static fn(mixed $id): int => is_numeric($id) ? (int) $id : 0, (new Relation())->newQuery()->where('object_type', 'task_assignee')->where('object_id', FluentBoards::id($task))->pluck('foreign_id')->all()));
+}
+
 function money(float|string $amount): string
 {
     return wc_format_decimal((string) $amount, 2);
@@ -273,7 +312,7 @@ function state(string $source, string $state): void
 function noMail(): void
 {
     expect(Options::int('iim_e2e_mail_sent') === 0, 'no email reached the mailer during the imports');
-    expect(Options::int('iim_e2e_fluent_events') === 0, 'no FluentCRM contact, list or tag event (which start automations) fired during the imports');
+    expect(Options::int('iim_e2e_fluent_events') === 0, 'no FluentCRM contact, list or tag event (which start automations) and no FluentBoards board or task event (which notify) fired during the imports');
 }
 
 function zeroWrites(string $before): void

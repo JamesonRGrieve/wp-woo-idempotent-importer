@@ -36,10 +36,10 @@ declare -A CHANGES=(
     [lightspeed]="a price, a deleted product, a credit note, a new order, customer, article and review"
     [ecwid]="a price, a deleted product, a refund, a new order, customer and review"
     [webflow]="a price, a refunded order, a new order and customer, a new post and a removed redirect"
-    [hubspot]="a custom property and a company field, a contact leaving and one joining a segment, a new contact with a note, a price and a new order"
-    [salesforce]="a custom account field, a new lead in a campaign with a note, a changed note, a price and a new draft order"
-    [pipedrive]="a removed label, a person leaving and one joining a filter, a custom organization field, a changed note and a price"
-    [zoho]="a custom account field, a new lead in a campaign with a note, a changed note, a price and a new sales order"
+    [hubspot]="a custom property and a company field, a contact leaving and one joining a segment, a new contact with a note, a price, a new order, a new pipeline stage, a won deal, a new deal and a completed task"
+    [salesforce]="a custom account field, a new lead in a campaign with a note, a changed note, a price, a new draft order, a won and a new opportunity, a completed task and a new one"
+    [pipedrive]="a removed label, a person leaving and one joining a filter, a custom organization field, a changed note, a price, a deleted stage, a won deal and an activity done"
+    [zoho]="a custom account field, a new lead in a campaign with a note, a changed note, a price, a new sales order, a won deal and a completed task"
     [freshbooks]="a price and stock count, a changed phone, a new client and organization, a payment settling an invoice, and a disputed invoice"
     [wave]="a price, a changed phone, a payment settling a guest invoice, and a new partly paid invoice"
     [quickbooks_online]="a price and quantity on hand, a changed phone, and a payment settling an invoice"
@@ -54,6 +54,8 @@ for source in "${ALL_SOURCES[@]}"; do
 done
 # FluentCRM (free, GPL), the WordPress home of CRM data, at the version the importer is analysed against.
 FLUENTCRM_VERSION=3.2.6
+# FluentBoards (free, GPL, by the FluentCRM team), the WordPress home of CRM pipelines, deals and tasks, likewise.
+FLUENTBOARDS_VERSION=2.2.2
 
 # Optional: keep the image/container store somewhere else (e.g. local disk when $HOME is on NFS).
 if [ -n "${E2E_PODMAN_ROOT:-}" ]; then
@@ -155,6 +157,7 @@ wait_for_db
 wp core install --url=http://localhost --title=E2E --admin_user=e2e --admin_email=e2e@example.com --skip-email --quiet
 wp plugin install woocommerce --activate --quiet
 wp plugin install fluent-crm --version="$FLUENTCRM_VERSION" --activate --quiet
+wp plugin install fluent-boards --version="$FLUENTBOARDS_VERSION" --activate --quiet
 podman run --rm --user 33:33 -v "$WP_VOLUME:/var/www/html" -v "$ROOT:/src:ro" "$WP_IMAGE" \
     sh -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cp /src/tests/e2e/mu-plugin.php /var/www/html/wp-content/mu-plugins/iim-e2e.php'
 wp plugin activate "$PLUGIN_SLUG"

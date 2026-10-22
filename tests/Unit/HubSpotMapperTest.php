@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Tests\Unit;
 
+use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
 use IdempotentImporter\Mapping\Unsupported;
@@ -15,10 +16,13 @@ use IdempotentImporter\Source\HubSpot\HubSpotReader;
 use IdempotentImporter\Source\HubSpot\Mapping\CompanyMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\ContactMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\CustomerMapper;
+use IdempotentImporter\Source\HubSpot\Mapping\DealMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\EngagementMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\ListMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\OrderMapper;
+use IdempotentImporter\Source\HubSpot\Mapping\PipelineMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\ProductMapper;
+use IdempotentImporter\Source\HubSpot\Mapping\TaskMapper;
 use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\OAuth2\BearerAuthorizer;
 use IdempotentImporter\Tests\Support\FixtureResponder;
@@ -153,6 +157,73 @@ final class HubSpotMapperTest extends TestCase
         self::assertSame('processing', $order->string('status'));
         self::assertSame('Tracking CP123456789CA', $order->records('notes')[0]->string('message'));
         self::assertSame(['hs_fulfillment_status' => 'Shipped', 'hs_pipeline_stage' => '4b27b500', 'hs_source_store' => 'Studio'], $order->raw('order'), 'every other order property is meta');
+    }
+
+    public function testPipelinesAndTheTaskBoard(): void
+    {
+        [$pipeline, $tasks] = array_map(Values::of(...), $this->desired('v1', Kind::CrmPipeline, new PipelineMapper()));
+
+        self::assertSame('Wholesale', $pipeline->string('title'));
+        self::assertSame([
+            ['key' => 'appointmentscheduled', 'title' => 'Appointment scheduled', 'closed' => false, 'outcome' => null, 'probability' => '0.2'],
+            ['key' => 'qualifiedtobuy', 'title' => 'Qualified to buy', 'closed' => false, 'outcome' => null, 'probability' => '0.4'],
+            ['key' => 'closedwon', 'title' => 'Closed won', 'closed' => true, 'outcome' => 'won', 'probability' => '1'],
+            ['key' => 'closedlost', 'title' => 'Closed lost', 'closed' => true, 'outcome' => 'lost', 'probability' => '0'],
+        ], $pipeline->raw('stages'), 'in display order; a closed stage at probability 1 is won, at 0 lost');
+        self::assertSame('HubSpot tasks', $tasks->string('title'));
+        self::assertSame(['NOT_STARTED', 'IN_PROGRESS', 'WAITING', 'COMPLETED', 'DEFERRED'], array_map(static fn(Values $stage): string => $stage->string('key'), $tasks->records('stages')), 'a stage per task status');
+        self::assertSame([false, false, false, true, false], array_map(static fn(Values $stage): bool => $stage->bool('closed'), $tasks->records('stages')), 'completed tasks are closed');
+
+        $v2 = Values::of($this->desired('v2', Kind::CrmPipeline, new PipelineMapper())[0]);
+        self::assertSame('contractsent', $v2->records('stages')[2]->string('key'), 'a new stage takes its place');
+    }
+
+    public function testDeals(): void
+    {
+        [$mugs, $service] = $this->desired('v1', Kind::CrmDeal, new DealMapper());
+        $f = Values::of($mugs);
+
+        self::assertSame(['gid://hubspot/Pipeline/default', 'qualifiedtobuy'], [$f->string('board_gid'), $f->string('stage_key')]);
+        self::assertSame(['Wholesale mugs', '<p>Two hundred mugs for the spring market.</p>'], [$f->string('title'), $f->string('description_html')]);
+        self::assertSame(['open', null, '1500.50', '1500.5', 'CAD'], [$f->string('status'), $f->nullableString('outcome'), $f->nullableString('lead_value'), $f->nullableString('amount'), $f->nullableString('currency')]);
+        self::assertSame(['2026-10-15T17:00:00Z', 'high', '2026-08-10T16:00:00Z', null], [$f->nullableString('due_at'), $f->nullableString('priority'), $f->nullableString('created_at'), $f->nullableString('completed_at')]);
+        self::assertSame(['gid://hubspot/Contact/501', 'gid://hubspot/Contact/502'], $f->strings('contact_gids'), 'the first is the FluentBoards contact');
+        self::assertSame(['gid://hubspot/Company/9001'], $f->strings('company_gids'));
+        self::assertSame(['id' => '77', 'email' => 'e2e@example.com', 'name' => 'Eve Two'], $f->raw('owner'), 'its owner, from the Owners API');
+        self::assertSame(['dealtype' => 'newbusiness'], $f->raw('deal'), 'other settable properties are meta (calculated ones are not)');
+        self::assertSame(['kiln_count' => '2'], $f->raw('custom'), "the account's own properties are meta");
+        self::assertSame([], $mugs->warnings);
+
+        $lost = Values::of($service);
+        self::assertSame(['closed', 'lost', '2026-09-20T17:00:00Z'], [$lost->string('status'), $lost->nullableString('outcome'), $lost->nullableString('completed_at')]);
+        self::assertSame(['id' => '78', 'email' => 'former.potter@example.com', 'name' => 'Fen Ash'], $lost->raw('owner'), 'an archived owner too');
+
+        $won = Values::of($this->desired('v2', Kind::CrmDeal, new DealMapper())[0]);
+        self::assertSame(['closedwon', 'closed', 'won'], [$won->string('stage_key'), $won->string('status'), $won->nullableString('outcome')]);
+    }
+
+    public function testTasks(): void
+    {
+        [$call, $quote] = array_map(Values::of(...), $this->desired('v1', Kind::CrmTask, new TaskMapper()));
+
+        self::assertSame(['gid://hubspot/TaskBoard/tasks', 'NOT_STARTED', 'open'], [$call->string('board_gid'), $call->string('stage_key'), $call->string('status')]);
+        self::assertSame(['Call Ada about the glaze order', '<p>Confirm colours.</p>', 'high', '2026-10-30T16:00:00Z'], [$call->string('title'), $call->string('description_html'), $call->nullableString('priority'), $call->nullableString('due_at')]);
+        self::assertSame(['gid://hubspot/Contact/501'], $call->strings('contact_gids'));
+        self::assertSame(['hs_task_type' => 'CALL'], $call->raw('task'));
+        self::assertSame([null, null], [$call->nullableString('lead_value'), $quote->nullableString('priority')], 'a task has no value; priority NONE is none');
+
+        $done = Values::of($this->desired('v2', Kind::CrmTask, new TaskMapper())[0]);
+        self::assertSame(['COMPLETED', 'closed', '2026-10-20T18:00:00Z'], [$done->string('stage_key'), $done->string('status'), $done->nullableString('completed_at')]);
+    }
+
+    public function testAnAmountFluentBoardsCantHoldIsKeptAsMeta(): void
+    {
+        $desired = BoardContract::card(Kind::CrmDeal, 'gid://hubspot/Deal/1', ['gid' => 'gid://hubspot/Pipeline/p', 'stage' => 's'], 'Big', '', null, false, '123456789.5', 'CAD', null, null, [], null, null, null);
+
+        self::assertNull(Values::of($desired)->nullableString('lead_value'));
+        self::assertSame('123456789.5', Values::of($desired)->nullableString('amount'), 'the exact amount is meta');
+        self::assertCount(1, $desired->warnings);
+        self::assertSame('12.00', Values::of(BoardContract::card(Kind::CrmDeal, 'g', ['gid' => 'b', 'stage' => 's'], 'x', '', null, false, '12', null, null, null, [], null, null, null))->nullableString('lead_value'));
     }
 
     /** @return list<Desired> */

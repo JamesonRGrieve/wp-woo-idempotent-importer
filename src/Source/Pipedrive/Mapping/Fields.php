@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Source\Pipedrive\Mapping;
 
+use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Times;
 use IdempotentImporter\Source\Identity;
@@ -142,5 +143,19 @@ final class Fields
             is_string($value) => $value,
             default => '',
         };
+    }
+
+    /**
+     * The company user a deal or activity belongs to (`owner`, which the reader adds from every user), else its
+     * owner id.
+     *
+     * @return array{id: string, email: ?string, name: ?string}|null
+     */
+    public static function owner(Node $node): ?array
+    {
+        $user = $node->child('owner');
+        $id = $user?->optionalInt('id') ?? $node->optionalInt('owner_id');
+
+        return BoardContract::owner($id === null ? null : (string) $id, $user?->optionalString('email'), $user?->optionalString('name'));
     }
 }

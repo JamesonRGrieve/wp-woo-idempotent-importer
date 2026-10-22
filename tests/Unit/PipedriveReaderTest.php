@@ -55,7 +55,7 @@ final class PipedriveReaderTest extends TestCase
 
         self::assertStringContainsString('updated_since=2026-09-01T00%3A00%3A00%2B00%3A00', $transport->requests[0]['url']);
         foreach (Kind::SYNC_ORDER as $kind) {
-            self::assertSame(in_array($kind, [Kind::Contact, Kind::CrmCompany, Kind::Product], true), $reader->isIncremental($kind), $kind->value);
+            self::assertSame(in_array($kind, [Kind::Contact, Kind::CrmCompany, Kind::Product, Kind::CrmDeal, Kind::CrmTask], true), $reader->isIncremental($kind), $kind->value);
         }
     }
 

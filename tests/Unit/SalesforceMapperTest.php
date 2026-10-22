@@ -15,11 +15,14 @@ use IdempotentImporter\Source\Node;
 use IdempotentImporter\Source\OAuth2\BearerAuthorizer;
 use IdempotentImporter\Source\Salesforce\Mapping\AccountMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\ActivityMapper;
+use IdempotentImporter\Source\Salesforce\Mapping\BoardMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\CampaignMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\ContactMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\CustomerMapper;
+use IdempotentImporter\Source\Salesforce\Mapping\OpportunityMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\OrderMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\ProductMapper;
+use IdempotentImporter\Source\Salesforce\Mapping\TaskMapper;
 use IdempotentImporter\Source\Salesforce\Mapping\TopicMapper;
 use IdempotentImporter\Source\Salesforce\SalesforceReader;
 use IdempotentImporter\Tests\Support\FixtureResponder;
@@ -139,6 +142,53 @@ final class SalesforceMapperTest extends TestCase
         self::assertSame(['AccountId' => '001Fh00000Fern01AAA', 'Status' => 'Activated', 'PoNumber' => 'PO-77'], $order->raw('order'), 'the status as Salesforce names it, with the other settable fields');
         $draft = Values::of($this->desired('v2', Kind::Order, new OrderMapper())[1]);
         self::assertSame('pending', $draft->string('status'), 'a draft order');
+    }
+
+    public function testBoards(): void
+    {
+        [$opportunities, $tasks] = array_map(Values::of(...), $this->desired('v1', Kind::CrmPipeline, new BoardMapper()));
+
+        self::assertSame(['Salesforce opportunities', 'CAD'], [$opportunities->string('title'), $opportunities->nullableString('currency')]);
+        self::assertSame([
+            ['key' => 'Prospecting', 'title' => 'Prospecting', 'closed' => false, 'outcome' => null, 'probability' => '10'],
+            ['key' => 'Negotiation/Review', 'title' => 'Negotiation', 'closed' => false, 'outcome' => null, 'probability' => '90'],
+            ['key' => 'Closed Won', 'title' => 'Closed Won', 'closed' => true, 'outcome' => 'won', 'probability' => '100'],
+            ['key' => 'Closed Lost', 'title' => 'Closed Lost', 'closed' => true, 'outcome' => 'lost', 'probability' => '0'],
+        ], $opportunities->raw('stages'), 'the active stages in their order, keyed by API name');
+        self::assertSame('Best Case', $opportunities->stringMap('forecast_categories')['Negotiation/Review']);
+        self::assertSame(['Not Started', 'In Progress', 'Completed'], array_map(static fn(Values $stage): string => $stage->string('title'), $tasks->records('stages')));
+        self::assertTrue($tasks->records('stages')[2]->bool('closed'));
+    }
+
+    public function testOpportunities(): void
+    {
+        [$mugs, $kiln] = array_map(Values::of(...), $this->desired('v1', Kind::CrmDeal, new OpportunityMapper()));
+
+        self::assertSame(['gid://salesforce/Board/Opportunity', 'Negotiation/Review', 'open'], [$mugs->string('board_gid'), $mugs->string('stage_key'), $mugs->string('status')]);
+        self::assertSame(['1500.50', 'CAD', '2026-10-15'], [$mugs->nullableString('lead_value'), $mugs->nullableString('currency'), $mugs->nullableString('due_at')]);
+        self::assertSame(['gid://salesforce/Contact/003Fh00000Ada001AAA', 'gid://salesforce/Contact/003Fh00000Bo0001AAA'], $mugs->strings('contact_gids'), 'the primary contact first');
+        self::assertSame(['gid://salesforce/Account/001Fh00000Fern01AAA'], $mugs->strings('company_gids'));
+        self::assertSame(['id' => '005Fh00000Own01AAA', 'email' => 'e2e@example.com', 'name' => 'Eve Two'], $mugs->raw('owner'));
+        self::assertSame(['Kiln_Count__c' => '2'], $mugs->raw('custom'));
+        self::assertSame(['Type' => 'New Customer', 'LeadSource' => 'Web'], $mugs->raw('opportunity'));
+        self::assertSame(['closed', 'lost', []], [$kiln->string('status'), $kiln->nullableString('outcome'), $kiln->strings('contact_gids')]);
+
+        $won = Values::of($this->desired('v2', Kind::CrmDeal, new OpportunityMapper())[0]);
+        self::assertSame(['Closed Won', 'won', '2026-10-15'], [$won->string('stage_key'), $won->nullableString('outcome'), $won->nullableString('completed_at')]);
+    }
+
+    public function testTasks(): void
+    {
+        $visit = Values::of($this->desired('v1', Kind::CrmTask, new TaskMapper())[0]);
+
+        self::assertSame(['gid://salesforce/Board/Task', 'Not Started', 'open', 'high'], [$visit->string('board_gid'), $visit->string('stage_key'), $visit->string('status'), $visit->nullableString('priority')]);
+        self::assertSame(['Visit the studio', '<p>Bring the glaze samples.</p>', '2026-10-30'], [$visit->string('title'), $visit->string('description_html'), $visit->nullableString('due_at')]);
+        self::assertSame(['gid://salesforce/Contact/003Fh00000Ada001AAA'], $visit->strings('contact_gids'));
+        self::assertSame(['TaskSubtype' => 'Task'], $visit->raw('task'));
+
+        [$done, $lead] = array_map(Values::of(...), $this->desired('v2', Kind::CrmTask, new TaskMapper()));
+        self::assertSame(['closed', '2026-10-20T18:00:00Z'], [$done->string('status'), $done->nullableString('completed_at')]);
+        self::assertSame(['gid://salesforce/Lead/00QFh00000Cy0001AAA', 'low'], [$lead->strings('contact_gids')[0], $lead->nullableString('priority')], 'a task about a lead, at low priority');
     }
 
     /** @return list<Desired> */

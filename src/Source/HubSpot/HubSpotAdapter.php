@@ -16,10 +16,13 @@ use IdempotentImporter\Source\ConnectsByOAuth;
 use IdempotentImporter\Source\HubSpot\Mapping\CompanyMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\ContactMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\CustomerMapper;
+use IdempotentImporter\Source\HubSpot\Mapping\DealMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\EngagementMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\ListMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\OrderMapper;
+use IdempotentImporter\Source\HubSpot\Mapping\PipelineMapper;
 use IdempotentImporter\Source\HubSpot\Mapping\ProductMapper;
+use IdempotentImporter\Source\HubSpot\Mapping\TaskMapper;
 use IdempotentImporter\Source\OAuth2\BearerAuthorizer;
 use IdempotentImporter\Source\OAuth2\OAuthApp;
 use IdempotentImporter\Source\OAuth2\OAuthConnection;
@@ -28,7 +31,8 @@ use IdempotentImporter\Source\WebhookReceiver;
 
 /**
  * HubSpot, through the CRM API v3: companies, contact lists and segments, contacts with their companies, lists
- * and custom properties, and their notes, calls, emails and meetings, into FluentCRM; the product library, the
+ * and custom properties, and their notes, calls, emails and meetings, into FluentCRM; deal pipelines, deals and
+ * tasks into FluentBoards; the product library, the
  * contacts who placed orders, and commerce orders with their line items, into WooCommerce. The operator creates
  * a private app (or connects an OAuth app) with the read scopes listed in coverage/hubspot.md. Scheduled runs
  * keep the mirror current.
@@ -51,7 +55,8 @@ final class HubSpotAdapter implements Adapter, ConnectsByOAuth
         'crm.objects.calls.read', 'crm.objects.emails.read', 'crm.objects.meetings.read', 'e-commerce',
         'crm.objects.line_items.read', 'crm.objects.orders.read', 'crm.schemas.contacts.read', 'crm.schemas.companies.read',
         'crm.schemas.line_items.read', 'crm.schemas.orders.read', 'crm.schemas.notes.read', 'crm.schemas.calls.read',
-        'crm.schemas.emails.read', 'crm.schemas.meetings.read',
+        'crm.schemas.emails.read', 'crm.schemas.meetings.read', 'crm.objects.deals.read', 'crm.schemas.deals.read',
+        'crm.objects.tasks.read', 'crm.schemas.tasks.read', 'crm.objects.owners.read',
     ];
 
     public function id(): string
@@ -66,7 +71,7 @@ final class HubSpotAdapter implements Adapter, ConnectsByOAuth
 
     public function kinds(): array
     {
-        return [Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::CrmList, Kind::Contact, Kind::CrmNote, Kind::Order];
+        return [Kind::Product, Kind::Customer, Kind::CrmCompany, Kind::CrmList, Kind::Contact, Kind::CrmNote, Kind::CrmPipeline, Kind::CrmDeal, Kind::CrmTask, Kind::Order];
     }
 
     public function mappers(Settings $settings): array
@@ -78,6 +83,9 @@ final class HubSpotAdapter implements Adapter, ConnectsByOAuth
             new ListMapper(),
             new ContactMapper(),
             new EngagementMapper(),
+            new PipelineMapper(),
+            new DealMapper(),
+            new TaskMapper(),
             new OrderMapper(),
         ];
     }

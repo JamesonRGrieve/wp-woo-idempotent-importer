@@ -145,6 +145,18 @@
                 },
                 {
                   "$ref": "#/components/schemas/Organization"
+                },
+                {
+                  "$ref": "#/components/schemas/Opportunity"
+                },
+                {
+                  "$ref": "#/components/schemas/OpportunityStage"
+                },
+                {
+                  "$ref": "#/components/schemas/TaskStatus"
+                },
+                {
+                  "$ref": "#/components/schemas/User"
                 }
               ]
             }
@@ -2611,6 +2623,502 @@
           },
           "DefaultCurrencyIsoCode": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OpportunityContactRoleQueryResult": {
+        "description": "An opportunity's contact roles, as a subquery (OpportunityContactRoles) answers: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_opportunitycontactrole.htm",
+        "type": "object",
+        "required": [
+          "totalSize",
+          "done",
+          "records"
+        ],
+        "properties": {
+          "totalSize": {
+            "type": "integer"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "attributes"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "attributes": {
+                  "$ref": "#/components/schemas/Attributes"
+                },
+                "ContactId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "IsPrimary": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "Role": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Opportunity": {
+        "description": "A Opportunity record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_opportunity.htm). Fields are those of the object's describe; a record also carries the org's custom fields (`<name>__c`), which no document can list.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Opportunity"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "IsDeleted": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "CreatedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CreatedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastModifiedById": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "SystemModstamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "AccountId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsPrivate": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "StageName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Amount": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "Probability": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ExpectedRevenue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "TotalOpportunityQuantity": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "CloseDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "NextStep": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LeadSource": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsClosed": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "IsWon": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "ForecastCategory": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ForecastCategoryName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CurrencyIsoCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "CampaignId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "HasOpportunityLineItem": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "Pricebook2Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OwnerId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ContactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "FiscalQuarter": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "FiscalYear": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "Fiscal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastActivityDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "OpportunityContactRoles": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OpportunityContactRoleQueryResult"
+              }
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "OpportunityStage": {
+        "description": "A OpportunityStage record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_opportunitystage.htm). Fields are those a SOQL selects.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "MasterLabel",
+          "ApiName"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "OpportunityStage"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MasterLabel": {
+            "type": "string"
+          },
+          "ApiName": {
+            "type": "string"
+          },
+          "IsActive": {
+            "type": "boolean"
+          },
+          "SortOrder": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "IsClosed": {
+            "type": "boolean"
+          },
+          "IsWon": {
+            "type": "boolean"
+          },
+          "ForecastCategory": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ForecastCategoryName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "DefaultProbability": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "Description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskStatus": {
+        "description": "A TaskStatus record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_taskstatus.htm). Fields are those a SOQL selects.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "MasterLabel",
+          "ApiName"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "TaskStatus"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MasterLabel": {
+            "type": "string"
+          },
+          "ApiName": {
+            "type": "string"
+          },
+          "SortOrder": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "IsDefault": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "IsClosed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "User": {
+        "description": "A User record (Object Reference: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_user.htm). Fields are those a SOQL selects.",
+        "type": "object",
+        "required": [
+          "attributes",
+          "Id"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "User"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "Id": {
+            "type": "string"
+          },
+          "Username": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "FirstName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "LastName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "IsActive": {
+            "type": [
+              "boolean",
+              "null"
+            ]
           }
         },
         "additionalProperties": false

@@ -34,6 +34,10 @@ use IdempotentImporter\Source\SourceReader;
  *   `<id>-company-<company id>`.
  * - Orders arrive with their line items (batch read) and contacts; customers are the contacts associated with
  *   orders, page by page of orders.
+ * - Boards are the deal pipelines with their stages (`/crm/v3/pipelines/deals`), and the account's task list, whose
+ *   stages are the options of the task status property. Deals (object type `0-3`) and tasks arrive with their
+ *   contacts and companies and their owner (`owner`: the HubSpot user, from the Owners API, read once per run,
+ *   active and archived).
  *
  * Nothing is incremental: the list endpoints have no changed-since filter (only the Search API does, with its own
  * lower limits and a 10,000-result cap), so every run reads in full and unchanged objects are skipped by hash.
@@ -56,6 +60,11 @@ final class HubSpotReader implements SourceReader
     public const REMAINING_HEADER = 'X-HubSpot-RateLimit-Remaining';
     /** The contact object's type id, which the Lists API names lists by. */
     public const CONTACT_OBJECT_TYPE = '0-1';
+    /** The task status property, whose options are the task board's stages. */
+    public const TASK_STATUS = 'hs_task_status';
+    /** The property naming the HubSpot user a record belongs to. */
+    public const OWNER_PROPERTY = 'hubspot_owner_id';
+    public const OWNERS_PAGE_SIZE = 100;
     /** The activity objects read as notes, in order. */
     public const ENGAGEMENT_TYPES = ['notes', 'calls', 'emails', 'meetings'];
 
@@ -64,10 +73,17 @@ final class HubSpotReader implements SourceReader
     private const TYPES = [
         'contacts' => 'Contact', 'companies' => 'Company', 'notes' => 'Note', 'calls' => 'Call', 'emails' => 'Email',
         'meetings' => 'Meeting', 'products' => 'Product', 'orders' => 'Order', 'line_items' => 'LineItem',
+        'deals' => 'Deal', 'tasks' => 'Task',
     ];
+    /** The object path of a type whose published document names it by its object type id. */
+    private const OBJECT_PATHS = ['deals' => '0-3'];
+    /** The types that arrive with their owner. */
+    private const OWNED = ['deals', 'tasks'];
 
-    /** @var array<string, array{all: list<string>, stored: list<string>, custom: list<array<array-key, mixed>>}> object type → its properties */
+    /** @var array<string, array{all: list<string>, stored: list<string>, custom: list<array<array-key, mixed>>, definitions: array<string, array<array-key, mixed>>}> object type → its properties */
     private array $properties = [];
+    /** @var array<string, array<array-key, mixed>>|null owner id → the owner */
+    private ?array $owners = null;
     /** @var array<string, list<string>>|null contact id → the ids of its lists */
     private ?array $memberships = null;
 
@@ -100,6 +116,9 @@ final class HubSpotReader implements SourceReader
             Kind::Product => $this->objects('products', $cursor, []),
             Kind::Customer => $this->customers($cursor),
             Kind::Order => $this->objects('orders', $cursor, ['contacts', 'line_items']),
+            Kind::CrmPipeline => new Page($this->boards(), false, null),
+            Kind::CrmDeal => $this->objects('deals', $cursor, ['contacts', 'companies']),
+            Kind::CrmTask => $this->objects('tasks', $cursor, ['contacts', 'companies']),
             default => throw new SourceError("HubSpot has no {$kind->value}."),
         };
     }
@@ -135,7 +154,7 @@ final class HubSpotReader implements SourceReader
         if ($cursor !== null && $cursor !== '') {
             $query['after'] = $cursor;
         }
-        $response = $this->required("/crm/v3/objects/{$type}", $query);
+        $response = $this->required('/crm/v3/objects/' . (self::OBJECT_PATHS[$type] ?? $type), $query);
         $after = $response->child('paging')?->child('next')?->optionalString('after');
 
         return new Page(array_map(fn(Node $object): Node => $this->assemble($type, $object), $response->list('results')), $after !== null, $after);
@@ -169,6 +188,9 @@ final class HubSpotReader implements SourceReader
         if ($type === 'orders') {
             $raw['line_items'] = $this->lineItems(Fields::associated($object, 'line_items'));
         }
+        if (in_array($type, self::OWNED, true)) {
+            $raw['owner'] = $this->owners()[Fields::property($object, self::OWNER_PROPERTY) ?? ''] ?? null;
+        }
 
         return self::identified(self::TYPES[$type], $object->id(), $raw);
     }
@@ -177,7 +199,7 @@ final class HubSpotReader implements SourceReader
      * An object type's property names: every one (what is asked for), those the account can set (neither
      * calculated nor read-only), and the definitions of the account's own among those.
      *
-     * @return array{all: list<string>, stored: list<string>, custom: list<array<array-key, mixed>>}
+     * @return array{all: list<string>, stored: list<string>, custom: list<array<array-key, mixed>>, definitions: array<string, array<array-key, mixed>>}
      */
     private function properties(string $type): array
     {
@@ -185,12 +207,14 @@ final class HubSpotReader implements SourceReader
             $all = [];
             $stored = [];
             $custom = [];
+            $definitions = [];
             foreach ($this->required("/crm/v3/properties/{$type}")->list('results') as $definition) {
                 $raw = $definition->raw();
                 if (($raw['archived'] ?? false) === true) {
                     continue;
                 }
                 $all[] = $definition->string('name');
+                $definitions[$definition->string('name')] = $raw;
                 $readOnly = ($definition->child('modificationMetadata')?->raw()['readOnlyValue'] ?? false) === true;
                 if (($raw['calculated'] ?? false) === true || $readOnly) {
                     continue;
@@ -200,7 +224,7 @@ final class HubSpotReader implements SourceReader
                     $custom[] = $raw;
                 }
             }
-            $this->properties[$type] = ['all' => $all, 'stored' => $stored, 'custom' => $custom];
+            $this->properties[$type] = ['all' => $all, 'stored' => $stored, 'custom' => $custom, 'definitions' => $definitions];
         }
 
         return $this->properties[$type];
@@ -300,6 +324,44 @@ final class HubSpotReader implements SourceReader
         $more = isset(self::ENGAGEMENT_TYPES[$index + 1]);
 
         return new Page($nodes, $more, $more ? ($index + 1) . self::CURSOR_SEPARATOR : null);
+    }
+
+    /**
+     * The deal pipelines, each with its stages, then the task board, whose stages are the task status options.
+     *
+     * @return list<Node>
+     */
+    private function boards(): array
+    {
+        $boards = array_map(
+            static fn(Node $pipeline): Node => self::identified('Pipeline', $pipeline->string('id'), $pipeline->raw()),
+            $this->required('/crm/v3/pipelines/deals')->list('results'),
+        );
+        $status = $this->properties('tasks')['definitions'][self::TASK_STATUS] ?? throw new SourceError('HubSpot defines no task status property.');
+        $boards[] = self::identified('TaskBoard', 'tasks', ['status_property' => $status]);
+
+        return $boards;
+    }
+
+    /** @return array<string, array<array-key, mixed>> owner id → the owner, active and archived, read once per run */
+    private function owners(): array
+    {
+        if ($this->owners !== null) {
+            return $this->owners;
+        }
+        $owners = [];
+        foreach ([false, true] as $archived) {
+            $after = null;
+            do {
+                $response = $this->required('/crm/v3/owners', ['limit' => self::OWNERS_PAGE_SIZE, 'archived' => $archived, ...($after === null ? [] : ['after' => $after])]);
+                foreach ($response->list('results') as $owner) {
+                    $owners[$owner->string('id')] ??= $owner->raw();
+                }
+                $after = $response->child('paging')?->child('next')?->optionalString('after');
+            } while ($after !== null);
+        }
+
+        return $this->owners = $owners;
     }
 
     /** One page of orders' contacts, read in one batch, as customers. */
