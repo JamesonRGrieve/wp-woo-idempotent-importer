@@ -17,7 +17,7 @@ use IdempotentImporter\Support\Decimal;
  * An invoice or a sales receipt (the reader says which, `record_type`) → a WooCommerce order with QuickBooks' amounts.
  *
  * - Number, transaction date, currency (the transaction's, else the company's home currency), the customer (a
- *   WooCommerce customer; one without an email makes it a guest order), billing and shipping addresses.
+ *   WooCommerce customer, with a placeholder email when it has none), billing and shipping addresses.
  * - Item lines (a bundle's lines too): the item, description, quantity and amount; the shipping item's line is the
  *   shipping. Discount lines make the discount; QuickBooks' tax lines, by tax rate, the taxes; its total the total.
  * - A sales receipt is paid when made: completed, with its payment method and reference. An invoice with nothing
@@ -33,7 +33,7 @@ final class SaleMapper implements Mapper
     /** The item QuickBooks books a sale's shipping charge to. */
     public const SHIPPING_ITEM = 'SHIPPING_ITEM_ID';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = [
         'DueDate', 'SalesTermRef', 'PONumber', 'CustomerMemo', 'PrivateNote', 'Balance', 'ClassRef', 'DepartmentRef', 'EmailStatus', 'PrintStatus',
         'ExchangeRate', 'GlobalTaxCalculation', 'ShipDate', 'TrackingNum', 'ShipMethodRef', 'DepositToAccountRef', 'TxnStatus', 'Deposit',
@@ -72,7 +72,7 @@ final class SaleMapper implements Mapper
             'created_at' => Fields::date($node, 'TxnDate') ?? Fields::created($node) ?? throw new SourceError("QuickBooks Online sale {$number} has no date."),
             'currency' => $currency,
             'prices_include_tax' => Fields::text($node, 'GlobalTaxCalculation') === 'TaxInclusive',
-            'customer_gid' => $customer !== null && Fields::email($customer, 'PrimaryEmailAddr') !== null ? Fields::id('Customer', $customer->string('Id')) : null,
+            'customer_gid' => $customer === null ? null : Fields::id('Customer', $customer->string('Id')),
             'email' => Fields::email($node, 'BillEmail'),
             'phone' => null,
             'billing' => $customer === null ? self::bare($node->child('BillAddr')) : CustomerMapper::address($customer, $node->child('BillAddr')),

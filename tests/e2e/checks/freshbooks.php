@@ -48,7 +48,8 @@ return [
         expect($settled->get_status() === 'completed' && count(array_filter($notes($settled), static fn(string $note): bool => str_contains($note, 'by Cash'))) === 1, 'a payment settles an invoice');
         $disputed = order(Kind::Order, 'gid://freshbooks/Invoice/403');
         expect($disputed->get_status() === 'on-hold', 'a disputed invoice is on hold');
-        expect($disputed->get_customer_id() === 0 && $disputed->get_billing_first_name() === 'Walk', "a client without an email: a guest order in the client's name");
+        $walkIn = get_user_by('id', $disputed->get_customer_id());
+        expect($walkIn instanceof WP_User && str_ends_with($walkIn->user_email, '@freshbooks.invalid') && $disputed->get_billing_first_name() === 'Walk', 'a client without an email is a customer by a placeholder address, and the invoice is theirs');
         expect(count(array_filter($notes(order(Kind::Order, 'gid://freshbooks/Invoice/401')), static fn(string $note): bool => str_contains($note, 'Payment of'))) === 2, 'payments are not noted twice');
     },
     'intact' => static function (): void {

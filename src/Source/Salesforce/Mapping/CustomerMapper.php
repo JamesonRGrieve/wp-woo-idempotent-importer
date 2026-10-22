@@ -8,8 +8,10 @@ namespace IdempotentImporter\Source\Salesforce\Mapping;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Salesforce\SalesforceAdapter;
 
 /**
  * A contact an order is billed to (the reader reads only those) → a WooCommerce customer, so the orders are
@@ -20,7 +22,7 @@ final class CustomerMapper implements Mapper
 {
     public const USERNAME_PREFIX = 'salesforce-';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
 
     public function kind(): Kind
     {
@@ -43,7 +45,7 @@ final class CustomerMapper implements Mapper
         ];
 
         return new Desired(Kind::Customer, $node->id(), [
-            'email' => $email === null ? null : strtolower($email),
+            ...PlaceholderEmail::fields($email, SalesforceAdapter::ID, 'record', Fields::sourceId($node)),
             'username' => self::USERNAME_PREFIX . Fields::sourceId($node),
             'first_name' => Fields::text($node, 'FirstName'),
             'last_name' => Fields::text($node, 'LastName'),

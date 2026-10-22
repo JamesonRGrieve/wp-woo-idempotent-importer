@@ -8,15 +8,16 @@ namespace IdempotentImporter\Source\QuickBooksOnline\Mapping;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\QuickBooksOnline\QuickBooksOnlineAdapter;
 
 /**
  * A customer → a WooCommerce customer, so its invoices and sales receipts are theirs: email, given and family name
  * (else the display name), phone (else mobile), notes, created time, billing address (with the company name) and
- * shipping address. WooCommerce customers need an email address, so a customer without one is not mirrored here;
- * its sales are guest orders in its name and address. Its display name, title, suffix, other phones, website,
+ * shipping address. WooCommerce customers need an email address, so a customer without one gets a placeholder under
+ * `.invalid` (PlaceholderEmail), which no mail is ever sent to. Its display name, title, suffix, other phones, website,
  * parent customer (a sub-customer or job), balance, currency, terms, tax details and active flag are meta. The same
  * customer is a FluentCRM contact (ContactMapper).
  */
@@ -24,7 +25,7 @@ final class CustomerMapper implements Mapper
 {
     public const USERNAME_PREFIX = 'qbo-';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = [
         'DisplayName', 'Title', 'MiddleName', 'Suffix', 'FullyQualifiedName', 'AlternatePhone', 'Fax', 'WebAddr', 'ParentRef', 'Job',
         'Balance', 'CurrencyRef', 'SalesTermRef', 'PaymentMethodRef', 'Taxable', 'DefaultTaxCodeRef', 'ResaleNum', 'PrimaryTaxIdentifier',
@@ -43,10 +44,10 @@ final class CustomerMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::email($node, 'PrimaryEmailAddr') ?? throw new Unsupported('the customer has no email address; a WooCommerce customer needs one (its sales are guest orders).');
+        $email = Fields::email($node, 'PrimaryEmailAddr');
 
         return new Desired(Kind::Customer, $node->id(), [
-            'email' => $email,
+            ...PlaceholderEmail::fields($email, QuickBooksOnlineAdapter::ID, 'customer', Fields::sourceId($node)),
             'username' => self::USERNAME_PREFIX . Fields::sourceId($node),
             'first_name' => self::firstName($node),
             'last_name' => Fields::text($node, 'FamilyName'),

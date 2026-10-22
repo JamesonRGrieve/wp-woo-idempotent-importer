@@ -8,15 +8,16 @@ namespace IdempotentImporter\Source\Wave\Mapping;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Wave\WaveAdapter;
 
 /**
  * A customer → a WooCommerce customer, so its invoices are theirs: email, first and last name (else its name), phone
  * (else mobile), created time, address as the billing address (with a business's name as the company), shipping
- * details as the shipping address. WooCommerce customers need an email address, so a customer without one is not
- * mirrored here; its invoices are guest orders with its name and address. Its account number, fax, toll-free number,
+ * details as the shipping address. WooCommerce customers need an email address, so a customer without one gets a
+ * placeholder under `.invalid` (PlaceholderEmail), which no mail is ever sent to. Its account number, fax, toll-free number,
  * website, internal notes, currency and archived flag are meta. The same customer is a FluentCRM contact
  * (ContactMapper).
  */
@@ -24,7 +25,7 @@ final class CustomerMapper implements Mapper
 {
     public const USERNAME_PREFIX = 'wave-';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = ['displayId', 'fax', 'tollFree', 'website', 'internalNotes', 'currency', 'isArchived', 'modifiedAt', 'wave_id'];
 
     public function kind(): Kind
@@ -39,10 +40,10 @@ final class CustomerMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::text($node, 'email') ?? throw new Unsupported('the customer has no email address; a WooCommerce customer needs one (its invoices are guest orders).');
+        $email = Fields::text($node, 'email');
 
         return new Desired(Kind::Customer, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, WaveAdapter::ID, 'customer', Fields::recordId($node->string('wave_id'))),
             'username' => self::USERNAME_PREFIX . Fields::recordId($node->string('wave_id')),
             'first_name' => self::firstName($node),
             'last_name' => Fields::text($node, 'lastName'),

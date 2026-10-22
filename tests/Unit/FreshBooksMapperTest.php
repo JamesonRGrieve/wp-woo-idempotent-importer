@@ -8,7 +8,6 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\FreshBooks\FreshBooksReader;
@@ -60,20 +59,23 @@ final class FreshBooksMapperTest extends TestCase
         self::assertSame(['Kilnworks Collective', '+1 250 555 0301', 'Victoria'], [$company->string('name'), $company->nullableString('phone'), $company->record('address')?->string('city')]);
     }
 
-    public function testAClientWithoutAnEmailIsNoContact(): void
+    public function testAClientWithoutAnEmailGetsAPlaceholder(): void
     {
-        $this->expectException(Unsupported::class);
-        (new ContactMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]);
+        $reader = $this->reader('v1');
+        $contact = Values::of((new ContactMapper())->map($reader->page(Kind::Contact, null, null, '')->nodes[2]));
+        $customer = Values::of((new CustomerMapper())->map($reader->page(Kind::Customer, null, null, '')->nodes[2]));
+
+        self::assertStringEndsWith('@freshbooks.invalid', $contact->string('email'));
+        self::assertSame($contact->string('email'), $customer->string('email'), 'one placeholder per client, as contact and as customer');
+        self::assertTrue($contact->bool('email_placeholder') && $customer->bool('email_placeholder'));
     }
 
-    public function testAClientWithoutAnEmailIsNoCustomerAndItsInvoicesAreGuestOrders(): void
+    public function testTheInvoicesOfAClientWithoutAnEmailAreTheirs(): void
     {
-        $guest = Values::of($this->desired('v2', Kind::Order, new InvoiceMapper())[2]);
+        $invoice = Values::of($this->desired('v2', Kind::Order, new InvoiceMapper())[2]);
 
-        self::assertNull($guest->nullableString('customer_gid'));
-        self::assertSame(['first_name' => 'Walk', 'last_name' => 'In'], $guest->record('billing')?->all(), "the client's name");
-        $this->expectException(Unsupported::class);
-        (new CustomerMapper())->map($this->reader('v1')->page(Kind::Customer, null, null, '')->nodes[2]);
+        self::assertNotNull($invoice->nullableString('customer_gid'), 'the client is a customer, by its placeholder');
+        self::assertSame(['first_name' => 'Walk', 'last_name' => 'In'], $invoice->record('billing')?->all(), "the client's name");
     }
 
     public function testAPaidInvoiceWithItsDiscountTaxesAndPayments(): void

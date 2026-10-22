@@ -17,8 +17,8 @@ use IdempotentImporter\Support\Decimal;
  * An invoice with its lines and the payments made on it (the reader adds them, `payments`) → a WooCommerce order
  * with FreshBooks' amounts.
  *
- * - Number, issue date, currency, the client (a WooCommerce customer; a client without an email, who can't be one,
- *   makes it a guest order), and the address on the invoice as the billing address, else the client's.
+ * - Number, issue date, currency, the client (a WooCommerce customer, with a placeholder email when it has none),
+ *   and the address on the invoice as the billing address, else the client's.
  * - Each line: its name, quantity, and quantity × unit cost as its total. FreshBooks lines name no item, so a line
  *   links to no product.
  * - The discount is FreshBooks' `discount_total`.
@@ -38,7 +38,7 @@ final class InvoiceMapper implements Mapper
     public const TAX_FALLBACK = 'Tax';
     public const TAX_MISMATCH = 'FreshBooks invoice %s: its taxes, figured per line, come to %s, not %s; booked as one tax.';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const MONEY_PLACES = 2;
     private const PERCENT_PLACES = 2;
     private const HUNDRED = '100';
@@ -79,7 +79,7 @@ final class InvoiceMapper implements Mapper
             'created_at' => Fields::date($node, 'create_date'),
             'currency' => $currency,
             'prices_include_tax' => false,
-            'customer_gid' => $client !== null && Fields::text($client, 'email') !== null ? Fields::id('Customer', $client->int('id')) : null,
+            'customer_gid' => $client === null ? null : Fields::id('Customer', $client->int('id')),
             'email' => null,
             'phone' => null,
             'billing' => self::billing($node) ?? ($client === null ? null : self::clientBilling($client)),

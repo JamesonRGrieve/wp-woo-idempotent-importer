@@ -16,8 +16,8 @@ use IdempotentImporter\Support\Decimal;
 /**
  * An invoice with its items, taxes and payments → a WooCommerce order with Wave's amounts.
  *
- * - Number, invoice date, currency, the customer (a WooCommerce customer; a customer without an email, who can't be
- *   one, makes it a guest order), and the customer's name and address as the billing address.
+ * - Number, invoice date, currency, the customer (a WooCommerce customer, with a placeholder email when it has
+ *   none), and the customer's name and address as the billing address.
  * - Each item: its product, description, quantity and subtotal, and the taxes Wave computed on it, by sales tax
  *   (its abbreviation, at its rate).
  * - Wave's discount total, tax total and total.
@@ -29,7 +29,7 @@ use IdempotentImporter\Support\Decimal;
  */
 final class InvoiceMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const PAID = ['PAID', 'OVERPAID'];
     private const DETAILS = ['status', 'title', 'subhead', 'poNumber', 'dueDate', 'memo', 'footer', 'discounts', 'exchangeRate', 'amountPaid', 'amountDue', 'wave_id'];
 
@@ -62,7 +62,7 @@ final class InvoiceMapper implements Mapper
             'created_at' => Fields::date($node, 'invoiceDate') ?? Fields::time($node, 'createdAt') ?? throw new SourceError("Wave invoice {$number} has no date."),
             'currency' => $currency,
             'prices_include_tax' => false,
-            'customer_gid' => Fields::text($customer, 'email') === null ? null : Fields::linked('Customer', $customer),
+            'customer_gid' => Fields::linked('Customer', $customer),
             'email' => null,
             'phone' => null,
             'billing' => CustomerMapper::billing($customer),

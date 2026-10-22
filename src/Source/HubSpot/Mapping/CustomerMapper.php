@@ -8,7 +8,9 @@ namespace IdempotentImporter\Source\HubSpot\Mapping;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\HubSpot\HubSpotAdapter;
 use IdempotentImporter\Source\Node;
 
 /**
@@ -20,7 +22,7 @@ final class CustomerMapper implements Mapper
 {
     public const USERNAME_PREFIX = 'hubspot-';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
 
     public function kind(): Kind
     {
@@ -48,7 +50,7 @@ final class CustomerMapper implements Mapper
         ], static fn(?string $value): bool => $value !== null);
 
         return new Desired(Kind::Customer, $node->id(), [
-            'email' => $email === null ? null : strtolower($email),
+            ...PlaceholderEmail::fields($email, HubSpotAdapter::ID, 'contact', Fields::sourceId($node)),
             'username' => self::USERNAME_PREFIX . Fields::sourceId($node),
             'first_name' => Fields::property($node, 'firstname'),
             'last_name' => Fields::property($node, 'lastname'),

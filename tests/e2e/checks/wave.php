@@ -34,7 +34,8 @@ return [
         expect($mugs instanceof WC_Order_Item_Product && $mugs->get_product_id() === product('gid://wave/Product/101')->get_id(), 'its items link to their products');
         expect($payments($paid) === 2, 'its two active payments, as notes');
         $guest = order(Kind::Order, 'gid://wave/Invoice/302');
-        expect($guest->get_status() === 'pending' && $guest->get_customer_id() === 0 && $guest->get_billing_first_name() === 'Cash Sale', 'an unpaid guest invoice');
+        $cash = get_user_by('id', $guest->get_customer_id());
+        expect($guest->get_status() === 'pending' && $cash instanceof WP_User && str_ends_with($cash->user_email, '@wave.invalid') && $guest->get_billing_first_name() === 'Cash Sale', 'an unpaid invoice of a customer without an email, theirs by a placeholder address');
     },
     'v2' => static function () use ($payments): void {
         expect(product('gid://wave/Product/101')->get_regular_price() === '9', 'price updated');

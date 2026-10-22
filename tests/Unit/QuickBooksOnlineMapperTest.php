@@ -59,16 +59,15 @@ final class QuickBooksOnlineMapperTest extends TestCase
         self::assertSame(['Juniper Studio', 'https://juniper.example', 'Portland'], [$company->string('name'), $company->nullableString('website'), $company->record('address')?->string('city')]);
     }
 
-    public function testACustomerWithoutAnEmailIsNeitherCustomerNorContact(): void
+    public function testACustomerWithoutAnEmailGetsAPlaceholder(): void
     {
         $reader = $this->reader('v1');
-        try {
-            (new CustomerMapper())->map($reader->page(Kind::Customer, null, null, '')->nodes[2]);
-            self::fail('no customer without an email');
-        } catch (Unsupported) {
-            $this->expectException(Unsupported::class);
-            (new ContactMapper())->map($reader->page(Kind::Contact, null, null, '')->nodes[2]);
-        }
+        $customer = Values::of((new CustomerMapper())->map($reader->page(Kind::Customer, null, null, '')->nodes[2]));
+        $contact = Values::of((new ContactMapper())->map($reader->page(Kind::Contact, null, null, '')->nodes[2]));
+
+        self::assertSame('customer-12@quickbooks-online.invalid', $customer->string('email'));
+        self::assertSame($customer->string('email'), $contact->string('email'));
+        self::assertTrue($customer->bool('email_placeholder') && $contact->bool('email_placeholder'));
     }
 
     public function testAPaidInvoiceWithABundleDiscountShippingTaxAndPayment(): void
@@ -86,7 +85,7 @@ final class QuickBooksOnlineMapperTest extends TestCase
         self::assertSame(['JS-88', 'Invoice'], [$invoice->record('sale')?->string('PONumber'), $invoice->record('sale')?->string('type')]);
     }
 
-    public function testAnUnpaidInvoiceIsPendingAndASalesReceiptToACustomerWithoutAnEmailIsACompletedGuestOrder(): void
+    public function testAnUnpaidInvoiceIsPendingAndASalesReceiptIsCompleted(): void
     {
         $reader = $this->reader('v1');
         $invoices = $reader->page(Kind::Order, null, null, '');
@@ -94,7 +93,7 @@ final class QuickBooksOnlineMapperTest extends TestCase
         $receipt = Values::of((new SaleMapper())->map($reader->page(Kind::Order, $invoices->endCursor, null, '')->nodes[0]));
 
         self::assertSame(['pending', null, []], [$unpaid->string('status'), $unpaid->nullableString('processed_at'), $unpaid->raw('tax_lines')]);
-        self::assertSame(['completed', '2026-08-22T00:00:00Z', null, 'Cash', 'R-140'], [$receipt->string('status'), $receipt->nullableString('processed_at'), $receipt->nullableString('customer_gid'), $receipt->nullableString('payment_method_title'), $receipt->nullableString('transaction_id')]);
+        self::assertSame(['completed', '2026-08-22T00:00:00Z', 'gid://quickbooks_online/Customer/12', 'Cash', 'R-140'], [$receipt->string('status'), $receipt->nullableString('processed_at'), $receipt->nullableString('customer_gid'), $receipt->nullableString('payment_method_title'), $receipt->nullableString('transaction_id')]);
         self::assertSame(['first_name' => 'Cash Customer'], $receipt->record('billing')?->all());
     }
 

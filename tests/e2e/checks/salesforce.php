@@ -27,7 +27,7 @@ return [
         expect(fluentCompanyField($fernhill, 'salesforce_wholesale_tier_c') === 'Gold' && FluentCrm::string($fernhill, 'address_line_2') === 'Unit 2', 'custom account fields, and the street\'s second line');
         expect(fluentField($ada, 'salesforce_kiln_sizes_c') === ['Small', 'Large'] && fluentField($ada, 'salesforce_wholesale_c') === 'Yes', 'custom contact fields');
         expect(fluentNoteTypes($ada) === ['call', 'note'], 'its logged call and note are FluentCRM notes');
-        expect(services()->links()->targetId(Kind::Contact, 'gid://salesforce/Contact/003Fh00000NoMl01AAA') === null, 'a contact without an email is not a FluentCRM contact');
+        expect(FluentCrm::string(fluentContact('gid://salesforce/Contact/003Fh00000NoMl01AAA'), 'email') === 'record-003fh00000noml01aaa@salesforce.invalid', 'a contact without an email is a FluentCRM contact by a placeholder');
 
         $clay = product('gid://salesforce/Product2/01tFh00000Clay1AAA');
         expect($clay->get_regular_price() === '42.5' && $clay->get_sku() === 'SF-CLAY-10', 'a product at its standard price');

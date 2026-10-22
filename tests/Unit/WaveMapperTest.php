@@ -8,7 +8,6 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\OAuth2\BearerAuthorizer;
@@ -56,16 +55,15 @@ final class WaveMapperTest extends TestCase
         self::assertSame([], Values::of((new ContactMapper())->map($reader->page(Kind::Contact, null, null, '')->nodes[1]))->strings('company_gids'), 'a person is no company');
     }
 
-    public function testACustomerWithoutAnEmailIsNeitherCustomerNorContact(): void
+    public function testACustomerWithoutAnEmailGetsAPlaceholder(): void
     {
         $reader = $this->reader('v1');
-        try {
-            (new CustomerMapper())->map($reader->page(Kind::Customer, null, null, '')->nodes[2]);
-            self::fail('no customer without an email');
-        } catch (Unsupported) {
-            $this->expectException(Unsupported::class);
-            (new ContactMapper())->map($reader->page(Kind::Contact, null, null, '')->nodes[2]);
-        }
+        $customer = Values::of((new CustomerMapper())->map($reader->page(Kind::Customer, null, null, '')->nodes[2]));
+        $contact = Values::of((new ContactMapper())->map($reader->page(Kind::Contact, null, null, '')->nodes[2]));
+
+        self::assertStringEndsWith('@wave.invalid', $customer->string('email'));
+        self::assertSame($customer->string('email'), $contact->string('email'), 'one placeholder per customer');
+        self::assertTrue($customer->bool('email_placeholder') && $contact->bool('email_placeholder'));
     }
 
     public function testAPaidInvoiceWithItsItemsTaxesAndPayments(): void
@@ -81,7 +79,7 @@ final class WaveMapperTest extends TestCase
         self::assertSame(['Payment of 100.00 CAD by CASH on 2026-08-04.', 'Payment of 118.65 CAD by CREDIT_CARD on 2026-08-09.'], array_map(static fn(Values $note): string => $note->string('message'), $paid->records('notes')), 'a removed payment is left out');
         self::assertSame(['CREDIT_CARD', 'ch_3Q'], [$paid->nullableString('payment_method_title'), $paid->nullableString('transaction_id')]);
         self::assertSame('HC-7', $paid->record('invoice')?->string('poNumber'));
-        self::assertSame(['pending', null], [$sent->string('status'), $sent->nullableString('customer_gid')], 'unpaid; a guest order for a customer without an email');
+        self::assertSame(['pending', 'gid://wave/Customer/203'], [$sent->string('status'), $sent->nullableString('customer_gid')], 'unpaid; its customer has a placeholder email');
         self::assertSame(['first_name' => 'Cash Sale'], $sent->record('billing')?->all());
     }
 

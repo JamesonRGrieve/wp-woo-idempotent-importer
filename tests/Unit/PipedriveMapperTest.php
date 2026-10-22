@@ -8,7 +8,6 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
@@ -57,10 +56,11 @@ final class PipedriveMapperTest extends TestCase
         self::assertSame(['subscribed', 'unsubscribed', 'unsubscribed', 'transactional'], [$status('subscribed'), $status('unsubscribed'), $status('archived'), $status('no_consent')]);
     }
 
-    public function testAPersonWithoutAnEmailIsNotMirrored(): void
+    public function testAPersonWithoutAnEmailGetsAPlaceholder(): void
     {
-        $this->expectException(Unsupported::class);
-        (new PersonMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]);
+        $person = Values::of((new PersonMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]));
+
+        self::assertSame(['person-203@pipedrive.invalid', true], [$person->string('email'), $person->bool('email_placeholder')]);
     }
 
     public function testOrganizationsLabelsFiltersAndCategories(): void

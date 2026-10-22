@@ -11,6 +11,7 @@ use IdempotentImporter\Wp\Cli;
 use IdempotentImporter\Wp\ContentTypes;
 use IdempotentImporter\Wp\DynamicCollections;
 use IdempotentImporter\Wp\GiftCardAccount;
+use IdempotentImporter\Wp\PlaceholderMail;
 use IdempotentImporter\Wp\Scheduler;
 use IdempotentImporter\Wp\Storefront;
 use IdempotentImporter\Wp\WebhookController;
@@ -33,6 +34,7 @@ final class Plugin
             }
         });
         add_action('plugins_loaded', self::start(...));
+        PlaceholderMail::register();
     }
 
     public static function activate(): void

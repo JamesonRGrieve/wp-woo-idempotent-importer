@@ -9,8 +9,9 @@ namespace IdempotentImporter\Source\HubSpot\Mapping;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\HubSpot\HubSpotAdapter;
 use IdempotentImporter\Source\Node;
 
 /**
@@ -20,11 +21,12 @@ use IdempotentImporter\Source\Node;
  * FluentCRM customer, the rest are leads. HubSpot's email consent lives in its subscription types, which this
  * read doesn't include, so contacts are transactional (FluentCRM sends them no marketing). Every other HubSpot
  * property (job title, lead status, timezone, owner, analytics) is meta. FluentCRM keeps one contact per email,
- * so a contact without an email address is not mirrored.
+ * so a contact without an email address gets a placeholder under `.invalid` (PlaceholderEmail), which no mail is
+ * ever sent to.
  */
 final class ContactMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const NATIVE = ['email', 'firstname', 'lastname', 'phone', 'address', 'city', 'state', 'zip', 'country', 'createdate', 'lifecyclestage'];
     private const CUSTOMER_STAGE = 'customer';
 
@@ -40,10 +42,10 @@ final class ContactMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::property($node, 'email') ?? throw new Unsupported('the contact has no email address; FluentCRM keeps contacts by email.');
+        $email = Fields::property($node, 'email');
 
         return new Desired(Kind::Contact, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, HubSpotAdapter::ID, 'contact', Fields::sourceId($node)),
             'prefix' => null,
             'first_name' => Fields::property($node, 'firstname'),
             'last_name' => Fields::property($node, 'lastname'),

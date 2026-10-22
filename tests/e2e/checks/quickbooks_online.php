@@ -33,7 +33,7 @@ return [
         expect($payments($invoice) === 1, 'its payment, as a note');
         expect(order(Kind::Order, 'gid://quickbooks_online/Invoice/131')->get_status() === 'pending', 'an unpaid invoice is pending payment');
         $receipt = order(Kind::Order, 'gid://quickbooks_online/SalesReceipt/140');
-        expect($receipt->get_status() === 'completed' && $receipt->get_customer_id() === 0 && $receipt->get_payment_method_title() === 'Cash', 'a sales receipt to a customer without an email: a paid guest order');
+        expect($receipt->get_status() === 'completed' && user('gid://quickbooks_online/Customer/12')->user_email === 'customer-12@quickbooks-online.invalid' && $receipt->get_customer_id() === user('gid://quickbooks_online/Customer/12')->ID && $receipt->get_payment_method_title() === 'Cash', 'a sales receipt to a customer without an email, theirs by a placeholder address');
         expect(product('gid://quickbooks_online/Item/2')->get_stock_quantity() === 20, 'mirroring sales did not reduce stock');
     },
     'v2' => static function () use ($payments): void {

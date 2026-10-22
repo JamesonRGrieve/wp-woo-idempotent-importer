@@ -47,6 +47,7 @@ by `ids`.
 | Products | Simple WooCommerce products | Name, description, unit price, product code as the SKU (optional generated `zoho-<id>`), quantity in stock as managed stock (none: unmanaged), taxable, category; an inactive product is private. Vendor, manufacturer, taxes, unit, reorder level, commission rate and the org's own product fields are meta. |
 | Contacts named on sales orders | WooCommerce customers | Email, first and last name, phone, created time, mailing address as the billing address (also FluentCRM contacts above). |
 | Sales orders | WooCommerce orders with Zoho's totals | Number (else subject), created time, currency (the order's in a multi-currency org, else the org's home currency), customer, billing and shipping addresses, sub-total, discount, tax, adjustment (a fee), grand total. Status: Delivered → completed, Cancelled → cancelled, others (Created, Approved, custom) → processing; Zoho's status is meta. Each ordered item: product, quantity, list price, discount, total; its line taxes listed by name. Subject, deal, quote, carrier, purchase order, terms, owner and every other settable field are meta. Mirroring an order does not reduce stock. |
+| Contacts and leads without an email address | a FluentCRM contact (and a WooCommerce customer, where it buys) with a placeholder address | WooCommerce and FluentCRM keep people by email, so one without gets `record-<id>@zoho.invalid` (operator decision of 2026-10-21): the same every run, under `.invalid`, which RFC 2606 reserves so it can never be delivered, and marked `_mirror_email_placeholder`. No mail is ever sent to it: every `.invalid` recipient is dropped before WordPress's mailer, whatever sends it, and password resets skip it. Status follows the source's consent as for anyone else. |
 
 ## Planned (operator decisions)
 
@@ -55,7 +56,6 @@ by `ids`.
 | Deal contact roles (other contacts of a deal) | Not read: a deal's contact is its Contact_Name. |
 | Quotes, invoices, purchase orders, vendors, price books, cases, solutions | No WooCommerce or FluentCRM home with the same meaning (invoices could become orders, but sales orders already are; doubling them is the decision). |
 | Converted leads | A converted lead is its contact (and account and deal); it is left out, as Zoho's own lists do. |
-| Records without an email address | FluentCRM keys contacts by email; decision: leave them out (as now) or a placeholder. |
 | Attachments, emails, signals, custom modules | Not read. |
 | Prices in other currencies (multi-currency orgs) | WooCommerce has one currency; an order keeps its own currency, products the home currency's price. |
 

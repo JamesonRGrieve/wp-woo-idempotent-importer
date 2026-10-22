@@ -44,6 +44,7 @@ labels, categories, pipelines, stages, users, notes and done activities (as note
 | Users (owners, from every user) | The FluentBoards task's assignee | Only on a clean match: exactly one WordPress user has the user's email (operator decision of 2026-10-21); that user is also a member of the board, with notifications off. Otherwise no assignee: the owner (id, email, name) is meta and the log says so. Persons, organizations and notes keep their owner id as meta. |
 | Product categories (the category field's options) | WooCommerce product categories | Label. |
 | Products and product variations | Simple product, or variable product with a "Variation" attribute and a variation per Pipedrive variation | Name, description, code as the SKU (optional generated `pipedrive-<id>`), price and cost in the company's default currency (the connected user's), the variation's own price else the product's, category. Stock is unmanaged (Pipedrive keeps none); a deleted product is private. Prices in every currency, unit, tax percentage, billing frequency, owner and the account's own product fields are meta; recurring billing is warned about. |
+| Persons without an email address | a FluentCRM contact (and a WooCommerce customer, where it buys) with a placeholder address | WooCommerce and FluentCRM keep people by email, so one without gets `person-<id>@pipedrive.invalid` (operator decision of 2026-10-21): the same every run, under `.invalid`, which RFC 2606 reserves so it can never be delivered, and marked `_mirror_email_placeholder`. No mail is ever sent to it: every `.invalid` recipient is dropped before WordPress's mailer, whatever sends it, and password resets skip it. Status follows the source's consent as for anyone else. |
 
 ## Planned (operator decisions)
 
@@ -52,7 +53,6 @@ labels, categories, pipelines, stages, users, notes and done activities (as note
 | Deal products and deal participants | Not read: a deal's value is its own; its person is its contact. |
 | Leads (the Leads Inbox) | A lead is a person or organization with a deal-to-be; mirroring its person is done. The lead itself (value, labels, source) is planned as a FluentBoards task like a deal, on a leads board. |
 | Organization labels | FluentCRM companies have no tags; they are meta. |
-| Persons without an email address | FluentCRM keys contacts by email; decision: leave them out (as now) or a placeholder. |
 | Prices in other currencies | WooCommerce has one currency; the default currency's price is used, the rest are meta (a multi-currency plugin is the planned home). |
 | Files, mail threads, projects, goals | Not read. |
 | Marketing status | Pipedrive returns it only for companies with its Campaigns add-on; the response schema doesn't declare it (only the request parameter does), so the fixtures leave it out and it is covered by a unit test. |

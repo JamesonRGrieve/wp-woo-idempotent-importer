@@ -8,8 +8,9 @@ namespace IdempotentImporter\Source\FreshBooks\Mapping;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\FreshBooks\FreshBooksAdapter;
 use IdempotentImporter\Source\Node;
 
 /**
@@ -17,13 +18,13 @@ use IdempotentImporter\Source\Node;
  * else mobile, else home), billing address (with the organization as its company). The same client is also a
  * FluentCRM contact (ContactMapper). Its fax, VAT name and number, currency, language (a two-letter code, not a
  * WordPress locale), sign-up time, note and accounting id are meta. WooCommerce customers need an email address, so a
- * client without one is not mirrored here; its invoices are guest orders with its name and address.
+ * client without one gets a placeholder under `.invalid` (PlaceholderEmail), which no mail is ever sent to.
  */
 final class CustomerMapper implements Mapper
 {
     public const USERNAME_PREFIX = 'freshbooks-';
 
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = ['fax', 'vat_name', 'vat_number', 'currency_code', 'signup_date', 'accounting_systemid', 'note', 'language'];
 
     public function kind(): Kind
@@ -38,11 +39,11 @@ final class CustomerMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::text($node, 'email') ?? throw new Unsupported('the client has no email address; a WooCommerce customer needs one (its invoices are guest orders).');
+        $email = Fields::text($node, 'email');
         $address = Fields::storeAddress($node);
 
         return new Desired(Kind::Customer, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, FreshBooksAdapter::ID, 'client', Fields::sourceId($node)),
             'username' => self::USERNAME_PREFIX . Fields::sourceId($node),
             'first_name' => Fields::text($node, 'fname'),
             'last_name' => Fields::text($node, 'lname'),

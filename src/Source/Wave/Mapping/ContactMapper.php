@@ -9,20 +9,21 @@ namespace IdempotentImporter\Source\Wave\Mapping;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Wave\WaveAdapter;
 
 /**
  * A customer → a FluentCRM contact: email, first and last name (else its name), phone (else mobile), address,
  * created time, source "Wave", customer contact type, and its business (when it is one) as its company. Wave records
  * no marketing consent, so the status is transactional. Its account number, other phones, website, internal notes,
  * currency, shipping details and archived flag are meta. FluentCRM keeps one contact per email, so a customer
- * without an email address is not mirrored here.
+ * without an email address gets a placeholder under `.invalid` (PlaceholderEmail), which no mail is ever sent to.
  */
 final class ContactMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = ['name', 'displayId', 'mobile', 'fax', 'tollFree', 'website', 'internalNotes', 'currency', 'shippingDetails', 'isArchived', 'wave_id'];
 
     public function kind(): Kind
@@ -37,10 +38,10 @@ final class ContactMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::text($node, 'email') ?? throw new Unsupported('the customer has no email address; FluentCRM keeps contacts by email.');
+        $email = Fields::text($node, 'email');
 
         return new Desired(Kind::Contact, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, WaveAdapter::ID, 'customer', Fields::recordId($node->string('wave_id'))),
             'prefix' => null,
             'first_name' => CustomerMapper::firstName($node),
             'last_name' => Fields::text($node, 'lastName'),

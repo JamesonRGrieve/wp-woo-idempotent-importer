@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace IdempotentImporter\Wp;
 
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Services;
 use IdempotentImporter\Source\Shopify\Mapping\ReviewCsv;
@@ -209,7 +210,8 @@ final class Cli
     }
 
     /**
-     * Emails every mirrored customer a password-reset link (Shopify passwords can't be migrated).
+     * Emails every mirrored customer a password-reset link (Shopify passwords can't be migrated), except those
+     * mirrored with a placeholder address.
      *
      * ## OPTIONS
      *
@@ -226,7 +228,8 @@ final class Cli
         $sent = 0;
         foreach ($links as $link) {
             $user = get_user_by('id', $link->targetId);
-            if ($user instanceof WP_User && $user->user_email !== '' && retrieve_password($user->user_login) === true) {
+            // A placeholder address (a source person with no email) can't receive the link; its mail would be dropped.
+            if ($user instanceof WP_User && $user->user_email !== '' && !PlaceholderEmail::isPlaceholder($user->user_email) && retrieve_password($user->user_login) === true) {
                 ++$sent;
             }
         }

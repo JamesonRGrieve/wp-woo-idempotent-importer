@@ -311,6 +311,8 @@ function state(string $source, string $state): void
 
 function noMail(): void
 {
+    $before = Options::int('iim_e2e_mail_sent');
+    expect(wp_mail('contact-504@hubspot.invalid', 'Placeholder', 'Never sent') === false && Options::int('iim_e2e_mail_sent') === $before, 'mail to a placeholder address never reaches the mailer');
     expect(Options::int('iim_e2e_mail_sent') === 0, 'no email reached the mailer during the imports');
     expect(Options::int('iim_e2e_fluent_events') === 0, 'no FluentCRM contact, list or tag event (which start automations) and no FluentBoards board or task event (which notify) fired during the imports');
 }

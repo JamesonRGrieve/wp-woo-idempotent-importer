@@ -9,9 +9,10 @@ namespace IdempotentImporter\Source\Pipedrive\Mapping;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Pipedrive\PipedriveAdapter;
 
 /**
  * A person → a FluentCRM contact: the primary email, first and last name, the primary phone, birthday, postal
@@ -19,11 +20,12 @@ use IdempotentImporter\Source\Node;
  * or `archived` → unsubscribed, `no_consent` or none → transactional), its organization as its company, its
  * labels as tags, the person filters it matches as lists, and the account's own person fields as FluentCRM
  * custom fields. Its other emails and phones, job title, contact sync notes, instant messaging accounts, owner
- * and visibility are meta. FluentCRM keeps one contact per email, so a person without one is not mirrored.
+ * and visibility are meta. FluentCRM keeps one contact per email, so a person without one gets a
+ * placeholder under `.invalid` (PlaceholderEmail), which no mail is ever sent to.
  */
 final class PersonMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const SUBSCRIBED = 'subscribed';
     private const OPTED_OUT = ['unsubscribed', 'archived'];
     private const DETAILS = ['emails', 'phones', 'job_title', 'notes', 'im', 'owner_id', 'visible_to', 'marketing_status'];
@@ -40,12 +42,12 @@ final class PersonMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::primary($node, 'emails') ?? throw new Unsupported('the person has no email address; FluentCRM keeps contacts by email.');
+        $email = Fields::primary($node, 'emails');
         $marketing = $node->optionalString('marketing_status');
         $org = $node->optionalInt('org_id');
 
         return new Desired(Kind::Contact, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, PipedriveAdapter::ID, 'person', Fields::sourceId($node)),
             'prefix' => null,
             'first_name' => $node->optionalString('first_name'),
             'last_name' => $node->optionalString('last_name'),

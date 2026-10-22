@@ -29,7 +29,8 @@ return [
         expect(FluentCrm::string($fernhill, 'website') === 'https://fernhill.example', 'a HubSpot company is a FluentCRM company');
         expect(fluentCompanyField($fernhill, 'hubspot_wholesale_tier') === 'Gold', 'with its custom company fields');
         expect(fluentNoteTypes($ada) === ['call', 'email', 'note'], 'its note, call and email are FluentCRM notes of their types');
-        expect(services()->links()->targetId(Kind::Contact, 'gid://hubspot/Contact/504') === null, 'a contact without an email is not a FluentCRM contact');
+        $noEmail = fluentContact('gid://hubspot/Contact/504');
+        expect(FluentCrm::string($noEmail, 'email') === 'contact-504@hubspot.invalid' && FluentCrm::string($noEmail, 'status') === 'transactional', 'a contact without an email is a FluentCRM contact by a placeholder under .invalid');
 
         $clay = product('gid://hubspot/Product/7001');
         expect($clay instanceof WC_Product_Simple && $clay->get_regular_price() === '42.5' && $clay->get_sku() === 'HS-CLAY-10', 'a library product is a WooCommerce product');

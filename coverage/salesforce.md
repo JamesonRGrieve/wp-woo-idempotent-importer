@@ -53,6 +53,7 @@ can set that no mapper places natively are meta; formula, roll-up and system fie
 | Products (Product2) | Simple WooCommerce products | Name, description, standard price book entry's unit price, stock keeping unit (else product code) as the SKU; inactive → private. Family, code, unit and other settable fields are meta. |
 | Contacts orders are billed to | WooCommerce customers (`salesforce-<id>`) | Email, name, phone, created date, mailing address as billing address. |
 | Orders and order products | WooCommerce orders with Salesforce's total | Order number, effective date, currency (the order's in a multi-currency org, else the org's default), bill-to contact, billing and shipping addresses, description. Draft → pending, activated → processing. Each product with its quantity, unit price and total. Other settable fields (account, contract, PO number, type, status) are meta. |
+| Contacts and leads without an email address | a FluentCRM contact (and a WooCommerce customer, where it buys) with a placeholder address | WooCommerce and FluentCRM keep people by email, so one without gets `record-<id>@salesforce.invalid` (operator decision of 2026-10-21): the same every run, under `.invalid`, which RFC 2606 reserves so it can never be delivered, and marked `_mirror_email_placeholder`. No mail is ever sent to it: every `.invalid` recipient is dropped before WordPress's mailer, whatever sends it, and password resets skip it. Status follows the source's consent as for anyone else. |
 
 ## Planned (operator decisions)
 
@@ -61,7 +62,6 @@ can set that no mapper places natively are meta; formula, roll-up and system fie
 | Sales processes (which stages each record type's opportunities use) | One board holds every active stage; a sales process is a subset of them, and the opportunity's record type is meta. |
 | Opportunity products (OpportunityLineItem) | Not read; the amount is the opportunity's value. |
 | Email consent beyond opt-out (consent records, data privacy objects) | Without an opt-in record contacts are transactional; mapping Individual / ContactPointConsent onto subscribed is planned. |
-| Records without an email address | FluentCRM keys contacts by email; decision: leave them out (as now) or a placeholder. |
 | Enhanced notes (ContentNote), files and attachments | ContentDocumentLink reads; files would go to the media library. |
 | Prices in other price books, multi-currency prices | The standard price is the product's price; other books need a pricing home (wp-woo-discount-rules or a B2B price list in wp-woo-b2b-companies). |
 | Cases, quotes, contracts, assets, custom objects | Not read. Cases → a helpdesk (Fluent Support, GPL); quotes and contracts → documents. |

@@ -9,9 +9,10 @@ namespace IdempotentImporter\Source\Salesforce\Mapping;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\Salesforce\SalesforceAdapter;
 
 /**
  * A contact or an unconverted lead → a FluentCRM contact: email, salutation, first and last name, phone (else
@@ -21,11 +22,12 @@ use IdempotentImporter\Source\Node;
  * as its company, the campaigns it is a member of as
  * lists, its topics as tags, and the org's custom contact or lead fields as FluentCRM custom fields. Every other
  * field a user can set (title, department, lead source and status, owner, the lead's company name) is meta.
- * FluentCRM keeps one contact per email, so a record without an email address is not mirrored.
+ * FluentCRM keeps one contact per email, so a record without an email address gets a placeholder under `.invalid`
+ * (PlaceholderEmail), which no mail is ever sent to.
  */
 final class ContactMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const CONTACT_NATIVE = [
         'Email', 'Salutation', 'FirstName', 'LastName', 'Phone', 'MobilePhone', 'Birthdate', 'MailingStreet', 'MailingCity',
         'MailingState', 'MailingPostalCode', 'MailingCountry', 'HasOptedOutOfEmail', 'AccountId', 'CreatedDate',
@@ -48,11 +50,11 @@ final class ContactMapper implements Mapper
     public function map(Node $node): Desired
     {
         $lead = $node->requiredChild('attributes')->string('type') === 'Lead';
-        $email = Fields::text($node, 'Email') ?? throw new Unsupported('the record has no email address; FluentCRM keeps contacts by email.');
+        $email = Fields::text($node, 'Email');
         $account = $lead ? null : Fields::text($node, 'AccountId');
 
         return new Desired(Kind::Contact, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, SalesforceAdapter::ID, 'record', Fields::sourceId($node)),
             'prefix' => Fields::text($node, 'Salutation'),
             'first_name' => Fields::text($node, 'FirstName'),
             'last_name' => Fields::text($node, 'LastName'),

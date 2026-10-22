@@ -63,6 +63,9 @@ The first import of a large store can take hours, so it is careful not to get yo
   retried every hour. The settings page and `wp idempotent-import status` say when this has happened.
 
 Mirroring history has no side effects: no customer or admin emails, no stock changes, no coupon usage.
+A CRM or accounting person without an email address, where WooCommerce or FluentCRM needs one, gets a placeholder
+(`client-42@freshbooks.invalid`): the same every run, under the reserved `.invalid` domain, marked as a placeholder,
+and never mailed (the plugin drops every `.invalid` recipient from any email the site sends).
 Old Shopify URLs (`/products/…`, `/collections/…`, `/pages/…`, `/blogs/…`, `/policies/…`, and your
 Shopify URL redirects) answer with a 301 to the new page, as do old BigCommerce storefront URLs (products,
 categories, pages, blog posts and the store's 301 redirects), old Squarespace product and store page URLs,

@@ -8,7 +8,6 @@ namespace IdempotentImporter\Tests\Unit;
 
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
@@ -84,10 +83,11 @@ final class SalesforceMapperTest extends TestCase
         self::assertSame('Moreau Pottery', $cy->record('contact')?->string('Company'));
     }
 
-    public function testARecordWithoutAnEmailIsNotMirrored(): void
+    public function testARecordWithoutAnEmailGetsAPlaceholder(): void
     {
-        $this->expectException(Unsupported::class);
-        (new ContactMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]);
+        $contact = Values::of((new ContactMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]));
+
+        self::assertSame(['record-003fh00000noml01aaa@salesforce.invalid', true], [$contact->string('email'), $contact->bool('email_placeholder')]);
     }
 
     public function testActivities(): void

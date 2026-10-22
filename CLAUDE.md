@@ -53,6 +53,8 @@ is the single source of truth for what each source mirrors and what is a gap. PH
 - Something WooCommerce can't represent exactly is `Unsupported` (and a coverage gap), never
   approximated. A missing dependency is `UnresolvedDependency` (retried), never skipped.
 - Every write runs inside `Quiet` (no emails, no stock or coupon side effects).
+- A person with no email where WooCommerce or FluentCRM needs one gets `Mapping/PlaceholderEmail` (deterministic,
+  `@<source>.invalid`, marked); `Wp/PlaceholderMail` drops every `.invalid` recipient from all mail, always.
 - Lockout safety: every source client declares its documented limits as an `Http\RateLimit` (cited in a
   docblock; no guessed numbers) and goes through `RequestPacer` + `RetryPolicy`. A source that keeps
   pushing back is `RetryLater` (the run pauses in place, `PausePolicy`); rejected credentials are

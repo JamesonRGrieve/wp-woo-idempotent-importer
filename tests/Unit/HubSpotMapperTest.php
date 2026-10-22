@@ -9,7 +9,6 @@ namespace IdempotentImporter\Tests\Unit;
 use IdempotentImporter\Mapping\BoardContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
 use IdempotentImporter\Mapping\Values;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\HubSpot\HubSpotReader;
@@ -60,10 +59,11 @@ final class HubSpotMapperTest extends TestCase
         self::assertSame([null, null, null, null, null], array_map(static fn(Values $field): mixed => $field->raw('value'), $bo->records('custom_fields')), 'the fields are defined, without values');
     }
 
-    public function testAContactWithoutAnEmailIsNotMirrored(): void
+    public function testAContactWithoutAnEmailGetsAPlaceholder(): void
     {
-        $this->expectException(Unsupported::class);
-        (new ContactMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]);
+        $contact = Values::of((new ContactMapper())->map($this->reader('v1')->page(Kind::Contact, null, null, '')->nodes[2]));
+
+        self::assertSame(['contact-504@hubspot.invalid', true], [$contact->string('email'), $contact->bool('email_placeholder')], 'the same every run, under the reserved .invalid domain');
     }
 
     public function testCompanies(): void

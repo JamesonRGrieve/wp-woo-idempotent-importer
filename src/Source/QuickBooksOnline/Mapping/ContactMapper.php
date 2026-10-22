@@ -9,20 +9,22 @@ namespace IdempotentImporter\Source\QuickBooksOnline\Mapping;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
 use IdempotentImporter\Source\Node;
+use IdempotentImporter\Source\QuickBooksOnline\QuickBooksOnlineAdapter;
 
 /**
  * A customer → a FluentCRM contact: email, title, given and family name (else the display name), phone (else
  * mobile), billing address, created time, source "QuickBooks Online", customer contact type, and its company (when
  * it has a company name). QuickBooks records no marketing consent, so the status is transactional. Its display name,
  * other phones, website, notes, shipping address, parent customer, balance and active flag are meta. FluentCRM keeps
- * one contact per email, so a customer without an email address is not mirrored here.
+ * one contact per email, so a customer without an email address gets a placeholder under `.invalid`
+ * (PlaceholderEmail), which no mail is ever sent to.
  */
 final class ContactMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = ['DisplayName', 'MiddleName', 'Suffix', 'AlternatePhone', 'Mobile', 'Fax', 'WebAddr', 'Notes', 'ShipAddr', 'ParentRef', 'Balance', 'Active'];
 
     public function kind(): Kind
@@ -37,10 +39,10 @@ final class ContactMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::email($node, 'PrimaryEmailAddr') ?? throw new Unsupported('the customer has no email address; FluentCRM keeps contacts by email.');
+        $email = Fields::email($node, 'PrimaryEmailAddr');
 
         return new Desired(Kind::Contact, $node->id(), [
-            'email' => $email,
+            ...PlaceholderEmail::fields($email, QuickBooksOnlineAdapter::ID, 'customer', Fields::sourceId($node)),
             'prefix' => Fields::text($node, 'Title'),
             'first_name' => CustomerMapper::firstName($node),
             'last_name' => Fields::text($node, 'FamilyName'),

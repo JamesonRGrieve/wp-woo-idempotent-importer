@@ -9,8 +9,9 @@ namespace IdempotentImporter\Source\FreshBooks\Mapping;
 use IdempotentImporter\Mapping\CrmContract;
 use IdempotentImporter\Mapping\Desired;
 use IdempotentImporter\Mapping\Mapper;
-use IdempotentImporter\Mapping\Unsupported;
+use IdempotentImporter\Mapping\PlaceholderEmail;
 use IdempotentImporter\Model\Kind;
+use IdempotentImporter\Source\FreshBooks\FreshBooksAdapter;
 use IdempotentImporter\Source\Node;
 
 /**
@@ -18,11 +19,12 @@ use IdempotentImporter\Source\Node;
  * address, source "FreshBooks", customer contact type, its organization as its company. FreshBooks records no
  * marketing consent, so the status is transactional. Its other phones, fax, shipping address, VAT name and
  * number, currency, language, note, sign-up time and accounting id are meta. FluentCRM keeps one contact per
- * email, so a client without an email address is not mirrored here (it is still a WooCommerce customer).
+ * email, so a client without an email address gets a placeholder under `.invalid` (PlaceholderEmail), which no mail
+ * is ever sent to.
  */
 final class ContactMapper implements Mapper
 {
-    private const VERSION = 1;
+    private const VERSION = 2;
     private const DETAILS = [
         'organization', 'bus_phone', 'mob_phone', 'home_phone', 'fax', 's_street', 's_street2', 's_city', 's_province', 's_code',
         's_country', 'vat_name', 'vat_number', 'currency_code', 'language', 'note', 'signup_date', 'accounting_systemid',
@@ -40,11 +42,11 @@ final class ContactMapper implements Mapper
 
     public function map(Node $node): Desired
     {
-        $email = Fields::text($node, 'email') ?? throw new Unsupported('the client has no email address; FluentCRM keeps contacts by email.');
+        $email = Fields::text($node, 'email');
         $organization = $node->optionalString('organization_gid');
 
         return new Desired(Kind::Contact, $node->id(), [
-            'email' => strtolower($email),
+            ...PlaceholderEmail::fields($email, FreshBooksAdapter::ID, 'client', Fields::sourceId($node)),
             'prefix' => null,
             'first_name' => Fields::text($node, 'fname'),
             'last_name' => Fields::text($node, 'lname'),
