@@ -53,8 +53,8 @@ Money arrives in the currency's minor unit (`2499` is 24.99); it is converted ex
 | Webflow | What it needs |
 |---|---|
 | Page design (layout, styles, interactions, symbols) | The Designer's output has no API; pages keep their content. A theme port is a design job. |
-| SKU subscriptions (`ec-sku-billing-method: subscription` and its plan) | Kept as meta and warned about; the selling-plans companion (`wp-woo-selling-plans`) is to hold them. |
-| Discount codes | Webflow's Data API has no discounts endpoint; orders keep what was taken off. |
+| SKU subscriptions (`ec-sku-billing-method: subscription` and its plan) | Planned on Deck card 396 (operator decision of 2026-10-21): the selling-plans companion `wp-woo-selling-plans` is to hold them. Until then each is kept as meta and every run warns about it. |
+| Discount codes | No verifiable route (researched 2026-10-21): Webflow's Data API v2 and v2-beta documents (webflow/openapi-spec at the pinned commit) have no discounts or promotions resource (only an order's `discount` and `discount-shipping` extras), and the v1 API is retired; Webflow's help centre says discounts can be exported and imported as a CSV from the Discounts list, but publishes neither the CSV's columns nor a sample, so an importer for it can't be verified against the vendor. Orders keep the amount taken off. If an operator supplies a real export, its columns can be mapped into WooCommerce coupons with every condition kept (the discount writers' fail-closed rules). |
 | Per-line discounts and taxes | Webflow reports discounts and tax only for the whole order; lines keep their row totals. |
 | SKU weights and dimensions | Not in the SKU schema (an order item carries them); a SKU's custom fields are meta. |
 | Downloadable files of digital products | Orders list their download files (meta); the product's files are not in the product schema. |

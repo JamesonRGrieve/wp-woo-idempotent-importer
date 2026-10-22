@@ -117,7 +117,7 @@ final class WebflowMapperTest extends TestCase
         self::assertTrue($variant->bool('virtual'), 'a digital product needs no shipping');
         self::assertFalse($variant->bool('taxable'));
         self::assertSame('webflow-s1', $variant->nullableString('sku'), 'a generated SKU');
-        self::assertNotEmpty(array_filter($desired->warnings, static fn(string $warning): bool => str_contains($warning, 'subscription')), 'a subscription is reported');
+        self::assertNotEmpty(array_filter($desired->warnings, static fn(string $warning): bool => str_contains($warning, 'subscription') && str_contains($warning, 'Deck card 396')), 'a subscription is reported, planned on its card');
     }
 
     public function testCustomers(): void

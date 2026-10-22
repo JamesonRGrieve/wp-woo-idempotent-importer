@@ -207,7 +207,7 @@ final class ProductMapper implements Mapper
         $warnings = SquareLimits::warnings($title, $variants);
         foreach ($skus as $sku) {
             if ($sku->requiredChild('fieldData')->optionalString('ec-sku-billing-method') === self::SUBSCRIPTION) {
-                $warnings[] = "\"{$title}\" is sold by subscription; its plan is meta until the selling-plans companion (wp-woo-selling-plans) holds it.";
+                $warnings[] = "\"{$title}\" is sold by subscription; its plan is meta, planned for the selling-plans companion (wp-woo-selling-plans, Deck card 396).";
                 break;
             }
         }
